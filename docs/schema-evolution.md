@@ -76,3 +76,60 @@ declared `story.shepard.style` and lets the mission trait accrue points accordin
 **Known gaps** (tracked as `story.*` vars with docs): Legion's heretic decision, Mordin's
 genophage data, Sidonis, Kasumi's graybox and Morinth. ME3 reads these from ME2 variables, so the
 ME3 port should reveal which ones (see v3).
+
+## v3: Mass Effect 3
+
+ME3 is where the trilogy's state converges. Its plot table *contains* the earlier games' tables,
+its key rules are cross-game fate conditions, and its ending is a numeric threshold over a war
+effort assembled from every arc. v3 is deliberately small, because most of what ME3 needs was
+already expressible:
+
+| Feature | Forced by | Shape |
+|---|---|---|
+| **Parameterized traits** | Every ME3 mission stamps its own `Mission_Completion_Order.<Code>` and bumps `Mission_Count`, and LE3's timing rules read those (`Tuchanka_bomb_exploded`: KroN7a done, KroN7b not, `Mission_Count >= order(KroN7a) + 3`) | `traits: [{me3.mission: {code: Kro002}}]`; trait bodies use `{code}`. A missing parameter is a load error. |
+| **Tagged aggregates: `total('tag')`** | EMS (`Ending_Options.Current_Rating`) is the sum of war assets contributed by every arc, several conditional on earlier games (the Destiny Ascension exists only if ME1's Council was saved) | Vars may carry `tags: [war_asset]`. `total('war_asset')` sums them, and dataflow analysis expands it to every tagged var. |
+| **Import without copying** | LE3 aliases ME2's table (same ids) and ME1's table (+10000) | The ME2→ME3 bridge only sets `story.game = 3` and the import flags. ME3 storylets read `me1.*`/`me2.*` directly, and the validator rejects binding an LE3 alias instead of its canonical variable. |
+
+What did **not** need new schema:
+
+- **Cross-game fates** are lifted verbatim. `Wrex_is_dead` reads ME1's `Krogan_conundrum`
+  failure flags and ME3's confrontation; `Kaiden_Is_Dead` reads ME1's `Rescued_Kaidan`;
+  `Legion_is_Dead` reads ME2's roster and ME3's Rannoch progress. 23 LE3 conditionals in all.
+- **Expiring opportunities** (the Tuchanka bomb, side ops closing at Cronos) are ordinary
+  `requires` over completion-order ints and lifted conditions. A dedicated "expires" construct was
+  considered and rejected.
+- **The Illusive Man persuasion** lifts the exact formula
+  (`(Reputation + Paragon + Renegade) × (1 + PersuadeMultiplier) > ReputationValues.Level5`).
+  Only its inputs are modeled.
+- **Endings** are `outcomes` over EMS, using LE3's `Rating_Level_*` boundaries plus community-
+  documented Extended Cut thresholds (the final ending logic is native code, not plot data).
+
+### Porting ME3 corrected ME1 and ME2
+
+Reading what LE3's conditionals reference turned up better bindings for earlier ports, which
+were fixed in place:
+
+| Earlier binding | Evidence from LE3 | Fix |
+|---|---|---|
+| ME1 roster bound to `Utility.Henchman.<Race>` | `Wrex_is_present` / `Check_Wreav` test `Utility.Henchman.InParty.Krogan` as "Wrex was recruited" | rebound the roster to `InParty.*` |
+| ME1 Kirrahe survival as `Incursion_40.Kirrahe_Dead` | `Kirrahe_is_Dead := !GethFlyers_Disabled \|\| !GethFlyers_Reported` | Virmire's support choice now sets those two flags |
+| ME1 Wrex death set only the specific failure substate | `Wrex_is_present` tests the parent `Krogan_conundrum.Failure` | both are set |
+| ME2 placeholders `story.me2.legion.heretics`, `story.me2.mordin.kept_maelon_data`, `story.me2.morinth` | ME3 reads `Heretic_Resolution.Rewrite_Them/Blow_Them_Up`, `Professor_Loyalty...Saved_Data/Destroyed_Data`, `In_Party.Morinth_not_Samara` | rebound to the real variables |
+| ME2 Legion handed to Cerberus not recorded | `Check_Is_Legion_Hologram` reads `Geth_Acquisition.Gave_Geth` | bound |
+| ME2 Tali's trial generic | `Check_Tali_Admiral` reads the three `Trial_Resolution` outcomes | written out as three choices |
+| ME2 LotSB / Arrival completion via early-level flags | ME3 reads `LiaraDLC_Completed`, `ArvLvl5.MissionComplete` | rebound |
+
+The general lesson: **a later game's conditionals are the best documentation of an earlier
+game's variables.** For each ME1/ME2 decision, the variable ME3 actually tests is the authoritative
+binding.
+
+### Tooling added alongside v3
+
+- Coverage-guided simulation: the validator weights options towards rarely-taken branches,
+  like a fuzzer. Uniform random play essentially never completed chains such as Rannoch peace
+  (ME2 Legion activated, loyal, heretics rewritten, Tali loyal, both alive, Koris saved, the
+  Consensus mission done, enough reputation). Guided play reaches them.
+- `storylet outcomes`: end-of-campaign distributions (ending, EMS band, Earth, cross-game
+  fates) over many simulated careers.
+- `tests/test_trilogy.py`: a golden ME2→ME3 career that must reach peace, persuade the Illusive
+  Man and get EMS ≥ 4000, plus checks that ME3's fate conditions read ME1/ME2 state.

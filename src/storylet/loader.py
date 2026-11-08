@@ -44,7 +44,7 @@ STORYLET_KEYS = {"id", "title", "game", "area", "summary", "requires", "trigger"
                  "effects", "choices", "outcomes", "resolve", "kind", "traits", "tags", "evidence", "notes"}
 CHOICE_KEYS = {"id", "label", "requires", "effects", "summary"}
 OUTCOME_KEYS = {"id", "when", "effects", "summary"}
-TRAIT_KEYS = {"requires", "effects", "tags", "doc"}
+TRAIT_KEYS = {"requires", "effects", "tags", "doc", "params"}
 PLACEHOLDER = re.compile(r"\{([A-Za-z_][A-Za-z0-9_]*)\}")
 
 
@@ -130,7 +130,7 @@ def _var(name: str, spec: Any, source: str, errors: list[str]) -> VarDecl | None
     if vtype == "enum" and not values:
         errors.append(f"{source}: enum var {name} needs values")
     decl = VarDecl(name=name, ref=ref, type=vtype, path=spec.pop("path", None), default=spec.pop("default", None),
-                   doc=spec.pop("doc", ""), source=source, values=values)
+                   doc=spec.pop("doc", ""), source=source, values=values, tags=tuple(spec.pop("tags", ()) or ()))
     if spec:
         errors.append(f"{source}: var {name} has unknown keys {sorted(spec)}")
     return decl
@@ -209,11 +209,22 @@ def _load_storylets(doc: dict, source: str, content: Content, traits: dict[str, 
         requires = list(requires) if isinstance(requires, list) else ([requires] if requires is not None else [])
         effects_src = list(raw.get("effects") or [])
         tags = list(raw.get("tags") or [])
-        for tname in raw.get("traits") or []:
+        trait_names = []
+        for tref in raw.get("traits") or []:
+            # (v3) parameterized trait: {me3.mission: {code: Kro001}}
+            if isinstance(tref, dict) and len(tref) == 1:
+                tname, params = next(iter(tref.items()))
+            else:
+                tname, params = tref, {}
+            trait_names.append(tname)
             t = traits.get(tname)
             if t is None:
                 errors.append(f"{where}: unknown trait {tname!r}")
                 continue
+            t = _subst(t, params or {})
+            missing = sorted(set(PLACEHOLDER.findall(str([t.get("requires"), t.get("effects")]))))
+            if missing:
+                errors.append(f"{where}: trait {tname} needs parameters {missing}")
             if t.get("requires") is not None:
                 requires.append(t["requires"])
             effects_src += list(t.get("effects") or [])
@@ -250,7 +261,7 @@ def _load_storylets(doc: dict, source: str, content: Content, traits: dict[str, 
             summary=" ".join(str(raw.get("summary", "")).split()), requires=_requires(requires or None, where, errors),
             trigger=trigger, kind=kind, repeatable=bool(raw.get("repeatable", False)),
             priority=int(raw.get("priority", 0)), effects=_effects(effects_src, where, errors), choices=choices,
-            outcomes=outcomes, resolve=resolve, traits=list(raw.get("traits") or []), tags=tags,
+            outcomes=outcomes, resolve=resolve, traits=trait_names, tags=tags,
             evidence=list(raw.get("evidence") or []), notes=raw.get("notes", ""), source=source,
         )
         if sid in content.storylets:

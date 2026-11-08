@@ -5,16 +5,17 @@ game: me2
 area: me2.loyalty
 
 vars:
-  story.me2.legion.heretics:
-    type: enum
-    values: [rewritten, destroyed]
-    doc: Legion's loyalty mission. Placeholder until the ME2 variable ME3 reads is located.
-  story.me2.mordin.kept_maelon_data:
-    type: bool
-    doc: Mordin's loyalty mission. Placeholder until the ME2 variable ME3 reads is located.
+  # Bindings recovered while porting ME3: these are the ME2 variables ME3's conditionals read.
+  me2.legion.heretics_destroyed: {ref: me2.bool.757, path: "me2:Loyalty_Missions.Geth_Loyalty.Heretic_Resolution.Blow_Them_Up"}
+  me2.legion.heretics_rewritten: {ref: me2.bool.759, path: "me2:Loyalty_Missions.Geth_Loyalty.Heretic_Resolution.Rewrite_Them"}
+  me2.mordin.saved_data: {ref: me2.bool.2676, path: "me2:Loyalty_Missions.Professor_Loyalty.Mission_Complete.Saved_Data"}
+  me2.mordin.destroyed_data: {ref: me2.bool.2677, path: "me2:Loyalty_Missions.Professor_Loyalty.Mission_Complete.Destroyed_Data"}
+  me2.samara.morinth_not_samara: {ref: me2.bool.1664, path: "me2:Utility.Henchmen.In_Party.Morinth_not_Samara"}
+  me2.tali.trial_gave_evidence: {ref: me2.bool.2933, path: "me2:Loyalty_Missions.Tali_Loyalty.Trial_Resolution.Gave_Evidence"}
+  me2.tali.trial_innocent_charmed: {ref: me2.bool.2935, path: "me2:Loyalty_Missions.Tali_Loyalty.Trial_Resolution.Innocent_Charmed"}
+  me2.tali.trial_innocent_intimidated: {ref: me2.bool.2936, path: "me2:Loyalty_Missions.Tali_Loyalty.Trial_Resolution.Innocent_Intimidate"}
   story.me2.garrus.spared_sidonis: {type: bool}
   story.me2.kasumi.kept_graybox: {type: bool}
-  story.me2.morinth: {type: bool, doc: "Morinth replaced Samara on the team (shares Samara's roster slot)."}
   story.me2.conflict.miranda_jack: {type: enum, values: [resolved, sided_miranda, sided_jack]}
   story.me2.conflict.tali_legion: {type: enum, values: [resolved, sided_tali, sided_legion]}
 
@@ -24,7 +25,6 @@ storylets:
       - {who: jacob, title: "Jacob: The Gift of Greatness", summary: "Jacob follows a ten-year-old distress beacon from his father's ship and finds that his father made himself a tyrant over the stranded crew."}
       - {who: jack, title: "Jack: Subject Zero", summary: "Jack returns to Pragia, the Cerberus facility where she was experimented on as a child, to destroy it."}
       - {who: thane, title: "Thane: Sins of the Father", summary: "Thane's estranged son Kolyat has taken an assassination contract on the Citadel. Shepard and Thane stop him before he kills."}
-      - {who: tali, title: "Tali: Treason", summary: "Tali is tried for treason by the Admiralty Board after her father's geth experiments are discovered. Shepard defends her."}
       - {who: grunt, title: "Grunt: Rite of Passage", summary: "On Tuchanka, Grunt undergoes the krogan Rite of Passage and is accepted into Clan Urdnot."}
       - {who: zaeed, title: "Zaeed: The Price of Revenge", summary: "Zaeed's vendetta against Vido Santiago, who founded the Blue Suns with him and then betrayed him, threatens a refinery full of workers."}
     id: me2.loyalty.{who}
@@ -45,8 +45,8 @@ storylets:
     requires: "me2.loyalty.mordin.ready && !me2.squad.mordin.dead"
     effects: ["me2.squad.mordin.loyalty_open = true", "me2.squad.mordin.loyalty_done = true", "me2.squad.mordin.loyal = true"]
     choices:
-      - {id: keep_data, label: Save Maelon's data, effects: ["story.me2.mordin.kept_maelon_data = true"]}
-      - {id: destroy_data, label: Destroy it}
+      - {id: keep_data, label: Save Maelon's data, effects: ["me2.mordin.saved_data = true"]}
+      - {id: destroy_data, label: Destroy it, effects: ["me2.mordin.destroyed_data = true"]}
     tags: [cross-game]
 
   - id: me2.loyalty.garrus
@@ -79,8 +79,24 @@ storylets:
     requires: "me2.loyalty.legion.ready && !me2.squad.legion.dead"
     effects: ["me2.squad.legion.loyalty_open = true", "me2.squad.legion.loyalty_done = true", "me2.squad.legion.loyal = true"]
     choices:
-      - {id: rewrite, label: Rewrite the heretics, effects: ["story.me2.legion.heretics = 'rewritten'"]}
-      - {id: destroy, label: Destroy the station, effects: ["story.me2.legion.heretics = 'destroyed'"]}
+      - {id: rewrite, label: Rewrite the heretics, effects: ["me2.legion.heretics_rewritten = true"]}
+      - {id: destroy, label: Destroy the station, effects: ["me2.legion.heretics_destroyed = true"]}
+    tags: [cross-game]
+
+  - id: me2.loyalty.tali
+    title: "Tali: Treason"
+    traits: [me2.mission]
+    summary: >-
+      Tali is tried for treason by the Admiralty Board after her father's illegal geth
+      experiments are discovered. Shepard can reveal the evidence, or win an acquittal by
+      force of personality.
+    requires: "me2.loyalty.tali.ready && !me2.squad.tali.dead"
+    effects: ["me2.squad.tali.loyalty_open = true", "me2.squad.tali.loyalty_done = true", "me2.squad.tali.loyal = true"]
+    choices:
+      - {id: evidence, label: Present the evidence, effects: ["me2.tali.trial_gave_evidence = true"]}
+      - {id: charm, label: Rally the fleet, requires: "me2.player.persuasive && story.shepard.style != 'renegade'", effects: ["me2.tali.trial_innocent_charmed = true"]}
+      - {id: intimidate, label: Shame the Admirals, requires: "me2.player.persuasive && story.shepard.style != 'paragon'", effects: ["me2.tali.trial_innocent_intimidated = true"]}
+    notes: ME3's Check_Tali_Admiral reads exactly these three outcomes. Exile-without-loyalty variants are not modeled.
     tags: [cross-game]
 
   - id: me2.loyalty.samara
@@ -93,7 +109,7 @@ storylets:
     effects: ["me2.squad.samara.loyalty_open = true", "me2.squad.samara.loyalty_done = true", "me2.squad.samara.loyal = true"]
     choices:
       - {id: samara, label: Help Samara, effects: ["me2.samara.chose_samara = true"]}
-      - {id: morinth, label: Side with Morinth, effects: ["me2.samara.chose_morinth = true", "story.me2.morinth = true"]}
+      - {id: morinth, label: Side with Morinth, effects: ["me2.samara.chose_morinth = true", "me2.samara.morinth_not_samara = true"]}
     tags: [cross-game]
     evidence: ["me2:Loyalty_Missions.Mystic_Loyalty"]
 

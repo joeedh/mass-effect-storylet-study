@@ -6,7 +6,10 @@
     storylet graph [--format dot|mermaid|json] [--game me1] [-o FILE]
     storylet coverage [-o FILE]
     storylet available [--set ...]           what could fire from a given state
+    storylet outcomes [--runs N] [--start me1|me2|me3] [--expr EXPR ...]
+                                             distribution of end-of-campaign values
 """
+
 from __future__ import annotations
 
 import argparse
@@ -20,6 +23,18 @@ from .model import Content
 
 ROOT = Path(__file__).resolve().parents[2]
 CONTENT = ROOT / "content"
+
+DEFAULT_OUTCOMES = [
+    ("career reached", "me3.end.made_final_decision ? 'ME3 ending' : (story.me3.refused ? 'refused' : (story.me2.shepard_dead ? 'died in ME2' : 'incomplete'))"),
+    ("ending", "me3.end.chose_red ? 'destroy' : (me3.end.chose_blue ? 'control' : (me3.end.chose_green ? 'synthesis' : (story.me3.refused ? 'refuse' : '-')))"),
+    ("EMS band", "me3.ems.current_rating < 1750 ? '<1750' : (me3.ems.current_rating < 2350 ? '1750-2349' : (me3.ems.current_rating < 2800 ? '2350-2799' : (me3.ems.current_rating < 4000 ? '2800-3999' : '>=4000')))"),
+    ("Earth", "me3.end.earth_ok ? 'ok' : (me3.end.earth_devastated ? 'devastated' : (me3.end.earth_destroyed ? 'destroyed' : '-'))"),
+    ("Shepard survives", "me3.end.shepard_alive"),
+    ("genophage", "me3.genophage.cure_real ? 'cured' : (me3.genophage.cure_sabotaged ? 'sabotaged' : '-')"),
+    ("Rannoch", "me3.rannoch.peace ? 'peace' : (me3.rannoch.quarians_dead ? 'geth won' : (me3.rannoch.geth_destroyed ? 'quarians won' : '-'))"),
+    ("Wrex dead by ME3", "me3.fate.wrex_dead"),
+    ("ME2 squad deaths", "count(me2.squad.miranda.dead, me2.squad.jacob.dead, me2.squad.jack.dead, me2.squad.legion.dead, me2.squad.kasumi.dead, me2.squad.garrus.dead, me2.squad.thane.dead, me2.squad.tali.dead, me2.squad.mordin.dead, me2.squad.grunt.dead, me2.squad.samara.dead, me2.squad.zaeed.dead)"),
+]
 
 
 def _catalog(required: bool):
@@ -67,6 +82,9 @@ def main(argv: list[str] | None = None) -> int:
     p = sub.add_parser("graph"); p.add_argument("--format", choices=["dot", "mermaid", "json"], default="dot")
     p.add_argument("--game"); p.add_argument("-o", "--output", type=Path)
     p = sub.add_parser("coverage"); p.add_argument("-o", "--output", type=Path)
+    p = sub.add_parser("outcomes"); p.add_argument("--runs", type=int, default=500); p.add_argument("--seed", type=int, default=0)
+    p.add_argument("--start", choices=["me1", "me2", "me3"]); p.add_argument("--expr", action="append", default=[])
+    p.add_argument("--uniform", action="store_true", help="uniform random choices instead of coverage-guided")
     a = ap.parse_args(argv)
 
     content = load_content(a.content)
@@ -145,6 +163,23 @@ def main(argv: list[str] | None = None) -> int:
             print(f"wrote {a.output} ({len(sub_content.storylets)} nodes, {len(edges)} edges)")
         else:
             sys.stdout.write(text)
+        return 0
+
+    if a.cmd == "outcomes":
+        from collections import Counter
+        from .engine import coverage as simulate
+        from .expr import parse
+        exprs = [(x, x) for x in a.expr] or DEFAULT_OUTCOMES
+        start = engine.initial()
+        if a.start:
+            start = engine.fire(start, "campaign.start", a.start)
+        _, _, traces = simulate(engine, a.runs, a.seed, [start], guided=not a.uniform)
+        for label, src in exprs:
+            node = parse(src)
+            hist = Counter(engine.eval(node, t.final) for t in traces)
+            print(f"{label}:")
+            for value, n in sorted(hist.items(), key=lambda kv: (-kv[1], str(kv[0]))):
+                print(f"  {str(value):<14} {n:5}  {100 * n / len(traces):5.1f}%")
         return 0
 
     if a.cmd == "coverage":

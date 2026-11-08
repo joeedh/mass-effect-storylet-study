@@ -28,6 +28,7 @@ class VarDecl:
     doc: str = ""
     source: str = ""
     values: tuple[str, ...] = ()  # enum members (v2)
+    tags: tuple[str, ...] = ()    # (v3) aggregated with total('tag')
 
     @property
     def is_plot(self) -> bool:

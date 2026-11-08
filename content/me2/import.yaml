@@ -48,7 +48,8 @@ vars:
   me2.romance.jacob: {ref: me2.bool.3892, path: "me2:Global.Henchmen.Leading.Had_sex"}
   me2.romance.liara: {ref: me2.bool.6927, path: "me2:DLC_EXP_Part01.Liara_Shadow_Broker_5.Considered_in_Relationship_with_Liara"}
   me2.lotsb.kissed_liara: {ref: me2.bool.6923, path: "me2:DLC_EXP_Part01.Liara_Shadow_Broker_4.Finale_Relationship.Kissed_Her"}
-  me2.arrival.complete: {ref: me2.bool.7489, path: "me2:DLC_EXP_Part02.ArvLvl1.MissionComplete"}
+  me2.arrival.complete: {ref: me2.bool.7436, path: "me2:DLC_EXP_Part02.ArvLvl5.MissionComplete"}
+  me2.lotsb.completed: {ref: me2.bool.6815, path: "me2:DLC_EXP_Part01.Global.LiaraDLC_Completed"}
   story.me2.history_set:
     type: bool
     doc: ME2 knows Shepard's ME1 history, from a save import or Genesis.
@@ -72,7 +73,7 @@ storylets:
       - "me2.import.ash_died = me1.virmire.rescued_kaidan"
       - "me2.import.kaidan_died = me1.virmire.rescued_ash"
       - "me2.import.wrex_died = !me1.squad.wrex"
-      - "me2.import.kirrahe_survived = !me1.virmire.kirrahe_dead"
+      - "me2.import.kirrahe_survived = me1.virmire.geth_flyers_disabled && me1.virmire.geth_flyers_reported"
       - "me2.import.rachni_alive = me1.noveria.queen_released"
       - "me2.import.lorik_testified = me1.noveria.evidence_to_lorik"
       - "me2.import.shiala_lived = story.me1.shiala_spared"

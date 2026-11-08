@@ -46,14 +46,15 @@ vars:
     type: bool
     doc: Shepard's sex. Engine-level player state, not in the plot tables; gates romances.
 
-  # Utility.Henchman: who is on the roster.
-  me1.squad.kaidan: {ref: me1.bool.3817, path: "me1:Utility.Henchman.HumanMale"}
-  me1.squad.ashley: {ref: me1.bool.3818, path: "me1:Utility.Henchman.HumanFemale"}
-  me1.squad.garrus: {ref: me1.bool.3819, path: "me1:Utility.Henchman.Turian"}
-  me1.squad.wrex: {ref: me1.bool.3820, path: "me1:Utility.Henchman.Krogan"}
-  me1.squad.liara: {ref: me1.bool.3821, path: "me1:Utility.Henchman.Asari"}
-  me1.squad.tali: {ref: me1.bool.3822, path: "me1:Utility.Henchman.Quarian"}
-  me1.squad.jenkins: {ref: me1.bool.4770, path: "me1:Utility.Henchman.Jenkins"}
+  # Utility.Henchman.InParty: who is on the roster. (v1 bound the sibling Utility.Henchman.* flags;
+  # the ME3 port showed ME3 reads InParty.Krogan as "Wrex was recruited", so v3 rebinds here.)
+  me1.squad.kaidan: {ref: me1.bool.3939, path: "me1:Utility.Henchman.InParty.HumanMale"}
+  me1.squad.ashley: {ref: me1.bool.3940, path: "me1:Utility.Henchman.InParty.HumanFemale"}
+  me1.squad.garrus: {ref: me1.bool.3941, path: "me1:Utility.Henchman.InParty.Turian"}
+  me1.squad.wrex: {ref: me1.bool.3942, path: "me1:Utility.Henchman.InParty.Krogan"}
+  me1.squad.liara: {ref: me1.bool.3943, path: "me1:Utility.Henchman.InParty.Asari"}
+  me1.squad.tali: {ref: me1.bool.3944, path: "me1:Utility.Henchman.InParty.Quarian"}
+  me1.squad.jenkins: {ref: me1.bool.4774, path: "me1:Utility.Henchman.InParty.Jenkins"}
 
   me1.romance.ashley: {ref: me1.bool.4281, path: "me1:Global_Plots.Henchman_Ash.romance_active"}
   me1.romance.kaidan: {ref: me1.bool.3960, path: "me1:Global_Plots.Henchman_Kaidan.Romance_active"}

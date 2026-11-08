@@ -30,6 +30,7 @@ storylet validate            # content vs. plot DB + 300 simulated playthroughs
 storylet simulate --seed 4   # one random playthrough
 storylet graph --format dot -o build/storylets.dot
 storylet coverage            # which quest plots are bound by storylets
+storylet outcomes --start me1 --runs 500   # ending / EMS / cross-game fate distributions
 python -m unittest discover -s tests
 ```
 
@@ -49,7 +50,7 @@ meplot bind me1.virmire.rescued_kaidan=me1:CH2_Virmire.The_Choice.Rescued_Kaidan
 |------|-----------|-------|
 | ME1  | 40: critical path + cross-game decisions | schema v1 |
 | ME2  | 68: ME1 import + Genesis, recruitment, loyalty, crit path, suicide mission, LotSB, Arrival | schema v2 |
-| ME3  | not started | |
+| ME3  | 37: ME2 import, prologue, genophage arc, Cerberus coup, Rannoch, Thessia, Horizon, Cronos, Earth + EMS endings, side ops | schema v3 |
 
 See [docs/schema-evolution.md](docs/schema-evolution.md) for how the schema changes per game, and
 [docs/data-sources.md](docs/data-sources.md) for provenance and what the plot data does and doesn't

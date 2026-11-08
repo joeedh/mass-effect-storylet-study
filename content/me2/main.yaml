@@ -5,6 +5,7 @@ area: me2.main
 
 vars:
   story.me2.lazarus_done: {type: bool}
+  me2.legion.given_to_cerberus: {ref: me2.bool.1248, path: "me2:Acquisition_Missions.Geth_Acquisition.Gave_Geth"}
   story.me2.legion_offer_pending:
     type: bool
     doc: Legion's inactive body is aboard and awaiting Shepard's decision.
@@ -204,7 +205,7 @@ storylets:
     requires: "story.me2.legion_offer_pending && !me2.progress.cr3_done"
     choices:
       - {id: activate, label: Reactivate it, effects: ["story.me2.legion_offer_pending = false", "me2.legion.kept = true", "me2.squad.legion.recruited = true", "me2.progress.party_size += 1"]}
-      - {id: give_to_cerberus, label: Give it to Cerberus, effects: ["story.me2.legion_offer_pending = false"]}
+      - {id: give_to_cerberus, label: Give it to Cerberus, effects: ["story.me2.legion_offer_pending = false", "me2.legion.given_to_cerberus = true"]}
     tags: [cross-game]
 
   - id: me2.progress.missions_exhausted

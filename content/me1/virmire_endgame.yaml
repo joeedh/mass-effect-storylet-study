@@ -7,8 +7,16 @@ vars:
   me1.virmire.spoke_to_kirrahe: {ref: me1.bool.5913, path: "me1:CH2_Virmire.Virmire_Critical_Path.Spoke_to_Kirrahe"}
   me1.virmire.complete: {ref: me1.bool.5271, path: "me1:CH2_Virmire.Virmire_Critical_Path.Complete"}
   me1.virmire.conundrum_started: {ref: me1.bool.5472, path: "me1:CH2_Virmire.Krogan_conundrum.Conundrum_Started"}
+  me1.virmire.wrex_failure: {ref: me1.bool.3021, path: "me1:CH2_Virmire.Krogan_conundrum.Failure"}
+  me1.virmire.geth_flyers_disabled: {ref: me1.bool.4464, path: "me1:CH2_Virmire.Incursion_40.GethFlyers_Disabled"}
+  me1.virmire.geth_flyers_reported: {ref: me1.bool.4459, path: "me1:CH2_Virmire.Incursion_40.jug40_captainupdate.GethFlyers_Reported"}
   me1.virmire.wrex_success: {ref: me1.bool.3015, path: "me1:CH2_Virmire.Krogan_conundrum.Success"}
   me1.virmire.wrex_killed_by_ashley: {ref: me1.bool.3028, path: "me1:CH2_Virmire.Krogan_conundrum.Failure.Failure_KilledBy_Ashley"}
+  me1.virmire.wrex_ash_killed_without_permission:
+    ref: me1.bool.5543
+    path: "me1:CH2_Virmire.Krogan_conundrum.Failure.Failure_AshKilledWithoutPermission"
+    default: false
+    doc: Ashley firing unprompted (a variant this model doesn't reach); ME3's Wrex_is_dead reads it.
   me1.virmire.wrex_killed_by_player: {ref: me1.bool.3029, path: "me1:CH2_Virmire.Krogan_conundrum.Failure.Failure_KilledBy_Player"}
   me1.virmire.kirrahe_dead: {ref: me1.bool.7198, path: "me1:CH2_Virmire.Incursion_40.Kirrahe_Dead"}
   me1.virmire.sent_ash: {ref: me1.bool.3825, path: "me1:CH2_Virmire.The_Choice.Sent_Ash"}
@@ -71,11 +79,11 @@ storylets:
         effects: ["me1.virmire.conundrum_started = true", "me1.virmire.wrex_success = true"]
       - id: shepard_shoots
         label: Shoot Wrex
-        effects: ["me1.virmire.conundrum_started = true", "me1.virmire.wrex_killed_by_player = true", "me1.squad.wrex = false", "me1.player.renegade += 2"]
+        effects: ["me1.virmire.conundrum_started = true", "me1.virmire.wrex_failure = true", "me1.virmire.wrex_killed_by_player = true", "me1.squad.wrex = false", "me1.player.renegade += 2"]
       - id: ashley_shoots
         label: Signal Ashley
         requires: "me1.squad.ashley"
-        effects: ["me1.virmire.conundrum_started = true", "me1.virmire.wrex_killed_by_ashley = true", "me1.squad.wrex = false"]
+        effects: ["me1.virmire.conundrum_started = true", "me1.virmire.wrex_failure = true", "me1.virmire.wrex_killed_by_ashley = true", "me1.squad.wrex = false"]
     tags: [cross-game]
     evidence: ["me1:CH2_Virmire.Krogan_conundrum"]
 
@@ -88,11 +96,12 @@ storylets:
       team survives.
     requires: "me1.virmire.landed && (me1.virmire.conundrum_started || !me1.squad.wrex) && !me1.virmire.sent_ash"
     choices:
-      - {id: support_salarians, label: "Disrupt the defences", effects: ["me1.virmire.sent_ash = true"]}
+      - {id: support_salarians, label: "Disrupt the defences", effects: ["me1.virmire.sent_ash = true", "me1.virmire.geth_flyers_disabled = true", "me1.virmire.geth_flyers_reported = true"]}
       - {id: push_through, label: "Go straight for the core", effects: ["me1.virmire.sent_ash = true", "me1.virmire.kirrahe_dead = true"]}
     notes: >-
-      The plot DB also has Sent_Kaidan, a variant this model does not reach. Kirrahe's survival
-      depends on several sabotage objectives, collapsed here into one choice.
+      The plot DB also has Sent_Kaidan, a variant this model does not reach. Kirrahe's survival is
+      what ME3 tests (Kirrahe_is_Dead := !GethFlyers_Disabled || !GethFlyers_Reported), so the
+      supporting choice sets exactly those two variables.
     evidence: ["me1:CH2_Virmire.Incursion_40", "me1:CH2_Virmire.Infiltration_70"]
 
   - id: me1.virmire.sovereign

@@ -19,3 +19,8 @@ storylets:
     choices:
       - {id: me1, label: "Mass Effect", effects: ["story.game = 1"]}
       - {id: me2, label: "Mass Effect 2 (no import)", effects: ["story.game = 2"]}
+      - {id: me3, label: "Mass Effect 3 (no import)", effects: ["story.game = 3"]}
+    notes: >-
+      A fresh ME3 start leaves the ME1/ME2 tables at their defaults, and LE3's own lifted
+      conditions decide what that means. For example Kaiden_Is_Dead holds, because
+      me1.virmire.rescued_kaidan is false.

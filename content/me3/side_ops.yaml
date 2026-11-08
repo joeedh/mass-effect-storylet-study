@@ -1,0 +1,34 @@
+# ME3 side operations that add war assets. They share one shape: available after a story
+# milestone, closed at the point of no return (Cronos Station). So they are one template, as
+# ME2's loyalty missions were. Asset values approximate the games' ratings.
+game: me3
+area: me3.side
+
+vars:
+  story.me3.asset.ops_{id}:
+    foreach: [{id: lab}, {id: reactors}, {id: comm_hub}, {id: hanar}, {id: volus}, {id: batarian}, {id: leviathan}, {id: omega}, {id: kirrahe_team}, {id: fleet_recovery}]
+    type: int
+    tags: [war_asset]
+
+storylets:
+  - foreach:
+      - {id: lab, title: "N7: Cerberus Lab", after: KroGar, value: 60, extra: "true"}
+      - {id: reactors, title: "N7: Fuel Reactors", after: KroGar, value: 60, extra: "true"}
+      - {id: comm_hub, title: "N7: Communication Hub", after: Cat003, value: 50, extra: "true"}
+      - {id: hanar, title: "Citadel: Hanar Diplomat", after: ProCit, value: 75, extra: "true"}
+      - {id: volus, title: "Citadel: Volus Ambassador", after: ProCit, value: 75, extra: "true"}
+      - {id: batarian, title: "Citadel: Batarian Codes", after: ProCit, value: 60, extra: "true"}
+      - {id: leviathan, title: "Leviathan", after: Kro001, value: 175, extra: "true"}
+      - {id: omega, title: "Omega", after: Kro001, value: 150, extra: "true"}
+      - {id: kirrahe_team, title: "Citadel: Kirrahe's STG team", after: Kro002, value: 75, extra: "!me3.fate.kirrahe_dead && !me3.coup.kirrahe_saved_councilor"}
+      - {id: fleet_recovery, title: "Scan the galaxy: fleet assets", after: ProCit, value: 300, extra: "true"}
+    id: me3.side.{id}
+    title: "{title}"
+    summary: An optional operation that adds strength to the war effort.
+    requires: "me3.order.{after} > 0 && !me3.cronos.done && {extra}"
+    effects: ["story.me3.asset.ops_{id} = {value}"]
+    tags: [side]
+    notes: >-
+      Representative, not exhaustive: the games have dozens of fetch quests and scans. The
+      'fleet assets' entry aggregates galaxy-map scanning. Kirrahe's team needs ME1's Kirrahe
+      alive, using the lifted Kirrahe_is_Dead condition.

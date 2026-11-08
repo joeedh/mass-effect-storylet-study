@@ -4,8 +4,6 @@ area: me2.normandy
 
 vars:
   me2.romance.tali: {ref: me2.int.272, path: "me2:Global.Henchmen.Tali.Relationship", doc: "Relationship stage; 0 = none"}
-  story.me2.arrival.done: {type: bool}
-  story.me2.lotsb.done: {type: bool}
 
 storylets:
   - id: me2.normandy.romance
@@ -30,10 +28,10 @@ storylets:
     summary: >-
       Shepard helps Liara hunt the Shadow Broker to his ship in a storm on Hagalaz. Liara kills
       him and takes his place. Shepard and Liara reconnect.
-    requires: "me2.progress.cr1_done && !story.me2.lotsb.done"
+    requires: "me2.progress.cr1_done && !me2.lotsb.completed"
     choices:
-      - {id: rekindle, label: Rekindle the romance, effects: ["story.me2.lotsb.done = true", "me2.lotsb.kissed_liara = true", "me2.romance.liara = true"]}
-      - {id: friends, label: Stay friends, effects: ["story.me2.lotsb.done = true"]}
+      - {id: rekindle, label: Rekindle the romance, effects: ["me2.lotsb.completed = true", "me2.lotsb.kissed_liara = true", "me2.romance.liara = true"]}
+      - {id: friends, label: Stay friends, effects: ["me2.lotsb.completed = true"]}
     tags: [dlc, cross-game]
     evidence: ["me2:DLC_EXP_Part01"]
 
@@ -44,7 +42,7 @@ storylets:
       Admiral Hackett sends Shepard alone to rescue an operative in the Bahak system. Shepard
       discovers the Reapers are days from arriving and destroys the mass relay to delay them,
       killing the batarian colony. Shepard returns to Earth to face the consequences.
-    requires: "me2.progress.game_done && !story.me2.shepard_dead && !story.me2.arrival.done"
-    effects: ["story.me2.arrival.done = true", "me2.arrival.complete = true"]
+    requires: "me2.progress.game_done && !story.me2.shepard_dead && !me2.arrival.complete"
+    effects: ["me2.arrival.complete = true"]
     tags: [dlc, cross-game]
     evidence: ["me2:DLC_EXP_Part02"]

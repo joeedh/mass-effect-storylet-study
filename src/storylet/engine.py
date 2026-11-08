@@ -50,9 +50,15 @@ class Engine:
             return name, parts[1]
         raise ExprError(f"unknown variable {name!r}")
 
+    def tagged(self, tag: str) -> list:
+        return [d for d in self.content.vars.values() if tag in d.tags]
+
     def expand_names(self, node: Node, _seen: frozenset = frozenset()) -> set[str]:
         """Variable names an expression depends on, looking through named conditions."""
         out: set[str] = set()
+        for call in node.calls():
+            if call.value == "total" and call.args:
+                out |= {d.name for d in self.tagged(call.args[0].value)}
         cond_names = [n for n in node.names()] + [c.value for c in node.calls()]
         for name in cond_names:
             cond = self.content.conditions.get(name)
@@ -96,6 +102,8 @@ class Engine:
                 return all(a.value in state.fired for a in call.args)
             if call.value == "chose":
                 return (call.args[0].value, call.args[1].value) in state.chosen
+            if call.value == "total":  # (v3) sum of all variables carrying a tag
+                return sum(values.get(d.ref, d.initial) for d in self.tagged(call.args[0].value))
             cond = self.content.conditions.get(call.value)
             if cond is not None and len(call.args) == 1:
                 arg = evaluate(call.args[0], env, special)
@@ -273,16 +281,30 @@ class Exploration:
     truncated: bool = False
 
 
-def coverage(engine: Engine, runs: int, seed: int = 0, starts: Iterable[State] | None = None) -> tuple[set, set, list[Trace]]:
+def coverage(engine: Engine, runs: int, seed: int = 0, starts: Iterable[State] | None = None,
+             guided: bool = True) -> tuple[set, set, list[Trace]]:
+    """Simulate ``runs`` playthroughs. With ``guided``, options are weighted towards storylets and
+    choices taken least often so far (coverage-guided, like a fuzzer), which reaches long
+    prerequisite chains that uniform random play almost never completes."""
     rng = random.Random(seed)
     fired: set[str] = set()
     chosen: set[tuple[str, str]] = set()
+    counts: dict[tuple[str, str | None], int] = {}
     traces = []
     starts = list(starts or [engine.initial()])
+
+    def policy(state, opts):
+        if not guided:
+            return rng.choice(opts)
+        weights = [1.0 / (1 + counts.get((st.id, cid), 0)) ** 2 for st, cid in opts]
+        return rng.choices(opts, weights)[0]
+
     for i in range(runs):
-        t = engine.run(starts[i % len(starts)], rng)
+        t = engine.run(starts[i % len(starts)], rng, policy=policy)
         traces.append(t)
         for step in t.steps:
             fired.add(step.storylet)
+            key = (step.storylet, step.choice)
+            counts[key] = counts.get(key, 0) + 1
         chosen |= t.final.chosen
     return fired, chosen, traces

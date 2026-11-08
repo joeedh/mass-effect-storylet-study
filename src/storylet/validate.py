@@ -87,6 +87,10 @@ def validate(content: Content, catalog=None, sim_runs: int = 300, seed: int = 0)
                 if not content.conditions[call.value].takes_argument or len(call.args) != 1:
                     r.errors.append(f"{where}: {call.value}(...) is not a one-argument condition")
                 continue
+            if call.value == "total":
+                if len(call.args) != 1 or call.args[0].op != "lit" or not engine.tagged(call.args[0].value):
+                    r.errors.append(f"{where}: total() takes one string tag carried by at least one var")
+                continue
             if call.value not in ("seen", "chose") and call.value not in FUNCTIONS:
                 r.errors.append(f"{where}: unknown function {call.value}()")
             if call.value in ("seen", "chose"):

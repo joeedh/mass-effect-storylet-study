@@ -225,7 +225,7 @@ FUNCTIONS: dict[str, Callable[..., Any]] = {
     "bool": bool,
 }
 # Functions whose arguments are storylet/choice ids, not expressions (evaluated by the engine).
-SPECIAL_FORMS = {"seen", "chose"}
+SPECIAL_FORMS = {"seen", "chose", "total"}
 # Any call that is neither a builtin nor a special form is delegated to the ``special`` callback
 # (the engine uses this for lifted plot-database conditionals that take an ``argument``).
 

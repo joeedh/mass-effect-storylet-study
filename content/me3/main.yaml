@@ -1,0 +1,414 @@
+# ME3: the war. Missions carry the parameterized `me3.mission` trait with their LE3 mission
+# code. Decisions bind to LE3 variables, while ME1/ME2 consequences are read straight from the
+# carried-over tables through the lifted fate conditions in _world.yaml.
+game: me3
+area: me3.main
+
+vars:
+  story.me3.started: {type: bool}
+  story.me3.refused: {type: bool, doc: "Extended Cut 'Refuse' ending: the cycle continues."}
+  story.me3.wreav_leads: {type: bool, doc: "Wreav leads Clan Urdnot because Wrex died in ME1."}
+
+storylets:
+  # --- into ME3 ---------------------------------------------------------------------------
+  - id: me3.import.me2_save
+    title: Import an ME2 save
+    kind: bridge
+    summary: >-
+      The ME2 save, carrying ME1's table with it, becomes ME3's plot table, so nothing is copied.
+      ME3 reads the earlier games' variables in place. Moving on is the player's call: Arrival
+      can still be played first.
+    requires: "story.game == 2 && me2.progress.game_done && !story.me2.shepard_dead"
+    effects:
+      - "story.game = 3"
+      - "me3.progress.me2_import = true"
+      - "me3.progress.me1_import = me1.end.game_complete"
+      - "me3.player.persuade_multiplier = story.shepard.style == 'balanced' ? 0.1 : 0.25"
+    notes: The persuasion multiplier is the model's stand-in for ME3's import bonus from earlier games.
+
+  - id: me3.prologue.earth
+    title: "Earth: The Reapers arrive"
+    area: me3.prologue
+    trigger: auto
+    traits: [{me3.mission: {code: ProEar}}]
+    summary: >-
+      Grounded and awaiting trial on Earth after Arrival, Shepard watches the Reapers attack.
+      Anderson stays to lead the resistance and sends Shepard to the Council for help.
+    requires: "!story.me3.started"
+    effects: ["story.me3.started = true", "story.me3.asset.alliance = 700"]
+    evidence: ["me3:Prologue.ProEar"]
+
+  - id: me3.prologue.mars
+    title: "Priority: Mars"
+    area: me3.prologue
+    trigger: auto
+    traits: [{me3.mission: {code: ProMar}}]
+    summary: >-
+      In the Prothean archives on Mars, Liara finds plans for the Crucible, an ancient
+      anti-Reaper superweapon. A Cerberus agent nearly escapes with the data; the Virmire
+      survivor is badly injured.
+    requires: "me3.order.ProEar > 0 && me3.order.ProMar == 0"
+    evidence: ["me3:Prologue.ProMar"]
+
+  - id: me3.prologue.citadel
+    title: "Priority: The Citadel I"
+    area: me3.prologue
+    trigger: auto
+    traits: [{me3.mission: {code: ProCit}}]
+    summary: >-
+      The Council will not commit forces while their own worlds burn. Hackett gives Shepard the
+      Normandy to unite the galaxy behind the Crucible, starting with the turian Primarch.
+    requires: "me3.order.ProMar > 0 && me3.order.ProCit == 0"
+    effects:
+      - "story.me3.asset.destiny_ascension = me1.end.saved_council ? 125 : 0"
+      - "story.me3.asset.me2_legacy = (me2.end.keep_base ? 100 : 75) + (me2.sm.escort_everyone_survived ? 50 : 0)"
+    notes: >-
+      Cross-game assets: the Destiny Ascension exists only if ME1's Council was saved. The ME2
+      legacy asset stands in for Collector-base data and surviving ME2 crew.
+    evidence: ["me3:Prologue.ProCit"]
+
+  # --- the krogan and the genophage ----------------------------------------------------------
+  - id: me3.palaven.menae
+    title: "Priority: Palaven"
+    area: me3.genophage
+    traits: [{me3.mission: {code: KroGar}}]
+    summary: >-
+      On Palaven's moon Menae, Shepard finds the new Primarch, Adrian Victus. The turians will
+      only help once the krogan help them, and the krogan want the genophage cured. Garrus
+      rejoins if he survived the Collector base.
+    requires: "me3.order.ProCit > 0 && me3.order.KroGar == 0"
+    effects: ["story.me3.asset.turian = 250"]
+    evidence: ["me3:Genophage.KroGar"]
+
+  - id: me3.genophage.surkesh
+    title: "Priority: Sur'Kesh"
+    area: me3.genophage
+    traits: [{me3.mission: {code: Kro001}}]
+    summary: >-
+      At the summit, Urdnot's leader demands the krogan females the salarians hid on Sur'Kesh.
+      That leader is Wrex if he survived Virmire, otherwise his brother Wreav. Shepard rescues
+      Eve; the cure's scientist is Mordin if he lived through ME2, otherwise his former
+      colleague Padok.
+    requires: "me3.order.KroGar > 0 && me3.order.Kro001 == 0"
+    effects: ["story.me3.wreav_leads = me3.fate.wrex_dead"]
+    tags: [cross-game]
+    evidence: ["me3:Genophage.Kro001"]
+
+  - id: me3.attican.krogan_team
+    title: "Attican Traverse: Krogan Team"
+    area: me3.genophage
+    traits: [{me3.mission: {code: KroGru}}]
+    summary: >-
+      A krogan team, led by Grunt if he lives, investigates a Reaper-occupied rachni nest. The
+      creature inside is ME1's rachni queen if Shepard released her on Noveria, otherwise a
+      Reaper-made breeder.
+    requires: "me3.order.Kro001 > 0 && me3.order.KroGru == 0 && me3.order.Kro002 == 0"
+    effects: ["story.me3.asset.aralakh_company = me2.sm.alive.grunt ? 100 : 50"]
+    choices:
+      - {id: free_queen, label: Free the rachni queen, requires: "me1.noveria.queen_released", effects: ["me3.rachni.queen_ally = true", "story.me3.asset.rachni = 100"]}
+      - {id: kill_queen, label: Leave the queen to die, requires: "me1.noveria.queen_released", effects: ["me3.rachni.queen_killed = true"]}
+      - {id: free_breeder, label: Free the breeder, requires: "!me1.noveria.queen_released", effects: ["me3.rachni.breeder_saved = true"]}
+      - {id: kill_breeder, label: Kill the breeder, requires: "!me1.noveria.queen_released", effects: ["me3.rachni.breeder_killed = true"]}
+    tags: [cross-game]
+    evidence: ["me3:Genophage.KroGru"]
+
+  - id: me3.tuchanka.turian_platoon
+    title: "Tuchanka: Turian Platoon"
+    area: me3.genophage
+    traits: [{me3.mission: {code: KroN7a}}]
+    summary: A turian platoon is stranded on Tuchanka. Rescuing them uncovers an old turian bomb beneath the planet.
+    requires: "me3.order.Kro001 > 0 && me3.order.KroN7a == 0 && me3.order.Kro002 == 0"
+    effects: ["story.me3.asset.turian += 50"]
+    evidence: ["me3:Genophage.KroN7a"]
+
+  - id: me3.tuchanka.bomb
+    title: "Tuchanka: Bomb"
+    area: me3.genophage
+    traits: [{me3.mission: {code: KroN7b}}]
+    summary: >-
+      The Cerberus-armed turian bomb must be defused before it destroys a krogan city. It has to
+      be done soon: LE3's own Tuchanka_bomb_exploded condition sets off the bomb three missions
+      after the platoon rescue.
+    requires: "me3.order.KroN7a > 0 && me3.order.KroN7b == 0 && !me3.tuchanka.bomb_exploded"
+    evidence: ["me3:Genophage.KroN7b", "me3:Genophage.Misc_Writing"]
+
+  - id: me3.genophage.shroud
+    title: "Priority: Tuchanka"
+    area: me3.genophage
+    traits: [{me3.mission: {code: Kro002}}]
+    summary: >-
+      The cure must be dispersed from the Shroud on Tuchanka. The salarian Dalatrass has offered
+      her fleet if Shepard secretly sabotages it. Mordin (or Padok) will not accept that.
+    requires: "me3.order.Kro001 > 0 && me3.order.Kro002 == 0"
+    effects:
+      - "me3.genophage.eve_alive = me2.mordin.saved_data"
+      - "me3.genophage.eve_dead = !me2.mordin.saved_data"
+    choices:
+      - id: cure
+        label: Cure the genophage
+        effects:
+          - "me3.genophage.cure_real = true"
+          - "story.me3.asset.krogan = story.me3.wreav_leads ? 250 : 350"
+          - "story.me3.asset.salarian = 100"
+      - id: sabotage
+        label: Sabotage the cure
+        effects:
+          - "me3.genophage.cure_sabotaged = true"
+          - "me3.genophage.shot_mordin = !me2.squad.mordin.dead"
+          - "story.me3.asset.krogan = 250"
+          - "story.me3.asset.salarian = 300"
+      - id: sabotage_persuade
+        label: Talk Mordin out of it
+        requires: "!me2.squad.mordin.dead && story.me3.wreav_leads && me3.genophage.eve_dead"
+        effects:
+          - "me3.genophage.cure_sabotaged = true"
+          - "me3.genophage.sabotage_mordin_lived = true"
+          - "story.me3.asset.krogan = 250"
+          - "story.me3.asset.salarian = 300"
+    notes: >-
+      Eve survives only if Maelon's data was saved in Mordin's ME2 loyalty mission; without it,
+      the cure costs her life. Krogan asset values depend on who leads Urdnot.
+    tags: [cross-game]
+    evidence: ["me3:Genophage.Kro002"]
+
+  # --- the Cerberus coup ----------------------------------------------------------------------
+  - id: me3.citadel.coup
+    title: "Priority: The Citadel II"
+    area: me3.cerberus
+    traits: [{me3.mission: {code: Cat003}}]
+    summary: >-
+      Cerberus attacks the Citadel to kill the Council, with Udina's help. If Thane is alive he
+      dies stopping Kai Leng from killing the salarian councilor; without Thane, Kirrahe (if he
+      survived Virmire) dies in his place. On the Council floor, Shepard faces the Virmire
+      survivor, now a Spectre, who does not know whom to trust.
+    requires: "me3.order.Kro002 > 0 && me3.order.Cat003 == 0"
+    outcomes:
+      - {id: thane_saves_councilor, when: "!me3.fate.thane_dead && me2.squad.thane.recruited", effects: ["me3.coup.thane_dead = true"]}
+      - {id: kirrahe_saves_councilor, when: "!me3.coup.thane_dead && !me3.fate.kirrahe_dead", effects: ["me3.coup.kirrahe_saved_councilor = true"]}
+    resolve: first
+    evidence: ["me3:Catalyst.Cat003"]
+
+  - id: me3.citadel.standoff
+    title: The standoff
+    area: me3.cerberus
+    trigger: auto
+    summary: The Virmire survivor draws on Shepard to protect Udina. Shepard can talk them down, or shoot.
+    requires: "me3.order.Cat003 > 0 && !seen(me3.citadel.standoff) && !(me3.fate.ashley_dead && me3.fate.kaidan_dead)"
+    choices:
+      - {id: talk_down, label: Talk them down, requires: "me3.player.persuasive"}
+      - {id: shoot_ashley, label: Shoot Ashley, requires: "!me3.fate.ashley_dead", effects: ["me3.coup.shepard_shot_ashley = true"]}
+      - {id: shoot_kaidan, label: Shoot Kaidan, requires: "!me3.fate.kaidan_dead", effects: ["me3.coup.shepard_shot_kaidan = true"]}
+    notes: The fate conditions (Ashley_is_Dead/Kaiden_Is_Dead) read ME1's Rescued_Kaidan and these shots.
+    tags: [cross-game, death]
+
+  - id: me3.citadel.wrex_confrontation
+    title: Wrex finds out
+    area: me3.cerberus
+    trigger: auto
+    summary: >-
+      Wrex learns the cure was sabotaged and storms the Citadel. Shepard has to kill the old
+      friend from ME1, and the krogan withdraw.
+    requires: "me3.citadel.time_for_wrex_confrontation"
+    effects: ["me3.citadel.wrex_confronted = true", "story.me3.asset.krogan = 100"]
+    notes: LE3's Time_For_Contront fires after Priority Rannoch if the cure was sabotaged and ME1's Wrex lived.
+    tags: [cross-game, death]
+
+  # --- the geth and the quarians -----------------------------------------------------------
+  - id: me3.rannoch.dreadnought
+    title: "Priority: Geth Dreadnought"
+    area: me3.rannoch
+    traits: [{me3.mission: {code: Gth001}}]
+    summary: >-
+      The quarians have attacked the geth, who now carry Reaper code. Inside the dreadnought
+      Shepard frees a geth platform: Legion, if Legion was reactivated in ME2 and survived,
+      otherwise a new unit with Legion's memories. Tali rejoins if she lived.
+    requires: "me3.order.Cat003 > 0 && me3.order.Gth001 == 0"
+    effects:
+      - "me3.rannoch.peace_chance += (me2.legion.heretics_rewritten ? 1 : 0) + (me2.squad.tali.loyal ? 1 : 0)"
+    notes: ME2 history seeds the peace chance (Peace_Chance_Score) that Priority Rannoch later checks.
+    tags: [cross-game]
+    evidence: ["me3:Geth_Quarian.Gth001", "me3:Geth_Quarian.GthGlobals"]
+
+  - id: me3.rannoch.admiral_koris
+    title: "Rannoch: Admiral Koris"
+    area: me3.rannoch
+    traits: [{me3.mission: {code: GthN7a}}]
+    summary: Admiral Koris, the quarian fleet's dove, is trapped on Rannoch. Saving him helps any chance of peace.
+    requires: "me3.order.Gth001 > 0 && me3.order.GthN7a == 0 && me3.order.Gth002 == 0"
+    choices:
+      - {id: save_koris, effects: ["me3.rannoch.peace_chance += 1", "story.me3.asset.quarian += 50"]}
+      - {id: save_crew, label: Save his crew instead}
+    evidence: ["me3:Geth_Quarian.GthN7a"]
+
+  - id: me3.rannoch.geth_consensus
+    title: "Rannoch: Geth Fighter Squadrons"
+    area: me3.rannoch
+    traits: [{me3.mission: {code: GthLeg}}]
+    summary: Inside the geth Consensus, Legion shows Shepard the Morning War from the geth's side.
+    requires: "me3.order.Gth001 > 0 && me3.order.GthLeg == 0 && me3.order.Gth002 == 0 && !me3.rannoch.legion_is_hologram"
+    effects: ["me3.rannoch.peace_chance += 1"]
+    evidence: ["me3:Geth_Quarian.GthLeg"]
+
+  - id: me3.rannoch.reaper_base
+    title: "Priority: Rannoch"
+    area: me3.rannoch
+    traits: [{me3.mission: {code: Gth002}}]
+    summary: >-
+      With the Reaper on Rannoch destroyed, the geth can be freed of Reaper code, which turns them
+      on the quarian fleet. Peace is possible only if ME2's Legion and Tali made it this far
+      (the lifted Check_Peace_Possible_in_Theory) and Shepard has built enough trust.
+    requires: "me3.order.Gth001 > 0 && me3.order.Gth002 == 0"
+    choices:
+      - id: peace
+        label: Broker peace
+        requires: "me3.rannoch.peace_possible && me3.rannoch.peace_chance_at_least(3) && me3.player.persuasive"
+        effects: ["me3.rannoch.peace = true", "story.me3.asset.geth = 400", "story.me3.asset.quarian += 550"]
+      - id: side_with_geth
+        label: Upload the code; let the geth win
+        requires: "!me3.rannoch.legion_is_hologram || me3.fate.tali_dead"
+        effects: ["me3.rannoch.quarians_dead = true", "story.me3.asset.geth = 450"]
+      - id: side_with_quarians
+        label: Stop the upload; let the quarians win
+        effects: ["me3.rannoch.geth_destroyed = true", "story.me3.asset.quarian += 600"]
+    notes: >-
+      LE3's Legion_is_Dead and Tali_is_Dead conditions encode the consequences: an ME2 Legion dies
+      completing Rannoch whatever the outcome, and Tali dies if the quarians are destroyed. Peace
+      chance accrual is approximate; Check_Peace_Chance itself is lifted.
+    tags: [cross-game, death]
+    evidence: ["me3:Geth_Quarian.Gth002"]
+
+  # --- Cerberus and the Catalyst ---------------------------------------------------------------
+  - id: me3.thessia
+    title: "Priority: Thessia"
+    area: me3.catalyst
+    traits: [{me3.mission: {code: Cat002}}]
+    summary: >-
+      Under an asari temple, a Prothean VI knows what the Crucible needs: the Catalyst. Kai Leng
+      steals the VI, and the Illusive Man taunts Shepard by hologram. Thessia falls.
+    requires: "me3.order.Gth002 > 0 && me3.order.Cat002 == 0"
+    effects: ["story.me3.asset.asari = 150"]
+    choices:
+      - {id: challenge_tim, label: Argue the Illusive Man is indoctrinated, requires: "me3.player.persuasive", effects: ["me3.tim.how_persuaded += 1"]}
+      - {id: threaten_tim, label: Threaten him}
+    evidence: ["me3:Catalyst.Cat002"]
+
+  - id: me3.horizon
+    title: "Priority: Horizon"
+    area: me3.cerberus
+    traits: [{me3.mission: {code: CerMir}}]
+    summary: >-
+      Sanctuary on Horizon is a Cerberus front for indoctrination experiments. Miranda, if she
+      lived through ME2, confronts her father; she survives if Shepard warned her about Kai Leng.
+    requires: "me3.order.Cat002 > 0 && me3.order.CerMir == 0"
+    effects: ["story.me3.asset.sanctuary = 25"]
+    choices:
+      - {id: miranda_warned, requires: "me2.sm.alive.miranda && me2.squad.miranda.loyal", effects: ["me3.horizon.miranda_survives = true"]}
+      - {id: miranda_unwarned, requires: "me2.sm.alive.miranda", effects: ["me3.horizon.miranda_killed = true"]}
+      - {id: no_miranda, requires: "!me2.sm.alive.miranda"}
+    notes: In-game the warning is a chain of earlier conversations; ME2 loyalty stands in for it here.
+    tags: [cross-game]
+    evidence: ["me3:Cerberus.CerMir"]
+
+  - id: me3.cronos
+    title: "Priority: Cerberus Headquarters"
+    area: me3.catalyst
+    traits: [{me3.mission: {code: Cat004}}]
+    summary: >-
+      Shepard storms Cronos Station, kills Kai Leng and learns the Catalyst is the Citadel
+      itself, which the Reapers have just moved to Earth. The point of no return.
+    requires: "me3.order.CerMir > 0 && me3.order.Cat004 == 0"
+    effects: ["me3.cronos.done = true"]
+    evidence: ["me3:Catalyst.Cat004"]
+
+  # --- side missions ------------------------------------------------------------------------
+  - id: me3.grissom
+    title: "Grissom Academy: Emergency Evacuation"
+    area: me3.side
+    traits: [{me3.mission: {code: OmgJck}}]
+    summary: Cerberus raids Grissom Academy for biotic students. Jack, if she lived, is their teacher.
+    requires: "me3.order.KroGar > 0 && me3.order.OmgJck == 0 && !me3.cronos.done"
+    effects: ["story.me3.asset.grissom_students = me2.sm.alive.jack ? 100 : 50"]
+    tags: [side, cross-game]
+    evidence: ["me3:Omega.OmgJck"]
+
+  - id: me3.monastery
+    title: "Asari: Ardat-Yakshi Monastery"
+    area: me3.side
+    traits: [{me3.mission: {code: CitSam}}]
+    summary: >-
+      Samara's daughters are at a monastery overrun by Reapers. When it is over, the Justicar code
+      demands Samara kill her last daughter, Falere, or herself.
+    requires: "me3.order.Kro001 > 0 && me3.order.CitSam == 0 && !me3.cronos.done && me2.sm.alive.samara && !me2.samara.morinth_not_samara"
+    effects: ["story.me3.asset.monastery = 50"]
+    choices:
+      - {id: stop_samara, label: Stop her, requires: "me3.player.persuasive"}
+      - {id: too_late, label: Too late, effects: ["me3.monastery.samara_dies = true"]}
+    tags: [side, cross-game]
+    evidence: ["me3:Citadel.CitSam"]
+
+  - id: me3.from_ashes
+    title: "Eden Prime: Resistance Movement"
+    area: me3.side
+    traits: [{me3.mission: {code: Cat001}}]
+    summary: Back on Eden Prime, where the first game began, Shepard finds a Prothean soldier in stasis. Javik joins.
+    requires: "me3.order.ProCit > 0 && me3.order.Cat001 == 0 && !me3.cronos.done"
+    effects: ["story.me3.asset.javik = 50"]
+    tags: [side, dlc]
+    evidence: ["me3:Catalyst.Cat001"]
+
+  # --- Earth ----------------------------------------------------------------------------------
+  - id: me3.earth.london
+    title: "Priority: Earth"
+    area: me3.end
+    traits: [{me3.mission: {code: End001}}]
+    summary: >-
+      The united fleets hit the Reapers over Earth. Shepard's last farewells reflect the whole
+      trilogy: who is present in the London command center is decided by LE3 conditions reading
+      ME1, ME2 and ME3 fates. Shepard makes the run for the beam to the Citadel.
+    requires: "me3.cronos.done && me3.order.End001 == 0"
+    evidence: ["me3:End_Game.End001"]
+
+  - id: me3.earth.illusive_man
+    title: The Illusive Man
+    area: me3.end
+    trigger: auto
+    traits: [{me3.mission: {code: End002}}]
+    summary: >-
+      Inside the Citadel, an indoctrinated Illusive Man controls Shepard and Anderson. If
+      Shepard's standing is high enough and they have broken through to him before (the lifted
+      IM_Final_Persuade check), he shoots himself. Otherwise Shepard shoots him. Anderson dies of
+      his wounds.
+    requires: "me3.order.End001 > 0 && me3.order.End002 == 0"
+    effects: ["me3.end.anderson_dead = true"]
+    choices:
+      - {id: persuade, label: Persuade him, requires: "me3.end.im_final_persuade(1)", effects: ["me3.end.tim_suicide = true"]}
+      - {id: shoot, label: Shoot him}
+    tags: [cross-game]
+    evidence: ["me3:End_Game.End002"]
+
+  - id: me3.earth.catalyst
+    title: The Catalyst
+    area: me3.end
+    trigger: auto
+    traits: [{me3.mission: {code: End003}}]
+    summary: >-
+      The Catalyst offers Shepard control of the cycle. What each choice costs Earth, and whether
+      Shepard survives, depends on the galaxy's Effective Military Strength.
+    requires: "me3.order.End002 > 0 && !me3.end.made_final_decision && !story.me3.refused"
+    choices:
+      - {id: destroy, label: Destroy (red), effects: ["me3.end.chose_red = true", "me3.end.reapers_destroyed = true", "me3.end.made_final_decision = true"]}
+      - {id: control, label: Control (blue), effects: ["me3.end.chose_blue = true", "me3.end.become_a_reaper = true", "me3.end.reapers_leave = true", "me3.end.made_final_decision = true"]}
+      - {id: synthesis, label: Synthesis (green), requires: "me3.ems.can_synthesize", effects: ["me3.end.chose_green = true", "me3.end.synthesis = true", "me3.end.made_final_decision = true"]}
+      - {id: refuse, label: Refuse, effects: ["story.me3.refused = true"]}
+    outcomes:
+      - {id: earth_destroyed, when: "me3.end.made_final_decision && me3.ems.current_rating < 1750", effects: ["me3.end.earth_destroyed = true"]}
+      - {id: earth_devastated, when: "me3.end.made_final_decision && me3.ems.current_rating >= 1750 && me3.ems.rating_low", effects: ["me3.end.earth_devastated = true"]}
+      - {id: earth_ok, when: "me3.end.made_final_decision && !me3.ems.rating_low", effects: ["me3.end.earth_ok = true"]}
+      - {id: shepard_breathes, when: "me3.end.reapers_destroyed && me3.ems.current_rating >= 4000", effects: ["me3.end.shepard_alive = true"]}
+      - {id: shepard_dies, when: "me3.end.made_final_decision && !me3.end.shepard_alive", effects: ["me3.end.shepard_dead = true"]}
+    notes: >-
+      Earth-state bands use LE3's Rating_Level_Low boundary (2350) plus the community-documented
+      Extended Cut thresholds (1750 Earth destroyed, 2800 Synthesis, 4000 Destroy breath scene).
+      The final ending selection is native code, not plot data.
+    tags: [ending, cross-game]
+    evidence: ["me3:Global.Game_Progress.Ending_Options", "me3:End_Game.End003"]
