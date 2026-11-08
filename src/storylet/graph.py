@@ -12,7 +12,7 @@ from dataclasses import dataclass
 
 from .engine import Engine
 from .expr import ExprError
-from .model import Content, Storylet
+from .model import GAME_INDEX, Content, Storylet
 
 
 @dataclass(frozen=True)
@@ -43,7 +43,10 @@ def _reads(engine: Engine, st: Storylet) -> tuple[set[str], set[tuple[str, str |
     return refs, specials
 
 
-def build(content: Content) -> list[GEdge]:
+def build(content: Content, max_writers: int | None = None) -> list[GEdge]:
+    """Derive edges. ``max_writers`` drops edges through "infrastructure" variables written by
+    more than that many storylets (mission counters, morality points, EMS), which otherwise
+    connect everything to everything."""
     engine = Engine(content)
     writers: dict[str, list[tuple[str, str | None]]] = defaultdict(list)
     for st in content.storylets.values():
@@ -55,14 +58,22 @@ def build(content: Content) -> list[GEdge]:
         for o in st.outcomes:
             for e in o.effects:
                 writers[engine.ref_of(e.target)[0]].append((st.id, f"={o.id}"))
+    def backwards(src: str, dst: str) -> bool:
+        """With campaign gating, a later game's storylet can never enable an earlier game's."""
+        a, b = content.storylets[src], content.storylets[dst]
+        return content.gated and a.game in GAME_INDEX and b.game in GAME_INDEX and \
+            GAME_INDEX[b.game] < GAME_INDEX[a.game]
+
     edges: set[GEdge] = set()
     for st in content.storylets.values():
         refs, specials = _reads(engine, st)
         for ref in refs:
+            if max_writers is not None and len({w for w, _ in writers.get(ref, [])}) > max_writers:
+                continue
             decl = content.by_ref.get(ref)
             label = decl.name if decl else ref
             for src, cid in writers.get(ref, []):
-                if src != st.id:
+                if src != st.id and not backwards(src, st.id):
                     edges.add(GEdge(src, cid, st.id, label, "state"))
         for src, cid, kind in specials:
             edges.add(GEdge(src, cid, st.id, f"{kind}({src}{', ' + cid if cid else ''})", kind))
@@ -71,7 +82,12 @@ def build(content: Content) -> list[GEdge]:
 
 def to_json(content: Content, edges: list[GEdge]) -> str:
     nodes = [{"id": s.id, "title": s.title, "game": s.game, "area": s.area, "trigger": s.trigger,
-              "summary": s.summary, "choices": [{"id": c.id, "label": c.label} for c in s.choices]}
+              "kind": s.kind, "summary": s.summary, "requires": str(s.requires), "tags": s.tags,
+              "effects": [str(e) for e in s.effects], "notes": s.notes, "evidence": s.evidence,
+              "choices": [{"id": c.id, "label": c.label, "requires": str(c.requires),
+                           "effects": [str(e) for e in c.effects]} for c in s.choices],
+              "outcomes": [{"id": o.id, "when": str(o.when), "effects": [str(e) for e in o.effects]}
+                           for o in s.outcomes]}
              for s in content.storylets.values()]
     return json.dumps({"nodes": nodes, "edges": [e.__dict__ for e in edges]}, indent=1)
 

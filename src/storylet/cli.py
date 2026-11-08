@@ -6,6 +6,7 @@
     storylet graph [--format dot|mermaid|json] [--game me1] [-o FILE]
     storylet coverage [-o FILE]
     storylet available [--set ...]           what could fire from a given state
+    storylet atlas [-o build/atlas.html]     interactive HTML map of the derived graph
     storylet outcomes [--runs N] [--start me1|me2|me3] [--expr EXPR ...]
                                              distribution of end-of-campaign values
 """
@@ -81,7 +82,9 @@ def main(argv: list[str] | None = None) -> int:
     p = sub.add_parser("explore"); p.add_argument("--max-states", type=int, default=200_000); p.add_argument("--game")
     p = sub.add_parser("graph"); p.add_argument("--format", choices=["dot", "mermaid", "json"], default="dot")
     p.add_argument("--game"); p.add_argument("-o", "--output", type=Path)
+    p.add_argument("--max-writers", type=int, default=None, help="drop edges via vars with more writers (e.g. 6)")
     p = sub.add_parser("coverage"); p.add_argument("-o", "--output", type=Path)
+    p = sub.add_parser("atlas"); p.add_argument("-o", "--output", type=Path, default=ROOT / "build" / "atlas.html")
     p = sub.add_parser("outcomes"); p.add_argument("--runs", type=int, default=500); p.add_argument("--seed", type=int, default=0)
     p.add_argument("--start", choices=["me1", "me2", "me3"]); p.add_argument("--expr", action="append", default=[])
     p.add_argument("--uniform", action="store_true", help="uniform random choices instead of coverage-guided")
@@ -155,7 +158,7 @@ def main(argv: list[str] | None = None) -> int:
     if a.cmd == "graph":
         from . import graph as g
         sub_content = _filter(content, a.game)
-        edges = g.build(sub_content)
+        edges = g.build(sub_content, a.max_writers)
         text = {"dot": g.to_dot, "mermaid": g.to_mermaid, "json": g.to_json}[a.format](sub_content, edges)
         if a.output:
             a.output.parent.mkdir(parents=True, exist_ok=True)
@@ -163,6 +166,11 @@ def main(argv: list[str] | None = None) -> int:
             print(f"wrote {a.output} ({len(sub_content.storylets)} nodes, {len(edges)} edges)")
         else:
             sys.stdout.write(text)
+        return 0
+
+    if a.cmd == "atlas":
+        from .atlas import build_atlas
+        print(f"wrote {build_atlas(content, a.output)}")
         return 0
 
     if a.cmd == "outcomes":
