@@ -1,0 +1,91 @@
+# Mass Effect 1: shared state (world progress, player record, squad roster, romance).
+# Every plot binding here was produced with `meplot bind` and is re-checked by `storylet validate`.
+game: me1
+area: me1.world
+
+conditions:
+  # Lifted verbatim from BioWare's plot database: the real mission-unlock rules of ME1.
+  me1.world.time_for_virmire_open:
+    ref: me1.cond.1065
+    path: "me1:Global_Plots.World_Progress.Time_For_Virmire_Open"
+    code: "me1.bool.4104 == false && ( (me1.bool.2506 == true && me1.bool.2507 == true) || (me1.bool.2506 == true && me1.bool.2508 == true ) || (me1.bool.2507 == true && me1.bool.2508 == true ) )"
+    doc: Virmire unlocks once any two of Therum, Feros and Noveria are complete.
+  me1.world.time_for_ilos_open:
+    ref: me1.cond.898
+    path: "me1:Global_Plots.World_Progress.Time_For_Ilos_Open"
+    code: "me1.bool.2506 == true && me1.bool.2507 == true && me1.bool.2508 == true && me1.bool.2509 == true && me1.bool.4104 == true && me1.bool.4103 == false"
+  me1.citadel.time_for_council_meeting:
+    ref: me1.cond.837
+    path: "me1:CH1_Star_Citadel.Normandy_Grounded.Time_for_council_meeting"
+    code: "me1.bool.2506 == true && me1.bool.2507 == true && me1.bool.2508 == true && me1.bool.2509 == true && me1.bool.4388 == false"
+    doc: The Council grounds the Normandy once all four main missions are done.
+  me1.world.completed_at_least:
+    ref: me1.cond.244
+    path: "me1:Global_Plots.World_Progress.CompletedGreaterEqual"
+    code: "(argument == 0) || (argument == 1 && (me1.bool.2506 || me1.bool.2507 || me1.bool.2508 || me1.bool.2509 ) ) || (argument == 2 && ((me1.bool.2506 && (me1.bool.2507 || me1.bool.2508 || me1.bool.2509) ) || (me1.bool.2507 && (me1.bool.2508 || me1.bool.2509) ) || (me1.bool.2508 && me1.bool.2509) ) ) || (argument == 3 && ((me1.bool.2506 && me1.bool.2507 && me1.bool.2508 ) || (me1.bool.2506 && me1.bool.2507 && me1.bool.2509 ) || (me1.bool.2506 && me1.bool.2508 && me1.bool.2509 ) || (me1.bool.2507 && me1.bool.2508 && me1.bool.2509 ) ) ) || (argument == 4 && me1.bool.2506 && me1.bool.2507 && me1.bool.2508 && me1.bool.2509 )"
+    doc: Number of main missions (Therum, Feros, Noveria, Virmire) completed is at least `argument`.
+
+vars:
+  me1.world.prologue_done: {ref: me1.bool.2505, path: "me1:Global_Plots.World_Progress.Prologue_Done"}
+  me1.world.therum_done: {ref: me1.bool.2506, path: "me1:Global_Plots.World_Progress.Caleston_Done"}
+  me1.world.feros_done: {ref: me1.bool.2507, path: "me1:Global_Plots.World_Progress.Feros_Done"}
+  me1.world.noveria_done: {ref: me1.bool.2508, path: "me1:Global_Plots.World_Progress.Noveria_Done"}
+  me1.world.virmire_done: {ref: me1.bool.2509, path: "me1:Global_Plots.World_Progress.Virmire_Done"}
+  me1.world.ilos_done: {ref: me1.bool.2510, path: "me1:Global_Plots.World_Progress.Ilos_Done"}
+  me1.world.end_game_done: {ref: me1.bool.2511, path: "me1:Global_Plots.World_Progress.End_Game_Done"}
+  me1.world.virmire_open: {ref: me1.bool.4104, path: "me1:Global_Plots.World_Progress.Virmire_Open"}
+  me1.world.ilos_open: {ref: me1.bool.4103, path: "me1:Global_Plots.World_Progress.Ilos_Open"}
+
+  # Utility.PlayerInfo. Encodings recovered from plot-DB conditionals, e.g.
+  # RP112_I_Remember_Me (colonist quest) tests Childhood == 2; SP120_Survivors_Revenge tests Reputation == 1.
+  me1.player.childhood: {ref: me1.int.1, path: "me1:Utility.PlayerInfo.Childhood", doc: "1 spacer, 2 colonist, 3 earthborn"}
+  me1.player.reputation: {ref: me1.int.2, path: "me1:Utility.PlayerInfo.Reputation", doc: "1 sole survivor, 2 war hero, 3 ruthless"}
+  me1.player.paragon: {ref: me1.int.47, path: "me1:Utility.PlayerInfo.Paragon_Points"}
+  me1.player.renegade: {ref: me1.int.46, path: "me1:Utility.PlayerInfo.Renegade_Points"}
+  story.shepard.female:
+    type: bool
+    doc: Shepard's sex. Engine-level player state, not in the plot tables; gates romances.
+
+  # Utility.Henchman: who is on the roster.
+  me1.squad.kaidan: {ref: me1.bool.3817, path: "me1:Utility.Henchman.HumanMale"}
+  me1.squad.ashley: {ref: me1.bool.3818, path: "me1:Utility.Henchman.HumanFemale"}
+  me1.squad.garrus: {ref: me1.bool.3819, path: "me1:Utility.Henchman.Turian"}
+  me1.squad.wrex: {ref: me1.bool.3820, path: "me1:Utility.Henchman.Krogan"}
+  me1.squad.liara: {ref: me1.bool.3821, path: "me1:Utility.Henchman.Asari"}
+  me1.squad.tali: {ref: me1.bool.3822, path: "me1:Utility.Henchman.Quarian"}
+  me1.squad.jenkins: {ref: me1.bool.4770, path: "me1:Utility.Henchman.Jenkins"}
+
+  me1.romance.ashley: {ref: me1.bool.4281, path: "me1:Global_Plots.Henchman_Ash.romance_active"}
+  me1.romance.kaidan: {ref: me1.bool.3960, path: "me1:Global_Plots.Henchman_Kaidan.Romance_active"}
+  me1.romance.liara: {ref: me1.bool.4169, path: "me1:Global_Plots.Henchman_Liara.Romance_active"}
+  me1.romance.consummated: {ref: me1.bool.6528, path: "me1:Global_Plots.Romance_State.Romance_State"}
+
+storylets:
+  - id: me1.prologue.create_shepard
+    title: Create Shepard
+    area: me1.prologue
+    trigger: auto
+    priority: 100
+    summary: Commander Shepard's sex and pre-service history are fixed before the story begins.
+    requires: "me1.player.childhood == 0"
+    choices:
+      - {id: spacer_male, label: "Spacer (male)", effects: ["me1.player.childhood = 1"]}
+      - {id: spacer_female, label: "Spacer (female)", effects: ["me1.player.childhood = 1", "story.shepard.female = true"]}
+      - {id: colonist_male, label: "Colonist (male)", effects: ["me1.player.childhood = 2"]}
+      - {id: colonist_female, label: "Colonist (female)", effects: ["me1.player.childhood = 2", "story.shepard.female = true"]}
+      - {id: earthborn_male, label: "Earthborn (male)", effects: ["me1.player.childhood = 3"]}
+      - {id: earthborn_female, label: "Earthborn (female)", effects: ["me1.player.childhood = 3", "story.shepard.female = true"]}
+    evidence: ["me1:Utility.PlayerInfo.Childhood"]
+
+  - id: me1.prologue.service_record
+    title: Service record
+    area: me1.prologue
+    trigger: auto
+    priority: 99
+    summary: Shepard's defining military event, referenced by NPCs across the trilogy.
+    requires: "me1.player.childhood != 0 && me1.player.reputation == 0"
+    choices:
+      - {id: sole_survivor, label: "Sole Survivor (Akuze)", effects: ["me1.player.reputation = 1"]}
+      - {id: war_hero, label: "War Hero (Elysium)", effects: ["me1.player.reputation = 2"]}
+      - {id: ruthless, label: "Ruthless (Torfan)", effects: ["me1.player.reputation = 3"]}
+    evidence: ["me1:Utility.PlayerInfo.Reputation"]

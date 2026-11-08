@@ -1,0 +1,17 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "mass-effect-storylet-study"
+version = "0.1.0"
+description = "Extract the Mass Effect trilogy narrative graph and port it to an evolving storylet system"
+requires-python = ">=3.11"
+dependencies = ["PyYAML>=6"]
+
+[project.scripts]
+meplot = "meplot.cli:main"
+storylet = "storylet.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]

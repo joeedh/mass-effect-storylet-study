@@ -1,0 +1,28 @@
+# ME1 romance arcs. Real romance progression is a chain of Normandy conversations counted by
+# Henchman_*.Romance_Buddy_dialog_count; collapsed here into commit + consummation.
+game: me1
+area: me1.normandy
+
+storylets:
+  - id: me1.normandy.romance
+    title: A relationship aboard the Normandy
+    summary: Between missions, Shepard can pursue a relationship with a squadmate.
+    requires: "me1.citadel.player_is_spectre && !me1.citadel.grounded && !(me1.romance.ashley || me1.romance.kaidan || me1.romance.liara)"
+    choices:
+      - {id: ashley, label: Ashley, requires: "!story.shepard.female && me1.squad.ashley", effects: ["me1.romance.ashley = true"]}
+      - {id: kaidan, label: Kaidan, requires: "story.shepard.female && me1.squad.kaidan", effects: ["me1.romance.kaidan = true"]}
+      - {id: liara, label: Liara, requires: "me1.squad.liara", effects: ["me1.romance.liara = true"]}
+      - {id: none, label: Stay professional}
+    tags: [romance, cross-game]
+    evidence: ["me1:Global_Plots.Henchman_Ash", "me1:Global_Plots.Henchman_Kaidan", "me1:Global_Plots.Henchman_Liara"]
+
+  - id: me1.normandy.romance_night
+    title: The night before Ilos
+    trigger: auto
+    summary: After the escape from the Citadel, Shepard's love interest comes to Shepard's quarters.
+    requires: >-
+      me1.citadel.escape_over && !me1.ilos.enter_archives && !me1.romance.consummated &&
+      ((me1.romance.ashley && me1.squad.ashley) || (me1.romance.kaidan && me1.squad.kaidan) || me1.romance.liara)
+    effects: ["me1.romance.consummated = true"]
+    tags: [romance]
+    evidence: ["me1:Global_Plots.Romance_State"]
