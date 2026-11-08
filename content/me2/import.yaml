@@ -1,0 +1,166 @@
+# Into ME2: importing an ME1 save, or the Genesis comic for a fresh ME2 Shepard.
+#
+# LE2's ME1_Plots_for_ME2 variables are ME2-native (the importer fills them), so the bridge
+# copies explicitly. ME1's own table also travels with the save and is what ME3 reads for ME1
+# decisions (224 reads in LE3 conditionals, none of the ME2 copies). That is why Genesis below
+# writes the ME1 table as well.
+game: me2
+area: me2.import
+
+vars:
+  me2.import.council_dead: {ref: me2.bool.1553, path: "me2:ME1_Plots_for_ME2.CH4_Star_Citadel.Council_Dead"}
+  me2.import.council_alive: {ref: me2.bool.1554, path: "me2:ME1_Plots_for_ME2.CH4_Star_Citadel.Council_Alive"}
+  me2.import.udina_chosen: {ref: me2.bool.1555, path: "me2:ME1_Plots_for_ME2.CH4_Star_Citadel.Udina_Chosen"}
+  me2.import.anderson_chosen: {ref: me2.bool.1556, path: "me2:ME1_Plots_for_ME2.CH4_Star_Citadel.Anderson_chosen"}
+  me2.import.ash_died: {ref: me2.bool.1540, path: "me2:ME1_Plots_for_ME2.CH2_Virmire.Ash_died"}
+  me2.import.kaidan_died: {ref: me2.bool.1541, path: "me2:ME1_Plots_for_ME2.CH2_Virmire.Kaidan_died"}
+  me2.import.wrex_died: {ref: me2.bool.3752, path: "me2:ME1_Plots_for_ME2.CH2_Virmire.Wrex_Died"}
+  me2.import.kirrahe_survived: {ref: me2.bool.3390, path: "me2:ME1_Plots_for_ME2.CH2_Virmire.Kirrahe_Survived"}
+  me2.import.rachni_alive: {ref: me2.bool.3151, path: "me2:ME1_Plots_for_ME2.CH2_Noveria.Rachni.Rachni_Alive"}
+  me2.import.gianna_alive: {ref: me2.bool.3150, path: "me2:ME1_Plots_for_ME2.CH2_Noveria.Port_Hanshen.Gianna_Alive"}
+  me2.import.lorik_testified: {ref: me2.bool.3149, path: "me2:ME1_Plots_for_ME2.CH2_Noveria.Port_Hanshen.Got_Lorik_to_Testify"}
+  me2.import.shiala_lived: {ref: me2.bool.3197, path: "me2:ME1_Plots_for_ME2.CH2_Feros.Shiala_Lived"}
+  me2.import.feros_colony_survived: {ref: me2.bool.3046, path: "me2:ME1_Plots_for_ME2.CH2_Feros.Colony_Survived"}
+  me2.import.fist_left_alive: {ref: me2.bool.3733, path: "me2:ME1_Plots_for_ME2.CH1_Star_Citadel.Fist.Fist_Left_Alive"}
+  me2.import.ashley_romance: {ref: me2.bool.1528, path: "me2:ME1_Plots_for_ME2.Background_and_Relationships.Ashley_Romance_True"}
+  me2.import.kaidan_romance: {ref: me2.bool.1529, path: "me2:ME1_Plots_for_ME2.Background_and_Relationships.Kaidan_romance_True"}
+  me2.import.liara_romance: {ref: me2.bool.1530, path: "me2:ME1_Plots_for_ME2.Background_and_Relationships.Liara_romance_True"}
+  me2.import.spacer: {ref: me2.bool.1533, path: "me2:ME1_Plots_for_ME2.Background_and_Relationships.Background.Spacer"}
+  me2.import.colonist: {ref: me2.bool.1535, path: "me2:ME1_Plots_for_ME2.Background_and_Relationships.Background.Colonist"}
+  me2.import.earthborn: {ref: me2.bool.1534, path: "me2:ME1_Plots_for_ME2.Background_and_Relationships.Background.Earthborn"}
+  me2.import.sole_survivor: {ref: me2.bool.1537, path: "me2:ME1_Plots_for_ME2.Background_and_Relationships.Reputation.sole_survivor"}
+  me2.import.war_hero: {ref: me2.bool.1538, path: "me2:ME1_Plots_for_ME2.Background_and_Relationships.Reputation.War_hero"}
+  me2.import.ruthless: {ref: me2.bool.1539, path: "me2:ME1_Plots_for_ME2.Background_and_Relationships.Reputation.Ruthless"}
+  me2.genesis.fist_dead: {ref: me2.bool.7351, path: "me2:DLC_Genesis.Fist.Fist_Dead"}
+  me2.genesis.rachni_alive: {ref: me2.bool.7353, path: "me2:DLC_Genesis.Noveria.Rachni_Alive"}
+  me2.genesis.wrex_dead: {ref: me2.bool.7357, path: "me2:DLC_Genesis.Virmire.Wrex_Dead"}
+  me2.genesis.ash_died: {ref: me2.bool.7362, path: "me2:DLC_Genesis.Virmire.Ash_Died"}
+  me2.genesis.kaidan_died: {ref: me2.bool.7363, path: "me2:DLC_Genesis.Virmire.Kaiden_Died"}
+  me2.genesis.ashley_romance: {ref: me2.bool.7364, path: "me2:DLC_Genesis.Romance.Ashley_Romance"}
+  me2.genesis.kaidan_romance: {ref: me2.bool.7365, path: "me2:DLC_Genesis.Romance.Kaiden_Romance"}
+  me2.genesis.liara_romance: {ref: me2.bool.7366, path: "me2:DLC_Genesis.Romance.Liara_Romance"}
+  me2.genesis.no_romance: {ref: me2.bool.7374, path: "me2:DLC_Genesis.Romance.No_Romance"}
+  me2.genesis.council_dead: {ref: me2.bool.7368, path: "me2:DLC_Genesis.Endgame.Council_Dead"}
+  me2.romance.miranda: {ref: me2.bool.5209, path: "me2:Global.Henchmen.Vixen.Had_Sex"}
+  me2.romance.jack: {ref: me2.bool.5208, path: "me2:Global.Henchmen.Convict.Had_Sex"}
+  me2.romance.garrus: {ref: me2.bool.5207, path: "me2:Global.Henchmen.Garrus.Had_Sex"}
+  me2.romance.thane: {ref: me2.bool.5206, path: "me2:Global.Henchmen.Assassin.Had_Sex"}
+  me2.romance.jacob: {ref: me2.bool.3892, path: "me2:Global.Henchmen.Leading.Had_sex"}
+  me2.romance.liara: {ref: me2.bool.6927, path: "me2:DLC_EXP_Part01.Liara_Shadow_Broker_5.Considered_in_Relationship_with_Liara"}
+  me2.lotsb.kissed_liara: {ref: me2.bool.6923, path: "me2:DLC_EXP_Part01.Liara_Shadow_Broker_4.Finale_Relationship.Kissed_Her"}
+  me2.arrival.complete: {ref: me2.bool.7489, path: "me2:DLC_EXP_Part02.ArvLvl1.MissionComplete"}
+  story.me2.history_set:
+    type: bool
+    doc: ME2 knows Shepard's ME1 history, from a save import or Genesis.
+
+storylets:
+  - id: me2.import.me1_save
+    title: Import an ME1 save
+    kind: bridge
+    trigger: auto
+    priority: 1000
+    summary: The finished ME1 career carries into ME2. The importer translates ME1's decisions into ME2's own variables.
+    requires: "story.game == 1 && me1.end.game_complete"
+    effects:
+      - "story.game = 2"
+      - "story.me2.history_set = true"
+      - "me2.player.female = story.shepard.female"
+      - "me2.import.council_dead = me1.end.council_died"
+      - "me2.import.council_alive = me1.end.saved_council"
+      - "me2.import.udina_chosen = me1.end.chose_udina"
+      - "me2.import.anderson_chosen = me1.end.chose_anderson"
+      - "me2.import.ash_died = me1.virmire.rescued_kaidan"
+      - "me2.import.kaidan_died = me1.virmire.rescued_ash"
+      - "me2.import.wrex_died = !me1.squad.wrex"
+      - "me2.import.kirrahe_survived = !me1.virmire.kirrahe_dead"
+      - "me2.import.rachni_alive = me1.noveria.queen_released"
+      - "me2.import.lorik_testified = me1.noveria.evidence_to_lorik"
+      - "me2.import.shiala_lived = story.me1.shiala_spared"
+      - "me2.import.feros_colony_survived = me1.feros.colonists_killed == 0"
+      - "me2.import.fist_left_alive = story.me1.fist_spared"
+      - "me2.import.ashley_romance = me1.romance.ashley && me1.romance.consummated"
+      - "me2.import.kaidan_romance = me1.romance.kaidan && me1.romance.consummated"
+      - "me2.import.liara_romance = me1.romance.liara && me1.romance.consummated"
+      - "me2.import.spacer = me1.player.childhood == 1"
+      - "me2.import.colonist = me1.player.childhood == 2"
+      - "me2.import.earthborn = me1.player.childhood == 3"
+      - "me2.import.sole_survivor = me1.player.reputation == 1"
+      - "me2.import.war_hero = me1.player.reputation == 2"
+      - "me2.import.ruthless = me1.player.reputation == 3"
+    notes: >-
+      The mapping is reconstructed from variable semantics, not from the importer's code (which is
+      not in the plot DB). Wrex counts as dead if he is not on the roster when ME1 ends, i.e.
+      killed on Virmire or never recruited. Gianna's survival flag is left unmapped.
+
+  # --- Genesis: no ME1 save ------------------------------------------------------------------
+  - id: me2.genesis.shepard
+    title: "Genesis: Commander Shepard"
+    trigger: auto
+    priority: 100
+    summary: A new ME2 Shepard is created and the Genesis comic retells ME1, asking for its key decisions.
+    requires: "!story.me2.history_set && !seen(me2.genesis.shepard)"
+    choices:
+      - {id: male, label: Male}
+      - {id: female, label: Female, effects: ["me2.player.female = true", "story.shepard.female = true"]}
+    evidence: ["me2:DLC_Genesis"]
+
+  - id: me2.genesis.fist
+    title: "Genesis: Fist"
+    trigger: auto
+    priority: 99
+    requires: "seen(me2.genesis.shepard) && !story.me2.history_set && !seen(me2.genesis.fist)"
+    choices:
+      - {id: killed, effects: ["me2.genesis.fist_dead = true"]}
+      - {id: spared, effects: ["me2.import.fist_left_alive = true", "story.me1.fist_spared = true"]}
+    evidence: ["me2:DLC_Genesis.Fist"]
+
+  - id: me2.genesis.rachni
+    title: "Genesis: The rachni queen"
+    trigger: auto
+    priority: 98
+    requires: "seen(me2.genesis.fist) && !story.me2.history_set && !seen(me2.genesis.rachni)"
+    choices:
+      - {id: released, effects: ["me2.genesis.rachni_alive = true", "me2.import.rachni_alive = true", "me1.noveria.queen_released = true"]}
+      - {id: killed, effects: ["me1.noveria.queen_eliminated = true"]}
+    evidence: ["me2:DLC_Genesis.Noveria"]
+
+  - id: me2.genesis.virmire
+    title: "Genesis: Virmire"
+    trigger: auto
+    priority: 97
+    requires: "seen(me2.genesis.rachni) && !story.me2.history_set && !seen(me2.genesis.virmire)"
+    choices:
+      - id: kaidan_lives_wrex_lives
+        effects: ["me2.genesis.ash_died = true", "me2.import.ash_died = true", "me1.virmire.rescued_kaidan = true", "me1.squad.wrex = true", "me1.squad.kaidan = true"]
+      - id: kaidan_lives_wrex_dies
+        effects: ["me2.genesis.ash_died = true", "me2.import.ash_died = true", "me1.virmire.rescued_kaidan = true", "me2.genesis.wrex_dead = true", "me2.import.wrex_died = true", "me1.squad.kaidan = true"]
+      - id: ashley_lives_wrex_lives
+        effects: ["me2.genesis.kaidan_died = true", "me2.import.kaidan_died = true", "me1.virmire.rescued_ash = true", "me1.squad.wrex = true", "me1.squad.ashley = true"]
+      - id: ashley_lives_wrex_dies
+        effects: ["me2.genesis.kaidan_died = true", "me2.import.kaidan_died = true", "me1.virmire.rescued_ash = true", "me2.genesis.wrex_dead = true", "me2.import.wrex_died = true", "me1.squad.ashley = true"]
+    evidence: ["me2:DLC_Genesis.Virmire"]
+
+  - id: me2.genesis.romance
+    title: "Genesis: Romance"
+    trigger: auto
+    priority: 96
+    requires: "seen(me2.genesis.virmire) && !story.me2.history_set && !seen(me2.genesis.romance)"
+    choices:
+      - {id: ashley, requires: "!me2.player.female && me1.squad.ashley", effects: ["me2.genesis.ashley_romance = true", "me2.import.ashley_romance = true", "me1.romance.ashley = true", "me1.romance.consummated = true"]}
+      - {id: kaidan, requires: "me2.player.female && me1.squad.kaidan", effects: ["me2.genesis.kaidan_romance = true", "me2.import.kaidan_romance = true", "me1.romance.kaidan = true", "me1.romance.consummated = true"]}
+      - {id: liara, effects: ["me2.genesis.liara_romance = true", "me2.import.liara_romance = true", "me1.romance.liara = true", "me1.romance.consummated = true"]}
+      - {id: none, effects: ["me2.genesis.no_romance = true"]}
+    evidence: ["me2:DLC_Genesis.Romance"]
+
+  - id: me2.genesis.council
+    title: "Genesis: The Council"
+    trigger: auto
+    priority: 95
+    requires: "seen(me2.genesis.romance) && !story.me2.history_set"
+    choices:
+      - {id: saved, effects: ["me2.import.council_alive = true", "me1.end.saved_council = true", "story.me2.history_set = true"]}
+      - {id: sacrificed, effects: ["me2.genesis.council_dead = true", "me2.import.council_dead = true", "me1.end.council_died = true", "story.me2.history_set = true"]}
+    notes: >-
+      Genesis also writes the ME1 table (me1.*), so ME3, which reads ME1 decisions from that
+      table, sees one consistent history. Decisions Genesis doesn't cover stay at their defaults.
+    evidence: ["me2:DLC_Genesis.Endgame"]

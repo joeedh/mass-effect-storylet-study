@@ -44,3 +44,35 @@ Rejected for v1:
 - Per-line dialogue modeling: the plot databases don't record which conversation calls which
   conditional/transition (that lives in the game packages), so storylets work at the plot-beat
   level.
+
+## v2: Mass Effect 2
+
+ME2's narrative is organized very differently from ME1's: it is roster-driven (twelve
+squadmates with identical recruit/loyalty/death flag families), counter-driven (critical-path
+events fire after N missions), and ends in a rule system that kills or spares each squadmate. Each
+v2 feature below is the smallest addition that let that structure be ported without hand-unrolling it.
+
+| Feature | Forced by | Shape |
+|---|---|---|
+| **Campaign gating + `kind: bridge`** | ME2 can be reached by importing an ME1 save *or* starting fresh with the Genesis comic | Declaring `story.game` gates every `game: meN` storylet on `story.game == N`. Bridge storylets are exempt and move the campaign (`campaign.start`, `me2.import.me1_save`). |
+| **Explicit import mapping** | LE2's `ME1_Plots_for_ME2` variables are ME2-native, filled by the importer (unlike LE3's aliased tables) | The bridge's effects copy ME1 state into them (`me2.import.ash_died = me1.virmire.rescued_kaidan`). Genesis writes the same variables *and* the ME1 table, because ME3 reads ME1 decisions from the ME1 table (224 reads, zero from the ME2 copies). |
+| **`traits`** | Every ME2 mission advances `Missions_Total`, `Missions_Since_Last_Event` and `Missions_Count_Before_EndGame`, which the lifted `Time_for_CR2_message` / `Time_for_CR3` / crew-survival conditionals read | Named bundles of `requires`/`effects`/`tags` applied with `traits: [me2.mission]`. |
+| **`foreach` templates** | Twelve squadmates × the same loyalty-mission pattern and suicide-mission role checks | Storylets, choices, outcomes and declaration entries (`me2.sm.alive.{who}: {foreach: ...}`) expand at load time; `{key}` placeholders are substituted, booleans as `true`/`false`. YAML anchors (`*roster`) share the binding table. |
+| **`outcomes` + `resolve: all\|first`** | Suicide-mission deaths are computed by the game, not chosen by the player | System-resolved branches, evaluated in order against the post-choice state. `first` gives priority lists ("the first living squadmate in this order dies"). Resolved outcomes are recorded like choices, so `chose(storylet, outcome)` works. |
+| **`derived` numeric values** | Hold-the-line casualties come from an averaged defence score | Named numeric expressions (conditions are coerced to bool; derived values aren't). New builtin `sum()`. |
+| **`enum` story variables** | Specialist / fireteam-leader / escort assignments | `{type: enum, values: [...]}`, compared with string literals and validated on assignment. |
+| **`trigger: idle`** | `Available_Missions_Complete`: when nothing else is left, the game forces the crew-abduction event | Idle storylets fire only when no auto or player storylet is available. |
+| **Repeatable outcome loops** | "N defenders die", with N computed | `me2.sm.hold_the_line` is `repeatable`, decrementing a pending-casualty counter until 0. |
+
+**Lifted gating, again.** 25 conditionals were lifted verbatim, including all twelve
+`Ready_to_open_<Codename>` loyalty gates, Horizon (`Time_for_CR1_message`: Mordin, Garrus and
+Jack recruited and Grunt's tank retrieved), the Collector Ship (party size ≥ 8 and ≥ 5 missions
+since the last event) and crew survival (`Missions_Count_Before_EndGame == 0 / 1..3 / > 3`).
+
+**Morality.** ME2 gates persuasion on Paragon/Renegade relative to `*_Potential`, which grows with
+progress. Hundreds of dialogue choices sit below storylet granularity, so the model takes a
+declared `story.shepard.style` and lets the mission trait accrue points accordingly.
+
+**Known gaps** (tracked as `story.*` vars with docs): Legion's heretic decision, Mordin's
+genophage data, Sidonis, Kasumi's graybox and Morinth. ME3 reads these from ME2 variables, so the
+ME3 port should reveal which ones (see v3).

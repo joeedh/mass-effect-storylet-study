@@ -1,0 +1,273 @@
+# ME2 endgame: the suicide mission.
+#
+# The most rule-driven narrative system in the trilogy: who lives and dies is computed from
+# ship upgrades, role assignments and loyalty. Player decisions are `choices`; the game's
+# rules are `outcomes` (schema v2), so the derived graph shows both what the player picked and
+# what the system decided.
+#
+# Rule sources: the community-documented suicide-mission logic (Mass Effect Wiki, "Suicide
+# Mission"). Upgrade casualty orders, specialist and leader aptitudes, and escort/crew rules
+# are well established. Hold-the-line scoring is reproduced only approximately (see notes there).
+game: me2
+area: me2.suicide_mission
+
+roster: &roster
+  - {who: miranda, tech: false, leader: true, biotic: false, htl: 1}
+  - {who: jacob, tech: false, leader: true, biotic: false, htl: 1}
+  - {who: jack, tech: false, leader: false, biotic: true, htl: 0}
+  - {who: legion, tech: true, leader: false, biotic: false, htl: 1}
+  - {who: kasumi, tech: true, leader: false, biotic: false, htl: 0}
+  - {who: garrus, tech: false, leader: true, biotic: false, htl: 3}
+  - {who: thane, tech: false, leader: false, biotic: false, htl: 1}
+  - {who: tali, tech: true, leader: false, biotic: false, htl: 0}
+  - {who: mordin, tech: false, leader: false, biotic: false, htl: 0}
+  - {who: grunt, tech: false, leader: false, biotic: false, htl: 3}
+  - {who: samara, tech: false, leader: false, biotic: true, htl: 1}
+  - {who: zaeed, tech: false, leader: false, biotic: false, htl: 3}
+
+vars:
+  story.me2.sm.started: {type: bool}
+  story.me2.sm.{role}:
+    foreach: [{role: tech}, {role: leader1}, {role: biotic}, {role: leader2}, {role: escort}, {role: party1}, {role: party2}]
+    type: enum
+    values: [miranda, jacob, jack, legion, kasumi, garrus, thane, tali, mordin, grunt, samara, zaeed, none]
+  story.me2.sm.htl_deaths_pending: {type: int}
+  story.me2.shepard_dead: {type: bool, doc: "Shepard dies if fewer than two squadmates survive. No ME3 import is possible."}
+  me2.sm.escort_everyone_survived: {ref: me2.bool.3351, path: "me2:Act_3.EndGm2_CollectorBase.END200_Factory.TeamD_Escort_Complete.Everyone_Survived"}
+  me2.sm.escort_died: {ref: me2.bool.3350, path: "me2:Act_3.EndGm2_CollectorBase.END200_Factory.TeamD_Escort_Complete.Hench_Died_Enroute"}
+  me2.sm.crew_died_enroute: {ref: me2.bool.3349, path: "me2:Act_3.EndGm2_CollectorBase.END200_Factory.TeamD_Escort_Complete.Crew_Died_Entroute"}
+
+conditions:
+  me2.sm.alive.{who}:
+    foreach: *roster
+    code: "me2.squad.{who}.recruited && !me2.squad.{who}.dead"
+  me2.sm.defending.{who}:
+    foreach: *roster
+    code: "me2.sm.alive.{who} && story.me2.sm.party1 != '{who}' && story.me2.sm.party2 != '{who}' && story.me2.sm.escort != '{who}'"
+  me2.sm.leader1_good: "(story.me2.sm.leader1 == 'miranda' && me2.squad.miranda.loyal) || (story.me2.sm.leader1 == 'jacob' && me2.squad.jacob.loyal) || (story.me2.sm.leader1 == 'garrus' && me2.squad.garrus.loyal)"
+  me2.sm.biotic_good: "(story.me2.sm.biotic == 'jack' && me2.squad.jack.loyal) || (story.me2.sm.biotic == 'samara' && me2.squad.samara.loyal)"
+
+derived:
+  me2.sm.htl_value.{who}:
+    foreach: *roster
+    code: "me2.sm.defending.{who} ? {htl} + (me2.squad.{who}.loyal ? 1 : 0) : 0"
+  me2.sm.survivors: "count(me2.sm.alive.miranda, me2.sm.alive.jacob, me2.sm.alive.jack, me2.sm.alive.legion, me2.sm.alive.kasumi, me2.sm.alive.garrus, me2.sm.alive.thane, me2.sm.alive.tali, me2.sm.alive.mordin, me2.sm.alive.grunt, me2.sm.alive.samara, me2.sm.alive.zaeed)"
+  me2.sm.htl_defenders: "count(me2.sm.defending.miranda, me2.sm.defending.jacob, me2.sm.defending.jack, me2.sm.defending.legion, me2.sm.defending.kasumi, me2.sm.defending.garrus, me2.sm.defending.thane, me2.sm.defending.tali, me2.sm.defending.mordin, me2.sm.defending.grunt, me2.sm.defending.samara, me2.sm.defending.zaeed)"
+  me2.sm.htl_strength: "sum(me2.sm.htl_value.miranda, me2.sm.htl_value.jacob, me2.sm.htl_value.jack, me2.sm.htl_value.legion, me2.sm.htl_value.kasumi, me2.sm.htl_value.garrus, me2.sm.htl_value.thane, me2.sm.htl_value.tali, me2.sm.htl_value.mordin, me2.sm.htl_value.grunt, me2.sm.htl_value.samara, me2.sm.htl_value.zaeed)"
+  me2.sm.htl_average: "me2.sm.htl_defenders > 0 ? me2.sm.htl_strength / me2.sm.htl_defenders : 0"
+  me2.sm.htl_deaths: "min(me2.sm.htl_defenders, me2.sm.htl_average >= 2 ? 0 : (me2.sm.htl_average >= 1.5 ? 1 : (me2.sm.htl_average >= 0.5 ? 2 : 3)))"
+
+storylets:
+  - id: me2.sm.launch
+    title: Through the Omega 4 relay
+    summary: With the IFF installed, Shepard can take the Normandy through the Omega 4 relay at any time. Every mission done first costs abducted crew.
+    requires: "me2.progress.end_game_open && !story.me2.sm.started"
+    effects: ["story.me2.sm.started = true"]
+    evidence: ["me2:Act_3.EndGm1_NormandyLanding"]
+
+  # --- the relay and the debris field: ship upgrades decide the first casualties --------------
+  - id: me2.sm.relay_armor
+    title: "Suicide mission: Oculus"
+    trigger: auto
+    resolve: first
+    summary: An Oculus drone breaches the hull. Without Silaris armor, a squadmate is killed.
+    requires: "story.me2.sm.started && !seen(me2.sm.relay_armor)"
+    outcomes:
+      - {id: jack_dies, when: "!me2.normandy.armor_upgrade && me2.sm.alive.jack", effects: ["me2.squad.jack.dead = true"]}
+  - id: me2.sm.relay_shields
+    title: "Suicide mission: Shield breach"
+    trigger: auto
+    resolve: first
+    summary: Without the cyclonic barrier, a Collector beam kills a squadmate.
+    requires: "seen(me2.sm.relay_armor) && !seen(me2.sm.relay_shields)"
+    outcomes:
+      - foreach: [{who: kasumi}, {who: legion}, {who: tali}, {who: thane}, {who: garrus}, {who: zaeed}, {who: grunt}, {who: samara}]
+        id: "{who}_dies"
+        when: "!me2.normandy.shield_upgrade && me2.sm.alive.{who}"
+        effects: ["me2.squad.{who}.dead = true"]
+  - id: me2.sm.relay_weapons
+    title: "Suicide mission: The Collector ship"
+    trigger: auto
+    resolve: first
+    summary: Without the Thanix cannon, the Normandy cannot destroy the Collector ship cleanly and debris kills a squadmate.
+    requires: "seen(me2.sm.relay_shields) && !seen(me2.sm.relay_weapons)"
+    outcomes:
+      - foreach: [{who: thane}, {who: garrus}, {who: zaeed}, {who: grunt}, {who: jack}, {who: samara}]
+        id: "{who}_dies"
+        when: "!me2.normandy.weapons_upgrade && me2.sm.alive.{who}"
+        effects: ["me2.squad.{who}.dead = true"]
+
+  # --- infiltration: tech specialist in the vents, first fireteam leader ------------------
+  - id: me2.sm.choose_tech
+    title: "Suicide mission: Tech specialist"
+    trigger: auto
+    summary: Someone must crawl through the ventilation shaft to open the doors for the team.
+    requires: "seen(me2.sm.relay_weapons) && story.me2.sm.tech == ''"
+    choices:
+      - foreach: *roster
+        id: "{who}"
+        requires: "me2.sm.alive.{who}"
+        effects: ["story.me2.sm.tech = '{who}'"]
+  - id: me2.sm.choose_leader1
+    title: "Suicide mission: First fireteam leader"
+    trigger: auto
+    requires: "story.me2.sm.tech != '' && story.me2.sm.leader1 == ''"
+    choices:
+      - foreach: *roster
+        id: "{who}"
+        requires: "me2.sm.alive.{who} && story.me2.sm.tech != '{who}'"
+        effects: ["story.me2.sm.leader1 = '{who}'"]
+  - id: me2.sm.infiltration
+    title: "Suicide mission: The vents"
+    trigger: auto
+    summary: >-
+      The tech specialist survives only with the skills for it (Tali, Legion or Kasumi) and the
+      loyalty to see it through, and only if a capable, loyal leader (Miranda, Jacob or Garrus)
+      keeps the second team moving.
+    requires: "story.me2.sm.leader1 != '' && !seen(me2.sm.infiltration)"
+    outcomes:
+      - foreach: *roster
+        id: "{who}_shot_in_vents"
+        when: "story.me2.sm.tech == '{who}' && !({tech} && me2.squad.{who}.loyal && me2.sm.leader1_good)"
+        effects: ["me2.squad.{who}.dead = true"]
+    evidence: ["me2:Act_3.EndGm2_CollectorBase.END100_Infiltration"]
+
+  # --- the long walk: biotic shield, second leader, escort --------------------------------
+  - id: me2.sm.choose_biotic
+    title: "Suicide mission: Biotic specialist"
+    trigger: auto
+    summary: A biotic must hold a barrier around Shepard's team through the seeker swarms.
+    requires: "seen(me2.sm.infiltration) && story.me2.sm.biotic == ''"
+    choices:
+      - foreach: *roster
+        id: "{who}"
+        requires: "me2.sm.alive.{who}"
+        effects: ["story.me2.sm.biotic = '{who}'"]
+  - id: me2.sm.choose_leader2
+    title: "Suicide mission: Second fireteam leader"
+    trigger: auto
+    requires: "story.me2.sm.biotic != '' && story.me2.sm.leader2 == ''"
+    choices:
+      - foreach: *roster
+        id: "{who}"
+        requires: "me2.sm.alive.{who} && story.me2.sm.biotic != '{who}'"
+        effects: ["story.me2.sm.leader2 = '{who}'"]
+  - id: me2.sm.choose_escort
+    title: "Suicide mission: Escort the crew"
+    trigger: auto
+    summary: The rescued crew needs an escort back to the Normandy, or they go alone.
+    requires: "story.me2.sm.leader2 != '' && story.me2.sm.escort == ''"
+    choices:
+      - foreach: *roster
+        id: "{who}"
+        requires: "me2.sm.alive.{who} && story.me2.sm.biotic != '{who}' && story.me2.sm.leader2 != '{who}'"
+        effects: ["story.me2.sm.escort = '{who}'"]
+      - {id: none, label: "Send them back alone", effects: ["story.me2.sm.escort = 'none'"]}
+  - id: me2.sm.long_walk_biotic
+    title: "Suicide mission: The seeker swarms"
+    trigger: auto
+    resolve: first
+    summary: If the biotic's barrier fails (wrong biotic, or not loyal), a squadmate is carried off by the swarm.
+    requires: "story.me2.sm.escort != '' && !seen(me2.sm.long_walk_biotic)"
+    outcomes:
+      - foreach: [{who: thane}, {who: jack}, {who: garrus}, {who: legion}, {who: grunt}, {who: samara}, {who: jacob}, {who: mordin}, {who: tali}, {who: kasumi}, {who: zaeed}, {who: miranda}]
+        id: "{who}_taken"
+        when: "!me2.sm.biotic_good && me2.sm.alive.{who} && story.me2.sm.biotic != '{who}' && story.me2.sm.leader2 != '{who}' && story.me2.sm.escort != '{who}'"
+        effects: ["me2.squad.{who}.dead = true"]
+    notes: In the game the victim is one of Shepard's two companions on the walk; party selection there is not modeled, so a fixed priority stands in.
+    evidence: ["me2:Act_3.EndGm2_CollectorBase.END300_LongWalk"]
+  - id: me2.sm.long_walk_teams
+    title: "Suicide mission: Second team and the crew"
+    trigger: auto
+    summary: The second fireteam's leader dies if not suited (Miranda, Jacob, Garrus) or not loyal. A disloyal escort dies on the way back, and crew sent alone die.
+    requires: "seen(me2.sm.long_walk_biotic) && !seen(me2.sm.long_walk_teams)"
+    outcomes:
+      - foreach: *roster
+        id: "{who}_leader_falls"
+        when: "story.me2.sm.leader2 == '{who}' && me2.sm.alive.{who} && !({leader} && me2.squad.{who}.loyal)"
+        effects: ["me2.squad.{who}.dead = true"]
+      - foreach: *roster
+        id: "{who}_escort_falls"
+        when: "story.me2.sm.escort == '{who}' && me2.sm.alive.{who} && !me2.squad.{who}.loyal"
+        effects: ["me2.squad.{who}.dead = true", "me2.sm.escort_died = true"]
+      - {id: escort_made_it, when: "story.me2.sm.escort != 'none' && !me2.sm.escort_died", effects: ["me2.sm.escort_everyone_survived = true"]}
+      - {id: crew_lost, when: "story.me2.sm.escort == 'none'", effects: ["me2.sm.crew_died_enroute = true"]}
+    notes: How many crew survive at all is the lifted me2.end.crew_*_survived conditions over Missions_Count_Before_EndGame.
+
+  # --- final battle: Shepard's party and the defenders holding the line ------------------------
+  - id: me2.sm.choose_party1
+    title: "Suicide mission: Final squad (1)"
+    trigger: auto
+    requires: "seen(me2.sm.long_walk_teams) && story.me2.sm.party1 == ''"
+    choices:
+      - foreach: *roster
+        id: "{who}"
+        requires: "me2.sm.alive.{who} && story.me2.sm.escort != '{who}'"
+        effects: ["story.me2.sm.party1 = '{who}'"]
+  - id: me2.sm.choose_party2
+    title: "Suicide mission: Final squad (2)"
+    trigger: auto
+    requires: "story.me2.sm.party1 != '' && story.me2.sm.party2 == ''"
+    choices:
+      - foreach: *roster
+        id: "{who}"
+        requires: "me2.sm.alive.{who} && story.me2.sm.escort != '{who}' && story.me2.sm.party1 != '{who}'"
+        effects: ["story.me2.sm.party2 = '{who}'"]
+      - {id: none, label: "(nobody left)", requires: "me2.sm.survivors - (story.me2.sm.escort != 'none' && story.me2.sm.escort != '' ? 1 : 0) <= 1", effects: ["story.me2.sm.party2 = 'none'"]}
+  - id: me2.sm.final_battle
+    title: "Suicide mission: The human Reaper"
+    trigger: auto
+    summary: >-
+      Shepard's team destroys the human-Reaper larva while the rest hold the line. Disloyal
+      companions at Shepard's side die, and the defenders take losses that depend on their
+      combined strength.
+    requires: "story.me2.sm.party2 != '' && !seen(me2.sm.final_battle)"
+    effects: ["story.me2.sm.htl_deaths_pending = me2.sm.htl_deaths"]
+    outcomes:
+      - foreach: *roster
+        id: "{who}_falls_with_shepard"
+        when: "(story.me2.sm.party1 == '{who}' || story.me2.sm.party2 == '{who}') && me2.sm.alive.{who} && !me2.squad.{who}.loyal"
+        effects: ["me2.squad.{who}.dead = true"]
+    evidence: ["me2:Act_3.EndGm2_CollectorBase.END400_FinalBattle"]
+  - id: me2.sm.hold_the_line
+    title: "Suicide mission: Holding the line"
+    trigger: auto
+    repeatable: true
+    resolve: first
+    summary: One defender falls. This repeats until the casualties the defence score dictates have been taken.
+    requires: "seen(me2.sm.final_battle) && story.me2.sm.htl_deaths_pending > 0"
+    outcomes:
+      - foreach: [{who: mordin}, {who: tali}, {who: kasumi}, {who: jack}, {who: miranda}, {who: jacob}, {who: garrus}, {who: samara}, {who: legion}, {who: thane}, {who: zaeed}, {who: grunt}]
+        id: "{who}_falls_disloyal"
+        when: "me2.sm.defending.{who} && !me2.squad.{who}.loyal"
+        effects: ["me2.squad.{who}.dead = true", "story.me2.sm.htl_deaths_pending -= 1"]
+      - foreach: [{who: mordin}, {who: tali}, {who: kasumi}, {who: jack}, {who: miranda}, {who: jacob}, {who: garrus}, {who: samara}, {who: legion}, {who: thane}, {who: zaeed}, {who: grunt}]
+        id: "{who}_falls"
+        when: "me2.sm.defending.{who}"
+        effects: ["me2.squad.{who}.dead = true", "story.me2.sm.htl_deaths_pending -= 1"]
+      - {id: nobody_left, when: "true", effects: ["story.me2.sm.htl_deaths_pending = 0"]}
+    notes: >-
+      Approximation: each defender scores a base value (Garrus/Grunt/Zaeed 3; Jacob, Legion,
+      Miranda, Samara, Thane 1; others 0) plus 1 if loyal. Casualties follow the average score
+      (>=2: none, >=1.5: one, >=0.5: two, else three). Disloyal defenders fall first, in a fixed
+      priority order. The game's exact table also depends on the number of defenders.
+
+  - id: me2.sm.shepard_fate
+    title: "Suicide mission: Escape"
+    trigger: auto
+    resolve: first
+    summary: The survivors race back to the Normandy. If fewer than two squadmates are left alive, Shepard does not make the jump.
+    requires: "seen(me2.sm.final_battle) && story.me2.sm.htl_deaths_pending == 0 && !seen(me2.sm.shepard_fate)"
+    outcomes:
+      - {id: shepard_dies, when: "me2.sm.survivors < 2", effects: ["story.me2.shepard_dead = true", "me2.progress.game_done = true"]}
+
+  - id: me2.sm.final_decision
+    title: The Collector base
+    trigger: auto
+    summary: The Illusive Man wants the base kept intact for Cerberus. Shepard can destroy it or hand it over.
+    requires: "seen(me2.sm.shepard_fate) && !story.me2.shepard_dead && !me2.end.final_mission_complete"
+    choices:
+      - {id: destroy, label: Destroy the base, effects: ["me2.end.destroy_base = true", "me2.end.final_mission_complete = true", "me2.progress.game_done = true"]}
+      - {id: keep, label: Give it to Cerberus, effects: ["me2.end.keep_base = true", "me2.end.final_mission_complete = true", "me2.progress.game_done = true"]}
+    tags: [cross-game]
+    evidence: ["me2:Act_3.Final_Decision", "me2:Act_3.EndGm3_MissionComplete"]

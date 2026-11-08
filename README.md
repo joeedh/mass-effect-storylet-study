@@ -47,8 +47,8 @@ meplot bind me1.virmire.rescued_kaidan=me1:CH2_Virmire.The_Choice.Rescued_Kaidan
 
 | Game | Storylets | Notes |
 |------|-----------|-------|
-| ME1  | critical path + cross-game decisions | schema v1 |
-| ME2  | not started | |
+| ME1  | 40: critical path + cross-game decisions | schema v1 |
+| ME2  | 68: ME1 import + Genesis, recruitment, loyalty, crit path, suicide mission, LotSB, Arrival | schema v2 |
 | ME3  | not started | |
 
 See [docs/schema-evolution.md](docs/schema-evolution.md) for how the schema changes per game, and

@@ -116,8 +116,8 @@ def main(argv: list[str] | None = None) -> int:
         cur_game = None
         for i, step in enumerate(trace.steps, 1):
             st = content.storylets[step.storylet]
-            if st.game != cur_game:
-                cur_game = st.game
+            if (st.game or "campaign") != cur_game:
+                cur_game = st.game or "campaign"
                 print(f"=== {cur_game} ===")
             ch = f"  -> {step.choice}" if step.choice else ""
             print(f"{i:4} {st.title}{ch}")

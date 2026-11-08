@@ -114,6 +114,82 @@ class EngineTests(unittest.TestCase):
         self.assertIn("also_nope", text)
 
 
+V2 = """
+vars:
+  story.game: {type: int}
+  story.role: {type: enum, values: [a, b]}
+  x: me1.bool.1
+  y: me2.bool.2
+  story.n: {type: int}
+traits:
+  counted: {effects: ["story.n += 1"]}
+storylets:
+  - id: start
+    kind: bridge
+    trigger: auto
+    requires: "story.game == 0"
+    effects: ["story.game = 1"]
+  - id: one
+    game: me1
+    traits: [counted]
+    requires: "!x"
+    effects: ["x = true"]
+  - id: bridge
+    kind: bridge
+    trigger: auto
+    requires: "story.game == 1 && x"
+    effects: ["story.game = 2"]
+  - foreach: [{r: a}, {r: b}]
+    id: pick_{r}
+    game: me2
+    requires: "story.role == ''"
+    effects: ["story.role = '{r}'"]
+  - id: rules
+    game: me2
+    trigger: auto
+    resolve: first
+    requires: "story.role != '' && !seen(rules)"
+    outcomes:
+      - {id: is_a, when: "story.role == 'a'", effects: ["y = true"]}
+      - {id: always, when: "true", effects: ["story.n += 10"]}
+  - id: fallback
+    game: me2
+    trigger: idle
+    requires: "seen(rules)"
+"""
+
+
+class SchemaV2Tests(unittest.TestCase):
+    def setUp(self):
+        self.c = content_from(V2)
+        self.assertEqual(self.c.errors, [])
+        self.e = Engine(self.c)
+
+    def test_gating_bridge_traits_templates_outcomes(self):
+        e = self.e
+        s = e.fire(e.initial(), "start")
+        self.assertEqual([x.id for x in e.available(s)], ["one"])      # me2 storylets gated off
+        s = e.fire(s, "one")
+        self.assertEqual(e.get(s, "story.n"), 1)                        # trait effect
+        s = e.fire(s, "bridge")
+        self.assertEqual(sorted(x.id for x in e.available(s)), ["pick_a", "pick_b"])  # foreach
+        a = e.fire(e.fire(s, "pick_a"), "rules")
+        self.assertTrue(e.get(a, "y"))
+        self.assertEqual(e.get(a, "story.n"), 1)                        # resolve: first stops at is_a
+        self.assertIn(("rules", "is_a"), a.chosen)
+        b = e.fire(e.fire(s, "pick_b"), "rules")
+        self.assertEqual(e.get(b, "story.n"), 11)
+        self.assertEqual([x.id for x, _ in e.step_options(b)], ["fallback"])  # idle only when nothing else
+
+    def test_enum_rejects_unknown_member(self):
+        from storylet.expr import parse_effect
+        st = self.c.storylets["pick_a"]
+        st.effects = [parse_effect("story.role = 'c'")]
+        s = self.e.fire(self.e.fire(self.e.fire(self.e.initial(), "start"), "one"), "bridge")
+        with self.assertRaises(ValueError):
+            self.e.fire(s, "pick_a")
+
+
 class ShippedContentTests(unittest.TestCase):
     """The repository's own content must load, validate (without the catalog) and play through."""
 
@@ -122,13 +198,24 @@ class ShippedContentTests(unittest.TestCase):
         rep = validate(content, None, sim_runs=100, seed=1)
         self.assertEqual(rep.errors, [])
 
-    def test_playthrough_reaches_an_ending(self):
+    def test_trilogy_playthrough_from_me1(self):
         import random
         content = load_content(ROOT / "content")
         e = Engine(content)
-        t = e.run(e.initial(), random.Random(0))
+        rng = random.Random(0)
+
+        def from_me1(state, opts):
+            for st, cid in opts:
+                if st.id == "campaign.start":
+                    return st, "me1"
+            return rng.choice(opts)
+
+        t = e.run(e.initial(), rng, policy=from_me1)
         self.assertFalse(t.stuck)
         self.assertTrue(e.get(t.final, "me1.end.game_complete"))
+        self.assertTrue(e.get(t.final, "me2.progress.game_done"))
+        # the import bridge carried ME1's Virmire outcome into ME2's own variables
+        self.assertEqual(e.get(t.final, "me2.import.ash_died"), e.get(t.final, "me1.virmire.rescued_kaidan"))
 
 
 if __name__ == "__main__":

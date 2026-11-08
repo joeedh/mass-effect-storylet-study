@@ -1,0 +1,183 @@
+# Mass Effect 2: shared state. Conditions are lifted verbatim from LE2's plot database; they are
+# the game's real gating rules (see each `path`). Generated with `meplot bind`, checked by
+# `storylet validate`.
+game: me2
+area: me2.world
+
+traits:
+  me2.mission:
+    doc: >-
+      Every ME2 mission advances the game's mission counters, which BioWare's own conditionals
+      use to time the critical path (Time_for_CR2_message, Time_for_CR3) and to decide how many
+      abducted crew survive (Missions_Count_Before_EndGame).
+    effects:
+      - "me2.player.paragon_potential += 10"
+      - "me2.player.renegade_potential += 10"
+      - "me2.player.paragon += story.shepard.style == 'paragon' ? 8 : (story.shepard.style == 'balanced' ? 4 : 1)"
+      - "me2.player.renegade += story.shepard.style == 'renegade' ? 8 : (story.shepard.style == 'balanced' ? 4 : 1)"
+      - "me2.progress.missions_total += 1"
+      - "me2.progress.missions_since_last_event += 1"
+      - "me2.progress.missions_before_endgame += me2.progress.cr3_done ? 1 : 0"
+    tags: [mission]
+
+conditions:
+  me2.player.persuasive:
+    code: >-
+      me2.player.paragon_potential >= 60 &&
+      (me2.player.paragon * 10 >= me2.player.paragon_potential * 7 ||
+       me2.player.renegade * 10 >= me2.player.renegade_potential * 7)
+    doc: >-
+      ME2 gates special Charm/Intimidate options on morality score relative to
+      Paragon_/Renegade_Potential, which grows with progress. This approximates that: a
+      consistent style plus enough progress.
+  me2.progress.time_for_cr1_message:
+    ref: me2.cond.737
+    path: "me2:Global.Game_Progress.IM_Messages.Time_for_CR1_message"
+    code: "me2.bool.312 == false && me2.bool.41 == true && me2.bool.38 == true && me2.bool.35 == true && me2.bool.618 == true && me2.bool.3428 == false"
+  me2.progress.time_for_cr1:
+    ref: me2.cond.159
+    path: "me2:Global.Game_Progress.Time_for_CR1"
+    code: "me2.bool.312 == false && me2.bool.3428 == true"
+  me2.progress.time_for_cr2_message:
+    ref: me2.cond.738
+    path: "me2:Global.Game_Progress.IM_Messages.Time_for_CR2_message"
+    code: "me2.bool.313 == false && me2.bool.312 == true && me2.int.22 >= 8 && me2.int.23 >= 5 && me2.bool.3429 == false"
+  me2.progress.time_for_cr2:
+    ref: me2.cond.160
+    path: "me2:Global.Game_Progress.Time_for_CR2"
+    code: "me2.bool.313 == false && me2.bool.3429 == true"
+  me2.progress.time_for_cr3:
+    ref: me2.cond.161
+    path: "me2:Global.Game_Progress.Time_for_CR3"
+    code: "me2.bool.1256 == true && me2.bool.314 == false && (me2.int.23 >= 2 || me2.bool.1495 == true)"
+  me2.progress.end_game_open:
+    ref: me2.cond.238
+    path: "me2:Global.Game_Progress.End_game_open"
+    code: "me2.bool.314 == true && me2.bool.1456 == false"
+  me2.acquire.thane_available:
+    ref: me2.cond.180
+    path: "me2:Global.Game_Progress.Assassin_aquire_available"
+    code: "me2.bool.312 == true && me2.bool.39 == false && me2.bool.201 == false"
+  me2.acquire.tali_available:
+    ref: me2.cond.181
+    path: "me2:Global.Game_Progress.Tali_aquire_available"
+    code: "me2.bool.312 == true && me2.bool.40 == false && me2.bool.202 == false"
+  me2.acquire.samara_available:
+    ref: me2.cond.183
+    path: "me2:Global.Game_Progress.Mystic_aquire_available"
+    code: "me2.bool.43 == false && me2.bool.312 == true && me2.bool.205 == false"
+  me2.acquire.reaper_iff_available:
+    ref: me2.cond.178
+    path: "me2:Global.Game_Progress.Geth_aquire_available"
+    code: "me2.bool.313 == true && me2.bool.1256 == false"
+  me2.end.crew_all_survived:
+    ref: me2.cond.872
+    path: "me2:Act_3.EndGm2_CollectorBase.Normandy_Crew_All_Survived"
+    code: "me2.int.166 == 0"
+  me2.end.crew_some_survived:
+    ref: me2.cond.871
+    path: "me2:Act_3.EndGm2_CollectorBase.Normandy_Crew_Some_Survived"
+    code: "me2.int.166 > 0 && me2.int.166 <= 3"
+  me2.end.crew_none_survived:
+    ref: me2.cond.870
+    path: "me2:Act_3.EndGm2_CollectorBase.Normandy_Crew_None_Survived"
+    code: "me2.int.166 > 3"
+  me2.loyalty.miranda.ready:
+    ref: me2.cond.352
+    path: "me2:Global.Game_Progress.Loyalty_Mission_Opened.Ready_to_open_Vixen"
+    code: "me2.bool.312 == true && me2.bool.33 == true && me2.bool.1480 == false"
+  me2.loyalty.jacob.ready:
+    ref: me2.cond.353
+    path: "me2:Global.Game_Progress.Loyalty_Mission_Opened.Ready_to_open_Leading"
+    code: "me2.bool.312 == true && me2.bool.34 == true && me2.bool.1481 == false && me2.int.168 >= 2"
+  me2.loyalty.jack.ready:
+    ref: me2.cond.354
+    path: "me2:Global.Game_Progress.Loyalty_Mission_Opened.Ready_to_open_Convict"
+    code: "me2.bool.312 == true && me2.bool.35 == true && me2.bool.1482 == false"
+  me2.loyalty.legion.ready:
+    ref: me2.cond.358
+    path: "me2:Global.Game_Progress.Loyalty_Mission_Opened.Ready_to_open_Geth"
+    code: "me2.bool.36 == true && (me2.int.307 != 3 || me2.bool.1495 == true) && me2.bool.1483 == false"
+  me2.loyalty.kasumi.ready:
+    ref: me2.cond.359
+    path: "me2:Global.Game_Progress.Loyalty_Mission_Opened.Ready_to_open_Thief"
+    code: "me2.bool.37 == true && me2.bool.1484 == false"
+  me2.loyalty.garrus.ready:
+    ref: me2.cond.360
+    path: "me2:Global.Game_Progress.Loyalty_Mission_Opened.Ready_to_open_Garrus"
+    code: "me2.bool.312 == true && me2.bool.38 == true && me2.bool.1485 == false"
+  me2.loyalty.thane.ready:
+    ref: me2.cond.361
+    path: "me2:Global.Game_Progress.Loyalty_Mission_Opened.Ready_to_open_Assassin"
+    code: "me2.bool.39 == true && (me2.int.307 != 6 || me2.bool.1495 == true) && me2.bool.1486 == false"
+  me2.loyalty.tali.ready:
+    ref: me2.cond.362
+    path: "me2:Global.Game_Progress.Loyalty_Mission_Opened.Ready_to_open_Tali"
+    code: "me2.bool.40 == true && (me2.int.307 != 7 || me2.bool.1495 == true ) && me2.bool.1487 == false"
+  me2.loyalty.mordin.ready:
+    ref: me2.cond.363
+    path: "me2:Global.Game_Progress.Loyalty_Mission_Opened.Ready_to_open_Professor"
+    code: "me2.bool.312 == true && me2.bool.41 == true && me2.bool.1488 == false"
+  me2.loyalty.grunt.ready:
+    ref: me2.cond.364
+    path: "me2:Global.Game_Progress.Loyalty_Mission_Opened.Ready_to_open_Grunt"
+    code: "me2.bool.312 == true && me2.bool.42 == true && me2.bool.1489 == false"
+  me2.loyalty.samara.ready:
+    ref: me2.cond.365
+    path: "me2:Global.Game_Progress.Loyalty_Mission_Opened.Ready_to_open_Mystic"
+    code: "me2.bool.312 == true && me2.bool.43 == true && (me2.int.307 != 10 || me2.bool.1495 == true) && me2.bool.1490 == false"
+  me2.loyalty.zaeed.ready:
+    ref: me2.cond.357
+    path: "me2:Global.Game_Progress.Loyalty_Mission_Opened.Ready_to_open_Veteran"
+    code: "me2.bool.44 == true && me2.bool.1491 == false"
+
+vars:
+  me2.player.paragon: {ref: me2.int.2, path: "me2:Utility.Player_Info.Paragon"}
+  me2.player.renegade: {ref: me2.int.3, path: "me2:Utility.Player_Info.Renegade"}
+  me2.player.paragon_potential: {ref: me2.int.581, path: "me2:Utility.Player_Info.Paragon_Potential"}
+  me2.player.renegade_potential: {ref: me2.int.582, path: "me2:Utility.Player_Info.Renegade_Potential"}
+  story.shepard.style:
+    type: enum
+    values: [paragon, renegade, balanced]
+    doc: >-
+      The player's dialogue style from ME2 on. Morality accrues from hundreds of dialogue
+      choices below this model's granularity, so it is modeled as one declared intent.
+  me2.player.female: {ref: me2.bool.66, path: "me2:Utility.Player_Info.Female_Player"}
+  me2.progress.cr0_done: {ref: me2.bool.537, path: "me2:Global.Game_Progress.CR0_Done"}
+  me2.progress.cr1_done: {ref: me2.bool.312, path: "me2:Global.Game_Progress.CR1_Done"}
+  me2.progress.cr2_done: {ref: me2.bool.313, path: "me2:Global.Game_Progress.CR2_Done"}
+  me2.progress.cr3_done: {ref: me2.bool.314, path: "me2:Global.Game_Progress.CR3_Done"}
+  me2.progress.game_done: {ref: me2.bool.1456, path: "me2:Global.Game_Progress.Game_Done"}
+  me2.progress.told_about_cr1: {ref: me2.bool.3428, path: "me2:Global.Game_Progress.IM_Messages.Told_about_Crit1"}
+  me2.progress.told_about_cr2: {ref: me2.bool.3429, path: "me2:Global.Game_Progress.IM_Messages.Told_about_Crit2"}
+  me2.progress.missions_since_last_event: {ref: me2.int.23, path: "me2:Global.Game_Progress.Missions_Since_Last_Event"}
+  me2.progress.missions_total: {ref: me2.int.168, path: "me2:Global.Game_Progress.Missions_Total"}
+  me2.progress.missions_before_endgame: {ref: me2.int.166, path: "me2:Global.Game_Progress.Missions_Count_Before_EndGame"}
+  me2.progress.party_size: {ref: me2.int.22, path: "me2:Utility.Henchmen.In_Party.Party_Size"}
+  me2.progress.available_missions_complete: {ref: me2.bool.1495, path: "me2:Global.Game_Progress.Available_Missions_Complete"}
+  me2.progress.last_mission_completed: {ref: me2.int.307, path: "me2:Global.Game_Progress.Last_Mission_Completed", default: 0, doc: "Mission ids are not modeled; stays 0 so the Ready_to_open checks that exclude the just-finished recruitment mission always pass."}
+  me2.grunt.body_retrieved: {ref: me2.bool.618, path: "me2:Global.Grunt_Activation.Grunt_Body_Retrieved"}
+  me2.reaper_iff.complete: {ref: me2.bool.1256, path: "me2:Acquisition_Missions.Geth_Acquisition.Mission_Complete"}
+  me2.legion.kept: {ref: me2.bool.1247, path: "me2:Acquisition_Missions.Geth_Acquisition.Kept_Geth"}
+  me2.progress.iff_installed: {ref: me2.bool.3619, path: "me2:Global.Game_Progress.IFF_Installed"}
+  me2.normandy.shield_upgrade: {ref: me2.bool.236, path: "me2:Global.Normandy.Upgrades.Shield"}
+  me2.normandy.armor_upgrade: {ref: me2.bool.237, path: "me2:Global.Normandy.Upgrades.Armor"}
+  me2.normandy.weapons_upgrade: {ref: me2.bool.238, path: "me2:Global.Normandy.Upgrades.Weapons"}
+  me2.end.destroy_base: {ref: me2.bool.1831, path: "me2:Act_3.Final_Decision.Destroy_Base"}
+  me2.end.keep_base: {ref: me2.bool.1832, path: "me2:Act_3.Final_Decision.Work_with_Cerberus"}
+  me2.end.final_mission_complete: {ref: me2.bool.3549, path: "me2:Act_3.EndGm3_MissionComplete.FinalMission_Complete"}
+  me2.samara.chose_samara: {ref: me2.bool.4819, path: "me2:Loyalty_Missions.Mystic_Loyalty.Journal.Chose_Samara_j"}
+  me2.samara.chose_morinth: {ref: me2.bool.4818, path: "me2:Loyalty_Missions.Mystic_Loyalty.Journal.Chose_Morinth_j"}
+
+storylets:
+  - id: me2.player.style
+    title: Shepard's manner
+    trigger: auto
+    priority: 90
+    summary: How this Shepard tends to answer, which drives ME2's morality-gated persuasion options.
+    requires: "story.me2.history_set && story.shepard.style == ''"
+    choices:
+      - {id: paragon, effects: ["story.shepard.style = 'paragon'"]}
+      - {id: renegade, effects: ["story.shepard.style = 'renegade'"]}
+      - {id: balanced, effects: ["story.shepard.style = 'balanced'"]}
+

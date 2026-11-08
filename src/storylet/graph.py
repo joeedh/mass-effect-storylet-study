@@ -27,7 +27,7 @@ class GEdge:
 def _reads(engine: Engine, st: Storylet) -> tuple[set[str], set[tuple[str, str | None, str]]]:
     refs: set[str] = set()
     specials: set[tuple[str, str | None, str]] = set()
-    nodes = [st.requires, *(c.requires for c in st.choices)]
+    nodes = [st.requires, *(c.requires for c in st.choices), *(o.when for o in st.outcomes)]
     for node in nodes:
         for name in engine.expand_names(node):
             try:
@@ -52,6 +52,9 @@ def build(content: Content) -> list[GEdge]:
         for c in st.choices:
             for e in c.effects:
                 writers[engine.ref_of(e.target)[0]].append((st.id, c.id))
+        for o in st.outcomes:
+            for e in o.effects:
+                writers[engine.ref_of(e.target)[0]].append((st.id, f"={o.id}"))
     edges: set[GEdge] = set()
     for st in content.storylets.values():
         refs, specials = _reads(engine, st)

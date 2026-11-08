@@ -6,8 +6,10 @@ from typing import Any
 
 from .expr import Effect, Node, parse
 
-STATE_TYPES = ("bool", "int", "float")
-DEFAULTS = {"bool": False, "int": 0, "float": 0.0}
+STATE_TYPES = ("bool", "int", "float", "enum")
+DEFAULTS = {"bool": False, "int": 0, "float": 0.0, "enum": ""}
+GAME_INDEX = {"me1": 1, "me2": 2, "me3": 3}
+CAMPAIGN_VAR = "story.game"  # declaring it turns on per-game gating (schema v2)
 
 
 @dataclass
@@ -25,6 +27,7 @@ class VarDecl:
     default: Any = None
     doc: str = ""
     source: str = ""
+    values: tuple[str, ...] = ()  # enum members (v2)
 
     @property
     def is_plot(self) -> bool:
@@ -49,6 +52,7 @@ class ConditionDecl:
     path: str | None = None
     doc: str = ""
     source: str = ""
+    numeric: bool = False  # `derived:` values (v2) are not coerced to bool
 
     @property
     def takes_argument(self) -> bool:
@@ -65,6 +69,15 @@ class Choice:
 
 
 @dataclass
+class Outcome:
+    """A system-resolved branch (v2): applied when ``when`` holds, no player involvement."""
+    id: str
+    when: Node
+    effects: list[Effect] = field(default_factory=list)
+    summary: str = ""
+
+
+@dataclass
 class Storylet:
     id: str
     title: str
@@ -72,11 +85,16 @@ class Storylet:
     area: str
     summary: str = ""
     requires: Node = field(default_factory=lambda: parse(True))
-    trigger: str = "player"          # 'auto' fires as soon as available; 'player' is an agency point
+    trigger: str = "player"          # 'auto' fires as soon as available; 'player' is an agency point;
+                                     # 'idle' (v2) fires only when nothing else is available
+    kind: str = "beat"               # 'beat' | 'bridge' (v2: exempt from per-game gating)
     repeatable: bool = False
     priority: int = 0
     effects: list[Effect] = field(default_factory=list)
     choices: list[Choice] = field(default_factory=list)
+    outcomes: list[Outcome] = field(default_factory=list)
+    resolve: str = "all"             # outcomes: 'all' apply every match in order, 'first' only the first
+    traits: list[str] = field(default_factory=list)
     tags: list[str] = field(default_factory=list)
     evidence: list[str] = field(default_factory=list)  # plot-db refs/paths grounding this storylet
     notes: str = ""
@@ -99,3 +117,7 @@ class Content:
 
     def ordered(self) -> list[Storylet]:
         return list(self.storylets.values())
+
+    @property
+    def gated(self) -> bool:
+        return CAMPAIGN_VAR in self.vars

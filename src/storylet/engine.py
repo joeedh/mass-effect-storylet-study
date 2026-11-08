@@ -6,7 +6,7 @@ from dataclasses import dataclass, field
 from typing import Any, Iterable
 
 from .expr import FUNCTIONS, SPECIAL_FORMS, ExprError, Node, evaluate
-from .model import DEFAULTS, Choice, Content, Storylet
+from .model import CAMPAIGN_VAR, DEFAULTS, GAME_INDEX, Choice, Content, Storylet
 
 REF_KINDS = {"bool", "int", "float"}
 
@@ -86,7 +86,8 @@ class Engine:
             if cond is not None:
                 if cond.takes_argument:
                     raise ExprError(f"condition {name} takes an argument: call it as {name}(...)")
-                return bool(self.eval(cond.code, state, values, None, _depth + 1))
+                v = self.eval(cond.code, state, values, None, _depth + 1)
+                return v if cond.numeric else bool(v)
             ref, vtype = self.ref_of(name)
             return values.get(ref, self.default(ref, vtype))
 
@@ -98,23 +99,52 @@ class Engine:
             cond = self.content.conditions.get(call.value)
             if cond is not None and len(call.args) == 1:
                 arg = evaluate(call.args[0], env, special)
-                return bool(self.eval(cond.code, state, values, {"argument": arg}, _depth + 1))
+                v = self.eval(cond.code, state, values, {"argument": arg}, _depth + 1)
+                return v if cond.numeric else bool(v)
             raise ExprError(f"unknown function {call.value}()")
 
         return evaluate(node, env, special)
 
-    def choices(self, st: Storylet, state: State) -> list[Choice]:
-        return [c for c in st.choices if self.eval(c.requires, state)]
+    def in_current_game(self, st: Storylet, values: dict) -> bool:
+        """v2 campaign gating: a game's storylets only run while that game is being played."""
+        if not self.content.gated or st.kind == "bridge" or st.game not in GAME_INDEX:
+            return True
+        return values.get(CAMPAIGN_VAR, self.default(CAMPAIGN_VAR, "int")) == GAME_INDEX[st.game]
 
-    def is_available(self, st: Storylet, state: State) -> bool:
+    def choices(self, st: Storylet, state: State, values: dict | None = None) -> list[Choice]:
+        values = state.as_dict() if values is None else values
+        return [c for c in st.choices if self.eval(c.requires, state, values)]
+
+    def is_available(self, st: Storylet, state: State, values: dict | None = None) -> bool:
         if not st.repeatable and st.id in state.fired:
             return False
-        if not self.eval(st.requires, state):
+        values = state.as_dict() if values is None else values
+        if not self.in_current_game(st, values):
             return False
-        return not st.choices or bool(self.choices(st, state))
+        if not self.eval(st.requires, state, values):
+            return False
+        return not st.choices or bool(self.choices(st, state, values))
 
     def available(self, state: State) -> list[Storylet]:
-        return [s for s in self.storylets if self.is_available(s, state)]
+        values = state.as_dict()
+        return [s for s in self.storylets if self.is_available(s, state, values)]
+
+    def _assign(self, values: dict, ref: str, vtype: str, op: str, rhs: Any, target: str) -> None:
+        if op == "+=":
+            rhs = values.get(ref, self.default(ref, vtype)) + rhs
+        elif op == "-=":
+            rhs = values.get(ref, self.default(ref, vtype)) - rhs
+        if vtype == "bool":
+            rhs = bool(rhs)
+        elif vtype == "int":
+            rhs = int(rhs)
+        elif vtype == "float":
+            rhs = float(rhs)
+        else:  # enum
+            decl = self.content.by_ref[ref]
+            if rhs != "" and rhs not in decl.values:
+                raise ValueError(f"{target}: {rhs!r} is not one of {list(decl.values)}")
+        values[ref] = rhs
 
     def fire(self, state: State, st: Storylet | str, choice: str | None = None) -> State:
         if isinstance(st, str):
@@ -140,18 +170,18 @@ class Engine:
         mid = State(state.values, state.fired | {st.id}, chosen)
         for eff in effects:
             ref, vtype = self.ref_of(eff.target)
-            rhs = self.eval(eff.expr, mid, values)
-            if eff.op == "+=":
-                rhs = values.get(ref, self.default(ref, vtype)) + rhs
-            elif eff.op == "-=":
-                rhs = values.get(ref, self.default(ref, vtype)) - rhs
-            if vtype == "bool":
-                rhs = bool(rhs)
-            elif vtype == "int":
-                rhs = int(rhs)
-            else:
-                rhs = float(rhs)
-            values[ref] = rhs
+            self._assign(values, ref, vtype, eff.op, self.eval(eff.expr, mid, values), eff.target)
+        # v2: system-resolved outcomes, evaluated in order against the updated state
+        for o in st.outcomes:
+            mid = State(mid.values, mid.fired, chosen)
+            if self.eval(o.when, mid, values):
+                chosen = chosen | {(st.id, o.id)}
+                mid = State(mid.values, mid.fired, chosen)
+                for eff in o.effects:
+                    ref, vtype = self.ref_of(eff.target)
+                    self._assign(values, ref, vtype, eff.op, self.eval(eff.expr, mid, values), eff.target)
+                if st.resolve == "first":
+                    break
         return self._pack(values, mid.fired, chosen)
 
     def _pack(self, values: dict, fired: frozenset, chosen: frozenset) -> State:
@@ -179,11 +209,13 @@ class Engine:
             top = max(s.priority for s in autos)
             pool = [next(s for s in autos if s.priority == top)]
         else:
-            pool = avail
+            # v2: 'idle' storylets fire only when the player has nothing else to do
+            pool = [s for s in avail if s.trigger == "player"] or [s for s in avail if s.trigger == "idle"]
         out = []
+        values = state.as_dict()
         for s in pool:
             if s.choices:
-                out.extend((s, c.id) for c in self.choices(s, state))
+                out.extend((s, c.id) for c in self.choices(s, state, values))
             else:
                 out.append((s, None))
         return out
@@ -252,6 +284,5 @@ def coverage(engine: Engine, runs: int, seed: int = 0, starts: Iterable[State] |
         traces.append(t)
         for step in t.steps:
             fired.add(step.storylet)
-            if step.choice:
-                chosen.add((step.storylet, step.choice))
+        chosen |= t.final.chosen
     return fired, chosen, traces

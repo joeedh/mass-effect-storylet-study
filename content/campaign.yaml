@@ -1,0 +1,21 @@
+# Campaign structure (schema v2). Declaring story.game turns on per-game gating: a storylet
+# with `game: meN` is only available while story.game == N. Storylets with `kind: bridge`
+# (save imports, campaign starts) are exempt and move the campaign between games.
+area: campaign
+
+vars:
+  story.game:
+    type: int
+    doc: "Game currently being played: 0 = campaign not started, 1/2/3 = ME1/ME2/ME3."
+
+storylets:
+  - id: campaign.start
+    title: Start a career
+    kind: bridge
+    trigger: auto
+    priority: 1000
+    summary: Begin a new Shepard in ME1, or start fresh in a later game with no imported save.
+    requires: "story.game == 0"
+    choices:
+      - {id: me1, label: "Mass Effect", effects: ["story.game = 1"]}
+      - {id: me2, label: "Mass Effect 2 (no import)", effects: ["story.game = 2"]}

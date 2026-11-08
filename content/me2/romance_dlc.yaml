@@ -1,0 +1,50 @@
+# ME2 romances and the story DLCs that feed ME3 (Lair of the Shadow Broker, Arrival).
+game: me2
+area: me2.normandy
+
+vars:
+  me2.romance.tali: {ref: me2.int.272, path: "me2:Global.Henchmen.Tali.Relationship", doc: "Relationship stage; 0 = none"}
+  story.me2.arrival.done: {type: bool}
+  story.me2.lotsb.done: {type: bool}
+
+storylets:
+  - id: me2.normandy.romance
+    title: A relationship on the SR-2
+    summary: A squadmate's romance can be pursued once their loyalty mission is done, and is sealed the night before the Omega 4 relay.
+    requires: "!story.me2.sm.started && !(me2.romance.miranda || me2.romance.jack || me2.romance.tali > 0 || me2.romance.jacob || me2.romance.garrus || me2.romance.thane)"
+    choices:
+      - {id: miranda, requires: "!me2.player.female && me2.squad.miranda.loyalty_done", effects: ["me2.romance.miranda = true"]}
+      - {id: jack, requires: "!me2.player.female && me2.squad.jack.loyalty_done", effects: ["me2.romance.jack = true"]}
+      - {id: tali, requires: "!me2.player.female && me2.squad.tali.loyalty_done", effects: ["me2.romance.tali = 3"]}
+      - {id: jacob, requires: "me2.player.female && me2.squad.jacob.loyalty_done", effects: ["me2.romance.jacob = true"]}
+      - {id: garrus, requires: "me2.player.female && me2.squad.garrus.loyalty_done", effects: ["me2.romance.garrus = true"]}
+      - {id: thane, requires: "me2.player.female && me2.squad.thane.loyalty_done", effects: ["me2.romance.thane = true"]}
+    tags: [romance, cross-game]
+    notes: Real romances are multi-stage conversation chains (Henchmen.*.Relationship); collapsed to the final state.
+    evidence: ["me2:Global.Henchmen.Vixen", "me2:Global.Henchmen.Garrus", "me2:Global.Henchmen.Tali"]
+
+  - id: me2.dlc.shadow_broker
+    title: Lair of the Shadow Broker
+    area: me2.dlc
+    traits: [me2.mission]
+    summary: >-
+      Shepard helps Liara hunt the Shadow Broker to his ship in a storm on Hagalaz. Liara kills
+      him and takes his place. Shepard and Liara reconnect.
+    requires: "me2.progress.cr1_done && !story.me2.lotsb.done"
+    choices:
+      - {id: rekindle, label: Rekindle the romance, effects: ["story.me2.lotsb.done = true", "me2.lotsb.kissed_liara = true", "me2.romance.liara = true"]}
+      - {id: friends, label: Stay friends, effects: ["story.me2.lotsb.done = true"]}
+    tags: [dlc, cross-game]
+    evidence: ["me2:DLC_EXP_Part01"]
+
+  - id: me2.dlc.arrival
+    title: Arrival
+    area: me2.dlc
+    summary: >-
+      Admiral Hackett sends Shepard alone to rescue an operative in the Bahak system. Shepard
+      discovers the Reapers are days from arriving and destroys the mass relay to delay them,
+      killing the batarian colony. Shepard returns to Earth to face the consequences.
+    requires: "me2.progress.game_done && !story.me2.shepard_dead && !story.me2.arrival.done"
+    effects: ["story.me2.arrival.done = true", "me2.arrival.complete = true"]
+    tags: [dlc, cross-game]
+    evidence: ["me2:DLC_EXP_Part02"]

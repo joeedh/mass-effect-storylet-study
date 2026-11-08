@@ -1,0 +1,121 @@
+# ME2 loyalty missions. Each squadmate has the same flag families in the plot DB
+# (Loyalty_Mission_Opened/Done, Is_Loyal) and a lifted Ready_to_open_<Codename> conditional, so
+# the plain missions are one template. Missions whose decisions matter later are written out.
+game: me2
+area: me2.loyalty
+
+vars:
+  story.me2.legion.heretics:
+    type: enum
+    values: [rewritten, destroyed]
+    doc: Legion's loyalty mission. Placeholder until the ME2 variable ME3 reads is located.
+  story.me2.mordin.kept_maelon_data:
+    type: bool
+    doc: Mordin's loyalty mission. Placeholder until the ME2 variable ME3 reads is located.
+  story.me2.garrus.spared_sidonis: {type: bool}
+  story.me2.kasumi.kept_graybox: {type: bool}
+  story.me2.morinth: {type: bool, doc: "Morinth replaced Samara on the team (shares Samara's roster slot)."}
+  story.me2.conflict.miranda_jack: {type: enum, values: [resolved, sided_miranda, sided_jack]}
+  story.me2.conflict.tali_legion: {type: enum, values: [resolved, sided_tali, sided_legion]}
+
+storylets:
+  - foreach:
+      - {who: miranda, title: "Miranda: The Prodigal", summary: "Miranda's father is closing in on the twin sister she hid from him. Shepard helps get Oriana and her family to safety."}
+      - {who: jacob, title: "Jacob: The Gift of Greatness", summary: "Jacob follows a ten-year-old distress beacon from his father's ship and finds that his father made himself a tyrant over the stranded crew."}
+      - {who: jack, title: "Jack: Subject Zero", summary: "Jack returns to Pragia, the Cerberus facility where she was experimented on as a child, to destroy it."}
+      - {who: thane, title: "Thane: Sins of the Father", summary: "Thane's estranged son Kolyat has taken an assassination contract on the Citadel. Shepard and Thane stop him before he kills."}
+      - {who: tali, title: "Tali: Treason", summary: "Tali is tried for treason by the Admiralty Board after her father's geth experiments are discovered. Shepard defends her."}
+      - {who: grunt, title: "Grunt: Rite of Passage", summary: "On Tuchanka, Grunt undergoes the krogan Rite of Passage and is accepted into Clan Urdnot."}
+      - {who: zaeed, title: "Zaeed: The Price of Revenge", summary: "Zaeed's vendetta against Vido Santiago, who founded the Blue Suns with him and then betrayed him, threatens a refinery full of workers."}
+    id: me2.loyalty.{who}
+    title: "{title}"
+    summary: "{summary}"
+    traits: [me2.mission]
+    requires: "me2.loyalty.{who}.ready && !me2.squad.{who}.dead"
+    effects:
+      - "me2.squad.{who}.loyalty_open = true"
+      - "me2.squad.{who}.loyalty_done = true"
+      - "me2.squad.{who}.loyal = true"
+    notes: Several of these missions have paragon/renegade variants that keep loyalty; failure paths (Zaeed) are not modeled.
+
+  - id: me2.loyalty.mordin
+    title: "Mordin: Old Blood"
+    traits: [me2.mission]
+    summary: Mordin's former student Maelon has been running brutal genophage-cure experiments on krogan females. Mordin must decide what to do with the data.
+    requires: "me2.loyalty.mordin.ready && !me2.squad.mordin.dead"
+    effects: ["me2.squad.mordin.loyalty_open = true", "me2.squad.mordin.loyalty_done = true", "me2.squad.mordin.loyal = true"]
+    choices:
+      - {id: keep_data, label: Save Maelon's data, effects: ["story.me2.mordin.kept_maelon_data = true"]}
+      - {id: destroy_data, label: Destroy it}
+    tags: [cross-game]
+
+  - id: me2.loyalty.garrus
+    title: "Garrus: Eye for an Eye"
+    traits: [me2.mission]
+    summary: Garrus has found Sidonis, the squadmate who betrayed his Omega team, and wants him dead.
+    requires: "me2.loyalty.garrus.ready && !me2.squad.garrus.dead"
+    effects: ["me2.squad.garrus.loyalty_open = true", "me2.squad.garrus.loyalty_done = true", "me2.squad.garrus.loyal = true"]
+    choices:
+      - {id: spare_sidonis, label: Talk Garrus down, effects: ["story.me2.garrus.spared_sidonis = true"]}
+      - {id: let_garrus_shoot, label: Let him take the shot}
+
+  - id: me2.loyalty.kasumi
+    title: "Kasumi: Stealing Memory"
+    traits: [me2.mission]
+    summary: Kasumi steals back her dead partner's graybox, holding his memories and a dangerous secret, from the arms dealer Hock.
+    requires: "me2.loyalty.kasumi.ready && !me2.squad.kasumi.dead"
+    effects: ["me2.squad.kasumi.loyalty_open = true", "me2.squad.kasumi.loyalty_done = true", "me2.squad.kasumi.loyal = true"]
+    choices:
+      - {id: keep_graybox, label: She keeps the memories, effects: ["story.me2.kasumi.kept_graybox = true"]}
+      - {id: destroy_graybox, label: Destroy the graybox}
+
+  - id: me2.loyalty.legion
+    title: "Legion: A House Divided"
+    traits: [me2.mission]
+    summary: >-
+      Legion leads Shepard to the heretic geth station, where the Reaper-allied geth are
+      building a virus. Shepard decides whether to rewrite the heretics into the main geth
+      consensus or destroy them.
+    requires: "me2.loyalty.legion.ready && !me2.squad.legion.dead"
+    effects: ["me2.squad.legion.loyalty_open = true", "me2.squad.legion.loyalty_done = true", "me2.squad.legion.loyal = true"]
+    choices:
+      - {id: rewrite, label: Rewrite the heretics, effects: ["story.me2.legion.heretics = 'rewritten'"]}
+      - {id: destroy, label: Destroy the station, effects: ["story.me2.legion.heretics = 'destroyed'"]}
+    tags: [cross-game]
+
+  - id: me2.loyalty.samara
+    title: "Samara: The Ardat-Yakshi"
+    traits: [me2.mission]
+    summary: >-
+      On Omega, Shepard acts as bait for Samara's daughter Morinth, an Ardat-Yakshi who kills
+      through melding. In the end both ask Shepard to side with them.
+    requires: "me2.loyalty.samara.ready && !me2.squad.samara.dead"
+    effects: ["me2.squad.samara.loyalty_open = true", "me2.squad.samara.loyalty_done = true", "me2.squad.samara.loyal = true"]
+    choices:
+      - {id: samara, label: Help Samara, effects: ["me2.samara.chose_samara = true"]}
+      - {id: morinth, label: Side with Morinth, effects: ["me2.samara.chose_morinth = true", "story.me2.morinth = true"]}
+    tags: [cross-game]
+    evidence: ["me2:Loyalty_Missions.Mystic_Loyalty"]
+
+  # --- loyalty confrontations ----------------------------------------------------------------
+  - id: me2.conflict.miranda_jack
+    title: Miranda and Jack
+    area: me2.normandy
+    trigger: auto
+    summary: Jack and Miranda clash over Cerberus. Unless Shepard has the authority to calm both down, siding with one costs the other's loyalty.
+    requires: "me2.squad.miranda.loyal && me2.squad.jack.loyal && story.me2.conflict.miranda_jack == ''"
+    choices:
+      - {id: resolve, label: Calm them both down, requires: "me2.player.persuasive", effects: ["story.me2.conflict.miranda_jack = 'resolved'"]}
+      - {id: side_miranda, label: Side with Miranda, effects: ["story.me2.conflict.miranda_jack = 'sided_miranda'", "me2.squad.jack.loyal = false"]}
+      - {id: side_jack, label: Side with Jack, effects: ["story.me2.conflict.miranda_jack = 'sided_jack'", "me2.squad.miranda.loyal = false"]}
+
+  - id: me2.conflict.tali_legion
+    title: Tali and Legion
+    area: me2.normandy
+    trigger: auto
+    summary: Tali learns Legion intends to rewrite the heretics, or of the geth on the Normandy, and confronts it.
+    requires: "me2.squad.tali.loyal && me2.squad.legion.loyal && story.me2.conflict.tali_legion == ''"
+    choices:
+      - {id: resolve, label: Defuse it, requires: "me2.player.persuasive", effects: ["story.me2.conflict.tali_legion = 'resolved'"]}
+      - {id: side_tali, label: Side with Tali, effects: ["story.me2.conflict.tali_legion = 'sided_tali'", "me2.squad.legion.loyal = false"]}
+      - {id: side_legion, label: Side with Legion, effects: ["story.me2.conflict.tali_legion = 'sided_legion'", "me2.squad.tali.loyal = false"]}

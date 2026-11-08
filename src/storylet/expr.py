@@ -215,6 +215,7 @@ def _truthy(v: Any) -> bool:
 
 FUNCTIONS: dict[str, Callable[..., Any]] = {
     "count": lambda *xs: sum(1 for x in xs if x),
+    "sum": lambda *xs: sum(xs),
     "any": lambda *xs: any(xs),
     "all": lambda *xs: all(xs),
     "min": min,

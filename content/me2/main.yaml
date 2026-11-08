@@ -1,0 +1,248 @@
+# ME2 critical path and recruitment. Mission storylets carry the `me2.mission` trait, which
+# advances the counters that the lifted Time_for_CR* conditionals read.
+game: me2
+area: me2.main
+
+vars:
+  story.me2.lazarus_done: {type: bool}
+  story.me2.legion_offer_pending:
+    type: bool
+    doc: Legion's inactive body is aboard and awaiting Shepard's decision.
+  me2.horizon.met_virmire_survivor:
+    ref: me2.bool.1849
+    path: "me2:Act_2.Horizon.Writer_States.AshKaiden_TalkedTo"
+
+storylets:
+  # --- Act 1 -------------------------------------------------------------------------------
+  - id: me2.prologue.normandy_destroyed
+    title: The Normandy destroyed
+    area: me2.prologue
+    trigger: auto
+    summary: A Collector ship destroys the Normandy. Shepard gets Joker into an escape pod and is killed, spaced over Alchera.
+    requires: "story.me2.history_set && !seen(me2.prologue.normandy_destroyed)"
+    evidence: ["me2:Act_1.Normandy_Destroyed"]
+
+  - id: me2.prologue.lazarus
+    title: Project Lazarus
+    area: me2.prologue
+    trigger: auto
+    summary: >-
+      Two years later Cerberus has rebuilt Shepard. Miranda Lawson and Jacob Taylor fight
+      alongside Shepard out of the sabotaged Lazarus station.
+    requires: "seen(me2.prologue.normandy_destroyed) && !story.me2.lazarus_done"
+    effects:
+      - "story.me2.lazarus_done = true"
+      - "me2.squad.miranda.recruited = true"
+      - "me2.squad.jacob.recruited = true"
+      - "me2.progress.party_size = 2"
+    evidence: ["me2:Act_1.Training_Center"]
+
+  - id: me2.prologue.freedoms_progress
+    title: Freedom's Progress
+    area: me2.prologue
+    trigger: auto
+    summary: >-
+      An entire human colony has vanished. With Tali's help Shepard learns from the quarian
+      Veetor that the Collectors took them. The Illusive Man hands over dossiers for a team
+      and a new Normandy.
+    requires: "story.me2.lazarus_done && !me2.progress.cr0_done"
+    effects: ["me2.progress.cr0_done = true"]
+    evidence: ["me2:Act_1.Freedoms_Progress"]
+
+  # --- Recruitment: first dossiers ---------------------------------------------------------
+  - id: me2.recruit.mordin
+    title: "Dossier: The Professor"
+    area: me2.recruit
+    traits: [me2.mission]
+    summary: On Omega, Shepard fights through a quarantined district to reach Mordin Solus, who is curing a plague engineered to spare only vorcha and humans.
+    requires: "me2.progress.cr0_done && !me2.squad.mordin.recruited"
+    effects: ["me2.squad.mordin.recruited = true", "me2.progress.party_size += 1"]
+    evidence: ["me2:Acquisition_Missions.Professor_Acquisition"]
+
+  - id: me2.recruit.garrus
+    title: "Dossier: Archangel"
+    area: me2.recruit
+    traits: [me2.mission]
+    summary: Shepard poses as a mercenary to reach "Archangel", the vigilante three gangs want dead, and finds Garrus Vakarian.
+    requires: "me2.progress.cr0_done && !me2.squad.garrus.recruited"
+    effects: ["me2.squad.garrus.recruited = true", "me2.progress.party_size += 1"]
+    evidence: ["me2:Acquisition_Missions.Garrus_Acquisition"]
+
+  - id: me2.recruit.jack
+    title: "Dossier: The Convict"
+    area: me2.recruit
+    traits: [me2.mission]
+    summary: Shepard collects the biotic convict Jack from the prison ship Purgatory, whose warden tries to sell her instead.
+    requires: "me2.progress.cr0_done && !me2.squad.jack.recruited"
+    effects: ["me2.squad.jack.recruited = true", "me2.progress.party_size += 1"]
+    evidence: ["me2:Acquisition_Missions.Convict_Acquisition"]
+
+  - id: me2.recruit.okeer
+    title: "Dossier: The Warlord"
+    area: me2.recruit
+    traits: [me2.mission]
+    summary: On Korlus, the krogan scientist Okeer dies protecting his "perfect" tank-bred krogan and leaves it in Shepard's care.
+    requires: "me2.progress.cr0_done && !me2.grunt.body_retrieved"
+    effects: ["me2.grunt.body_retrieved = true"]
+    evidence: ["me2:Acquisition_Missions.Krogan_Acquisition", "me2:Global.Grunt_Activation"]
+
+  - id: me2.recruit.grunt
+    title: Open the tank
+    area: me2.recruit
+    summary: Shepard releases the tank-bred krogan, who names himself Grunt and joins the squad.
+    requires: "me2.grunt.body_retrieved && !me2.squad.grunt.recruited"
+    effects: ["me2.squad.grunt.recruited = true", "me2.progress.party_size += 1"]
+
+  - id: me2.recruit.zaeed
+    title: "Dossier: The Veteran"
+    area: me2.recruit
+    traits: [me2.mission]
+    summary: Bounty hunter Zaeed Massani signs on after helping Shepard free Zorya from the Blue Suns.
+    requires: "me2.progress.cr0_done && !me2.squad.zaeed.recruited"
+    effects: ["me2.squad.zaeed.recruited = true", "me2.progress.party_size += 1"]
+    tags: [dlc]
+
+  - id: me2.recruit.kasumi
+    title: "Dossier: The Master Thief"
+    area: me2.recruit
+    summary: Master thief Kasumi Goto joins in exchange for help with a heist.
+    requires: "me2.progress.cr0_done && !me2.squad.kasumi.recruited"
+    effects: ["me2.squad.kasumi.recruited = true", "me2.progress.party_size += 1"]
+    tags: [dlc]
+
+  # --- Horizon (CR1) --------------------------------------------------------------------------
+  - id: me2.crit.horizon_message
+    title: The Illusive Man on Horizon
+    area: me2.crit
+    trigger: auto
+    summary: With Mordin aboard and a counter-measure to the Collector swarms ready, the Illusive Man reports an imminent attack on Horizon.
+    requires: "me2.progress.time_for_cr1_message"
+    effects: ["me2.progress.told_about_cr1 = true"]
+
+  - id: me2.crit.horizon
+    title: Horizon
+    area: me2.crit
+    summary: >-
+      Shepard fights the Collectors on Horizon but cannot stop them taking most of the colony.
+      Shepard's Virmire survivor, now stationed there, sees Shepard working for Cerberus.
+    requires: "me2.progress.time_for_cr1"
+    effects:
+      - "me2.progress.cr1_done = true"
+      - "me2.progress.missions_since_last_event = 0"
+      - "me2.horizon.met_virmire_survivor = me2.import.ash_died || me2.import.kaidan_died"
+    tags: [cross-game]
+    evidence: ["me2:Act_2.Horizon"]
+
+  # --- Recruitment: after Horizon -------------------------------------------------------------
+  - id: me2.recruit.thane
+    title: "Dossier: The Assassin"
+    area: me2.recruit
+    traits: [me2.mission]
+    summary: On Illium Shepard races the drell assassin Thane Krios to his target in Dantius Towers. Thane, terminally ill, joins.
+    requires: "me2.acquire.thane_available"
+    effects: ["me2.squad.thane.recruited = true", "me2.progress.party_size += 1"]
+    evidence: ["me2:Legacy_Missions.Assassin_Acquisition"]
+
+  - id: me2.recruit.samara
+    title: "Dossier: The Justicar"
+    area: me2.recruit
+    traits: [me2.mission]
+    summary: The asari Justicar Samara is hunting a fugitive on Illium. She swears an oath to serve Shepard until the Collectors are stopped.
+    requires: "me2.acquire.samara_available"
+    effects: ["me2.squad.samara.recruited = true", "me2.progress.party_size += 1"]
+    evidence: ["me2:Acquisition_Missions.Mystic_Acquisition"]
+
+  - id: me2.recruit.tali
+    title: "Dossier: Tali"
+    area: me2.recruit
+    traits: [me2.mission]
+    summary: On Haestrom, a world whose sun is dying, Shepard rescues Tali from the geth. She leaves the Migrant Fleet's mission to join.
+    requires: "me2.acquire.tali_available"
+    effects: ["me2.squad.tali.recruited = true", "me2.progress.party_size += 1"]
+    evidence: ["me2:Acquisition_Missions.Tali_Acquisition"]
+
+  # --- Collector Ship (CR2) ---------------------------------------------------------------------
+  - id: me2.crit.collector_ship_message
+    title: A disabled Collector ship
+    area: me2.crit
+    trigger: auto
+    summary: Once the team is large enough, the Illusive Man reports that the turians have disabled a Collector ship.
+    requires: "me2.progress.time_for_cr2_message"
+    effects: ["me2.progress.told_about_cr2 = true"]
+
+  - id: me2.crit.collector_ship
+    title: The Collector Ship
+    area: me2.crit
+    summary: >-
+      The Collector ship is a trap. Inside, Shepard learns that the Collectors are Protheans
+      re-engineered by the Reapers, and that only a Reaper IFF will get the Normandy through the
+      Omega 4 relay.
+    requires: "me2.progress.time_for_cr2"
+    effects: ["me2.progress.cr2_done = true", "me2.progress.missions_since_last_event = 0"]
+    evidence: ["me2:Act_2.Crit02_Collector_Ship"]
+
+  # --- Reaper IFF, Legion, crew abduction (CR3) ------------------------------------------------
+  - id: me2.crit.reaper_iff
+    title: The derelict Reaper
+    area: me2.crit
+    traits: [me2.mission]
+    summary: >-
+      On a dead Reaper orbiting a brown dwarf, Shepard recovers the IFF and a lone geth who
+      helps the squad escape. The IFF is installed in the Normandy.
+    requires: "me2.acquire.reaper_iff_available"
+    effects:
+      - "me2.reaper_iff.complete = true"
+      - "me2.progress.iff_installed = true"
+      - "me2.progress.missions_since_last_event = 0"
+      - "story.me2.legion_offer_pending = true"
+    evidence: ["me2:Acquisition_Missions.Geth_Acquisition"]
+
+  - id: me2.recruit.legion
+    title: Reactivate the geth
+    area: me2.recruit
+    summary: The geth is aboard, deactivated. Shepard can switch it on (it names itself Legion) or hand it to Cerberus.
+    requires: "story.me2.legion_offer_pending && !me2.progress.cr3_done"
+    choices:
+      - {id: activate, label: Reactivate it, effects: ["story.me2.legion_offer_pending = false", "me2.legion.kept = true", "me2.squad.legion.recruited = true", "me2.progress.party_size += 1"]}
+      - {id: give_to_cerberus, label: Give it to Cerberus, effects: ["story.me2.legion_offer_pending = false"]}
+    tags: [cross-game]
+
+  - id: me2.progress.missions_exhausted
+    title: Nothing left to do
+    area: me2.crit
+    trigger: idle
+    summary: When no missions remain, the game forces the critical path forward (Available_Missions_Complete).
+    requires: "!me2.progress.available_missions_complete && me2.reaper_iff.complete"
+    effects: ["me2.progress.available_missions_complete = true"]
+
+  - id: me2.crit.crew_abducted
+    title: The crew is taken
+    area: me2.crit
+    trigger: auto
+    summary: >-
+      While Shepard and the squad are away on a shuttle mission, the Collectors board the
+      Normandy and take the whole crew except Joker. Joker frees EDI, who saves the ship. Every
+      mission done from now on costs crew lives.
+    requires: "me2.progress.time_for_cr3"
+    effects: ["me2.progress.cr3_done = true", "me2.progress.missions_since_last_event = 0"]
+    evidence: ["me2:Act_3.Crit03_NormandyAssault"]
+
+  # --- Normandy upgrades (they decide deaths at the Omega 4 relay) ------------------------------
+  - id: me2.normandy.armor
+    title: Silaris armor
+    area: me2.normandy
+    summary: Jacob suggests heavy Silaris ship armor for the Normandy.
+    requires: "me2.squad.jacob.recruited && !me2.normandy.armor_upgrade && !me2.progress.game_done"
+    effects: ["me2.normandy.armor_upgrade = true"]
+  - id: me2.normandy.shields
+    title: Cyclonic barrier
+    area: me2.normandy
+    summary: Tali proposes a multicore shield for the Normandy.
+    requires: "me2.squad.tali.recruited && !me2.normandy.shield_upgrade && !me2.progress.game_done"
+    effects: ["me2.normandy.shield_upgrade = true"]
+  - id: me2.normandy.weapons
+    title: Thanix cannon
+    area: me2.normandy
+    summary: Garrus wants a Thanix cannon, a weapon based on Sovereign's design.
+    requires: "me2.squad.garrus.recruited && !me2.normandy.weapons_upgrade && !me2.progress.game_done"
+    effects: ["me2.normandy.weapons_upgrade = true"]

@@ -33,6 +33,12 @@ def _iter_exprs(content: Content):
             for e in c.effects:
                 yield w, e.expr, "read"
                 yield w, e, "write"
+        for o in st.outcomes:
+            w = f"{st.id}/{o.id}"
+            yield w, o.when, "read"
+            for e in o.effects:
+                yield w, e.expr, "read"
+                yield w, e, "write"
 
 
 def reads_writes(content: Content, engine: Engine) -> tuple[dict[str, set[str]], dict[str, set[str]]]:
@@ -92,7 +98,7 @@ def validate(content: Content, catalog=None, sim_runs: int = 300, seed: int = 0)
                     r.errors.append(f"{where}: {call.value}() unknown storylet {args[0]!r}")
                 elif call.value == "chose":
                     st = content.storylets[args[0]]
-                    if len(args) != 2 or args[1] not in {c.id for c in st.choices}:
+                    if len(args) != 2 or args[1] not in {c.id for c in st.choices} | {o.id for o in st.outcomes}:
                         r.errors.append(f"{where}: chose() unknown choice {args[1:]!r} of {args[0]}")
                 else:
                     for a in args[1:]:
@@ -173,6 +179,9 @@ def validate(content: Content, catalog=None, sim_runs: int = 300, seed: int = 0)
             for c in st.choices:
                 if st.id in fired and (st.id, c.id) not in chosen:
                     r.warnings.append(f"{st.id}/{c.id}: never chosen in {sim_runs} simulated playthroughs")
+            for o in st.outcomes:
+                if st.id in fired and (st.id, o.id) not in chosen:
+                    r.info.append(f"{st.id}/{o.id}: outcome never resolved in {sim_runs} simulated playthroughs")
         stuck = sum(t.stuck for t in traces)
         if stuck:
             r.warnings.append(f"{stuck} simulated playthroughs hit the step limit (repeatable loop?)")
