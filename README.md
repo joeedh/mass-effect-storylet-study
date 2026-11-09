@@ -53,9 +53,9 @@ meplot bind me1.virmire.rescued_kaidan=me1:CH2_Virmire.The_Choice.Rescued_Kaidan
 | ME2  | 67: ME1 import + Genesis, recruitment, loyalty, crit path, the rule-driven suicide mission, LotSB, Arrival | v2 |
 | ME3  | 37: ME2 import, genophage arc, Cerberus coup, Rannoch, Thessia, Horizon, Cronos, Earth + EMS endings, side ops | v3 |
 
-Across the trilogy: 145 storylets bound to 314 plot variables, 50 conditionals lifted verbatim from
+Across the trilogy: 145 storylets bound to 314 plot variables, 51 conditionals lifted verbatim from
 the plot databases (mission gating, crew survival, cross-game fates, the Tuchanka bomb timer, the
-Illusive Man persuasion formula), and 50 documented `story.*` variables for state the plot
+Illusive Man persuasion formula), and 49 documented `story.*` variables for state the plot
 tables don't hold or that hasn't been located yet.
 
 ## Docs

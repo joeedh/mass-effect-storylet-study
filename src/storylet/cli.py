@@ -34,6 +34,7 @@ DEFAULT_OUTCOMES = [
     ("genophage", "me3.genophage.cure_real ? 'cured' : (me3.genophage.cure_sabotaged ? 'sabotaged' : '-')"),
     ("Rannoch", "me3.rannoch.peace ? 'peace' : (me3.rannoch.quarians_dead ? 'geth won' : (me3.rannoch.geth_destroyed ? 'quarians won' : '-'))"),
     ("Wrex dead by ME3", "me3.fate.wrex_dead"),
+    ("Urdnot leader", "me3.genophage.wreav_leads ? 'Wreav' : 'Wrex'"),
     ("ME2 squad deaths", "count(me2.squad.miranda.dead, me2.squad.jacob.dead, me2.squad.jack.dead, me2.squad.legion.dead, me2.squad.kasumi.dead, me2.squad.garrus.dead, me2.squad.thane.dead, me2.squad.tali.dead, me2.squad.mordin.dead, me2.squad.grunt.dead, me2.squad.samara.dead, me2.squad.zaeed.dead)"),
 ]
 

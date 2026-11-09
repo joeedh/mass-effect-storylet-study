@@ -118,6 +118,7 @@ storylets:
     title: Miranda and Jack
     area: me2.normandy
     trigger: auto
+    priority: 10  # straight after the loyalty mission that sets it off, before crit-path beats
     summary: Jack and Miranda clash over Cerberus. Unless Shepard has the authority to calm both down, siding with one costs the other's loyalty.
     requires: "me2.squad.miranda.loyal && me2.squad.jack.loyal && story.me2.conflict.miranda_jack == ''"
     choices:
@@ -129,6 +130,7 @@ storylets:
     title: Tali and Legion
     area: me2.normandy
     trigger: auto
+    priority: 10  # straight after the loyalty mission that sets it off, before crit-path beats
     summary: Tali learns Legion intends to rewrite the heretics, or of the geth on the Normandy, and confronts it.
     requires: "me2.squad.tali.loyal && me2.squad.legion.loyal && story.me2.conflict.tali_legion == ''"
     choices:

@@ -190,6 +190,43 @@ class SchemaV2Tests(unittest.TestCase):
             self.e.fire(s, "pick_a")
 
 
+class ValidatorOrderingTests(unittest.TestCase):
+    def test_choice_reading_own_effect_is_an_error(self):
+        c = content_from("""
+        vars: {a: me1.bool.1, b: me1.bool.2, story.n: {type: int}}
+        traits:
+          counted: {effects: ["story.n += 1"]}
+        storylets:
+          - id: s
+            traits: [counted]
+            effects: ["a = true"]
+            choices:
+              - {id: dead, requires: "a", effects: ["b = true"]}
+              - {id: counter, requires: "story.n > 0"}
+              - {id: fine, requires: "!b"}
+        """)
+        rep = validate(c, None, sim_runs=0)
+        self.assertEqual(len(rep.errors), 1)
+        self.assertIn("s/dead", rep.errors[0])
+        self.assertTrue(any(i.startswith("s/counter") and "traits" in i for i in rep.info))
+
+    def test_preempted_auto_is_reported(self):
+        # 'scene' can only happen before 'next' fires; with equal priority, file order decides.
+        c = content_from("""
+        vars: {a: me1.bool.1, b: me1.bool.2, done: me1.bool.3}
+        storylets:
+          - {id: start, trigger: auto, requires: "!a", effects: ["a = true"]}
+          - {id: next, trigger: auto, requires: "a && !b", effects: ["b = true"]}
+          - {id: scene, trigger: auto, requires: "a && !b && !done", effects: ["done = true"]}
+        """)
+        e = Engine(c)
+        t = e.run(e.initial())
+        self.assertEqual(t.preempted, {"scene"})
+        self.assertEqual(t.ties, {("next", "scene")})
+        rep = validate(c, None, sim_runs=5)
+        self.assertTrue(any(w.startswith("scene: auto storylet") for w in rep.warnings))
+
+
 class ShippedContentTests(unittest.TestCase):
     """The repository's own content must load, validate (without the catalog) and play through."""
 

@@ -133,3 +133,25 @@ binding.
   fates) over many simulated careers.
 - `tests/test_trilogy.py`: a golden ME2→ME3 career that must reach peace, persuade the Illusive
   Man and get EMS ≥ 4000, plus checks that ME3's fate conditions read ME1/ME2 state.
+
+## Post-v3 review: rules the validator now enforces
+
+A review of the three ports (`docs/plans/2026-11-09-storylet-structure-review.md`) found that two
+engine behaviours were documented as rules for authors to follow rather than checked. Content had
+broken both. The schema is unchanged. The engine semantics are kept, and the validator now checks
+them:
+
+- **Choices are offered before the storylet's own effects apply.** A choice whose `requires` reads
+  a variable the storylet itself writes is now an error. The engine change that would remove the
+  need for the check (evaluate choices after effects) was rejected. Mission traits write
+  morality and counters on every mission, so it would have shifted every persuasion check, and
+  a choice testing its own mission's `me3.order.<code> == 0` would have flipped. To tell trait
+  writes apart, the loader records how many of a storylet's effects came from traits.
+- **Equal-priority auto storylets fire in file order.** Simulation now records pre-empted auto
+  storylets (available, never fired, then unavailable) as warnings, and ties as info.
+  Priorities express order. A tie-break rule in the engine was not added: any rule would be
+  as arbitrary as file order.
+
+The same review replaced the derived `story.me3.wreav_leads` with LE3's lifted `Wrex_is_present`
+(`me3.me1.wrex_present`). It is another instance of the v3 lesson: the later game's conditional
+is the authority.

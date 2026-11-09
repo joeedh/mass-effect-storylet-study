@@ -32,6 +32,10 @@ class Trace:
     steps: list[Step] = field(default_factory=list)
     final: State = field(default_factory=State)
     stuck: bool = False
+    # auto storylets tied at the top priority: content order decided which fired first
+    ties: set[tuple[str, ...]] = field(default_factory=set)
+    # auto storylets that were available, did not fire, and then stopped being available
+    preempted: set[str] = field(default_factory=set)
 
 
 class Engine:
@@ -211,11 +215,20 @@ class Engine:
     # -- simulation ---------------------------------------------------------------------------
     def step_options(self, state: State) -> list[tuple[Storylet, str | None]]:
         """What can happen next: forced (auto) beats pre-empt player agency."""
-        avail = self.available(state)
+        return self._step_options(state, self.available(state))[0]
+
+    def _step_options(self, state: State, avail: list[Storylet]) -> tuple[list, tuple[str, ...]]:
+        """Options, plus the ids of auto storylets tied at the top priority (empty if no tie).
+        Ties go to the first in content order, which is file order: give storylets whose order
+        matters distinct priorities."""
         autos = [s for s in avail if s.trigger == "auto"]
+        tied: tuple[str, ...] = ()
         if autos:
             top = max(s.priority for s in autos)
-            pool = [next(s for s in autos if s.priority == top)]
+            at_top = [s for s in autos if s.priority == top]
+            pool = at_top[:1]
+            if len(at_top) > 1:
+                tied = tuple(s.id for s in at_top)
         else:
             # v2: 'idle' storylets fire only when the player has nothing else to do
             pool = [s for s in avail if s.trigger == "player"] or [s for s in avail if s.trigger == "idle"]
@@ -226,20 +239,27 @@ class Engine:
                 out.extend((s, c.id) for c in self.choices(s, state, values))
             else:
                 out.append((s, None))
-        return out
+        return out, tied
 
     def run(self, state: State | None = None, rng: random.Random | None = None, max_steps: int = 2000,
             policy=None) -> Trace:
         rng = rng or random.Random()
         state = state or self.initial()
         trace = Trace()
+        waiting: set[str] = set()  # auto storylets available before the last step that did not fire
         for _ in range(max_steps):
-            opts = self.step_options(state)
+            avail = self.available(state)
+            autos = {s.id for s in avail if s.trigger == "auto"}
+            trace.preempted |= waiting - autos
+            opts, tied = self._step_options(state, avail)
+            if tied:
+                trace.ties.add(tied)
             if not opts:
                 break
             st, cid = policy(state, opts) if policy else rng.choice(opts)
             state = self.fire(state, st, cid)
             trace.steps.append(Step(st.id, cid))
+            waiting = autos - {st.id}
         else:
             trace.stuck = True
         trace.final = state

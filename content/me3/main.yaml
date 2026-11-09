@@ -7,7 +7,6 @@ area: me3.main
 vars:
   story.me3.started: {type: bool}
   story.me3.refused: {type: bool, doc: "Extended Cut 'Refuse' ending: the cycle continues."}
-  story.me3.wreav_leads: {type: bool, doc: "Wreav leads Clan Urdnot because Wrex died in ME1."}
 
 storylets:
   # --- into ME3 ---------------------------------------------------------------------------
@@ -86,11 +85,14 @@ storylets:
     traits: [{me3.mission: {code: Kro001}}]
     summary: >-
       At the summit, Urdnot's leader demands the krogan females the salarians hid on Sur'Kesh.
-      That leader is Wrex if he survived Virmire, otherwise his brother Wreav. Shepard rescues
-      Eve; the cure's scientist is Mordin if he lived through ME2, otherwise his former
-      colleague Padok.
+      That leader is Wrex if he was on Shepard's squad at the end of ME1, otherwise his brother
+      Wreav. Shepard rescues Eve; the cure's scientist is Mordin if he lived through ME2,
+      otherwise his former colleague Padok.
     requires: "me3.order.KroGar > 0 && me3.order.Kro001 == 0"
-    effects: ["story.me3.wreav_leads = me3.fate.wrex_dead"]
+    notes: >-
+      Who leads Urdnot is the condition me3.genophage.wreav_leads, which negates LE3's lifted
+      Wrex_is_present. Wreav therefore leads after any ME1 career that did not end with Wrex in
+      the squad: Wrex shot on Virmire, never recruited, Genesis "Wrex died", or a fresh ME3 start.
     tags: [cross-game]
     evidence: ["me3:Genophage.Kro001"]
 
@@ -148,7 +150,7 @@ storylets:
         label: Cure the genophage
         effects:
           - "me3.genophage.cure_real = true"
-          - "story.me3.asset.krogan = story.me3.wreav_leads ? 250 : 350"
+          - "story.me3.asset.krogan = me3.genophage.wreav_leads ? 250 : 350"
           - "story.me3.asset.salarian = 100"
       - id: sabotage
         label: Sabotage the cure
@@ -159,7 +161,7 @@ storylets:
           - "story.me3.asset.salarian = 300"
       - id: sabotage_persuade
         label: Talk Mordin out of it
-        requires: "!me2.squad.mordin.dead && story.me3.wreav_leads && me3.genophage.eve_dead"
+        requires: "!me2.squad.mordin.dead && me3.genophage.wreav_leads && !me2.mordin.saved_data"
         effects:
           - "me3.genophage.cure_sabotaged = true"
           - "me3.genophage.sabotage_mordin_lived = true"
@@ -167,7 +169,9 @@ storylets:
           - "story.me3.asset.salarian = 300"
     notes: >-
       Eve survives only if Maelon's data was saved in Mordin's ME2 loyalty mission; without it,
-      the cure costs her life. Krogan asset values depend on who leads Urdnot.
+      the cure costs her life. Krogan asset values depend on who leads Urdnot. Talking Mordin out
+      of it needs Wreav in charge and Eve dead. The choice tests the input to eve_dead
+      (Maelon's data), because a choice is offered before this storylet's own effects set it.
     tags: [cross-game]
     evidence: ["me3:Genophage.Kro002"]
 

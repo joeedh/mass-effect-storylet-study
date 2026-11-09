@@ -19,6 +19,7 @@ storylets:
   - id: me1.normandy.romance_night
     title: The night before Ilos
     trigger: auto
+    priority: 10  # must win over me1.ilos.unlock/vigil, which would end the window
     summary: After the escape from the Citadel, Shepard's love interest comes to Shepard's quarters.
     requires: >-
       me1.citadel.escape_over && !me1.ilos.enter_archives && !me1.romance.consummated &&

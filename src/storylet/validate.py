@@ -60,6 +60,32 @@ def reads_writes(content: Content, engine: Engine) -> tuple[dict[str, set[str]],
     return reads, writes
 
 
+def choice_reads_own_effects(content: Content, engine: Engine):
+    """Yield (where, message, is_error) for choice ``requires`` that read a variable the same
+    storylet's effects write. Choices are offered before the storylet's effects apply, so such a
+    choice sees the old value. An error when the storylet writes the variable itself; info when
+    only its traits do (shared counters such as morality or mission count)."""
+    for st in content.storylets.values():
+        if not st.choices:
+            continue
+        own = {engine.ref_of(e.target)[0] for e in st.own_effects}
+        from_traits = {engine.ref_of(e.target)[0] for e in st.effects[len(st.own_effects):]} - own
+        for c in st.choices:
+            read = set()
+            for name in engine.expand_names(c.requires):
+                try:
+                    read.add(engine.ref_of(name)[0])
+                except ExprError:
+                    pass
+            names = lambda refs: sorted(content.by_ref[x].name if x in content.by_ref else x for x in refs)
+            if read & own:
+                yield (f"{st.id}/{c.id}", f"requires reads {names(read & own)}, which {st.id}'s own effects "
+                       "write; choices are offered before effects apply, so it sees the old value", True)
+            elif read & from_traits:
+                yield (f"{st.id}/{c.id}", f"requires reads {names(read & from_traits)}, which this storylet's "
+                       "traits also write; it sees the value from before this storylet", False)
+
+
 def validate(content: Content, catalog=None, sim_runs: int = 300, seed: int = 0) -> Report:
     r = Report(errors=list(content.errors))
     engine = Engine(content)
@@ -118,6 +144,11 @@ def validate(content: Content, catalog=None, sim_runs: int = 300, seed: int = 0)
                 engine.ref_of(name)
             except ExprError as e:
                 r.errors.append(f"{cond.source}: condition {cond.name}: {e}")
+
+    # choice requires are evaluated before the storylet's own effects apply (see docs/debugging.md)
+    if not r.errors:
+        for where, msg, is_error in choice_reads_own_effects(content, engine):
+            (r.errors if is_error else r.info).append(f"{where}: {msg}")
 
     # catalog binding
     if catalog is not None:
@@ -186,6 +217,12 @@ def validate(content: Content, catalog=None, sim_runs: int = 300, seed: int = 0)
             for o in st.outcomes:
                 if st.id in fired and (st.id, o.id) not in chosen:
                     r.info.append(f"{st.id}/{o.id}: outcome never resolved in {sim_runs} simulated playthroughs")
+        for sid in sorted(set().union(*(t.preempted for t in traces))):
+            r.warnings.append(f"{sid}: auto storylet was available, never fired, then became unavailable "
+                              "(pre-empted by another auto beat; give it a higher priority?)")
+        for tied in sorted(set().union(*(t.ties for t in traces))):
+            r.info.append(f"auto storylets tied at equal priority, so file order decided which fired first: "
+                          f"{', '.join(tied)}")
         stuck = sum(t.stuck for t in traces)
         if stuck:
             r.warnings.append(f"{stuck} simulated playthroughs hit the step limit (repeatable loop?)")

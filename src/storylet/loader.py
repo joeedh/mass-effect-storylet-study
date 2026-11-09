@@ -210,6 +210,7 @@ def _load_storylets(doc: dict, source: str, content: Content, traits: dict[str, 
         effects_src = list(raw.get("effects") or [])
         tags = list(raw.get("tags") or [])
         trait_names = []
+        own_effect_count = len(effects_src)
         for tref in raw.get("traits") or []:
             # (v3) parameterized trait: {me3.mission: {code: Kro001}}
             if isinstance(tref, dict) and len(tref) == 1:
@@ -262,6 +263,7 @@ def _load_storylets(doc: dict, source: str, content: Content, traits: dict[str, 
             trigger=trigger, kind=kind, repeatable=bool(raw.get("repeatable", False)),
             priority=int(raw.get("priority", 0)), effects=_effects(effects_src, where, errors), choices=choices,
             outcomes=outcomes, resolve=resolve, traits=trait_names, tags=tags,
+            trait_effects=len(effects_src) - own_effect_count,
             evidence=list(raw.get("evidence") or []), notes=raw.get("notes", ""), source=source,
         )
         if sid in content.storylets:

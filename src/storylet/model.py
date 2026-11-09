@@ -96,10 +96,16 @@ class Storylet:
     outcomes: list[Outcome] = field(default_factory=list)
     resolve: str = "all"             # outcomes: 'all' apply every match in order, 'first' only the first
     traits: list[str] = field(default_factory=list)
+    trait_effects: int = 0           # how many of `effects` (the last ones) came from traits
     tags: list[str] = field(default_factory=list)
     evidence: list[str] = field(default_factory=list)  # plot-db refs/paths grounding this storylet
     notes: str = ""
     source: str = ""
+
+    @property
+    def own_effects(self) -> list[Effect]:
+        """Effects written on the storylet itself, excluding those its traits contribute."""
+        return self.effects[:len(self.effects) - self.trait_effects]
 
     def choice(self, cid: str) -> Choice:
         for c in self.choices:

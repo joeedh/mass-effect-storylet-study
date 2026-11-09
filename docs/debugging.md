@@ -36,6 +36,19 @@ missed until a real bug was fixed. Check with a fixed policy before assuming it'
 **"is an alias; bind me1.bool.N".** You bound an LE3 import-region element. Bind the canonical
 ME1/ME2 variable instead.
 
+**"requires reads [...], which X's own effects write" (error).** A choice is offered before its
+storylet's effects apply, so the choice tests the old value, usually the default, and is
+probably never offered. Test the input the effect is computed from, or set the variable in an
+earlier storylet. When the variable is written only by the storylet's traits (morality,
+reputation, EMS), this is reported as info: the choice sees the value from before this mission,
+which is usually acceptable.
+
+**"auto storylet was available, never fired, then became unavailable".** Another auto beat at
+the same or higher priority fired first and closed its window. Give the pre-empted storylet a
+higher priority. The info line "auto storylets tied at equal priority" lists the ties behind
+such problems. Ties whose effects don't interact are harmless, but any tie means file order is
+deciding.
+
 ## Cases
 
 ### Rannoch peace could never be chosen
@@ -48,6 +61,43 @@ ME1/ME2 variable instead.
   towards its choices.
 - **Fix:** apply the bonuses in an earlier storylet (`me3.rannoch.dreadnought`). **Rule:** state a
   choice depends on must be set before the storylet that offers the choice.
+- **Follow-up:** the rule was broken again (next case), so `storylet validate` now enforces it.
+  Changing the engine to evaluate choices after effects was considered and rejected. It would
+  shift every persuasion check by one mission's accrual from the mission trait, which makes ME2's
+  ratio-based check *harder* for balanced Shepards. It would also invert the trap: a choice
+  testing `me3.order.<code> == 0` would see its own mission already counted.
+
+### Mordin could never be talked out of the cure
+
+- **Symptom:** `me3.genophage.shroud/sabotage_persuade: never chosen` in every validation run.
+- **Found by:** a script listing choices whose `requires` read what their own storylet writes,
+  which is now the validator check above.
+- **Cause:** the choice required `me3.genophage.eve_dead`, which only the same storylet's effects
+  set. Same mistake as the Rannoch case.
+- **Fix:** require the input instead (`!me2.mordin.saved_data`: Maelon's data destroyed in ME2).
+
+### The romance scene depended on file names
+
+- **Symptom:** none yet; found by instrumenting ties in simulation. `me1.normandy.romance_night`
+  and `me1.ilos.unlock` are both auto with priority 0 after the Normandy's escape.
+- **Cause:** ties among auto storylets go to the first in content order, which is sorted file
+  order. `romance.yaml` sorts before `virmire_endgame.yaml`. Renamed, Ilos would open first,
+  Vigil would set `enter_archives`, and the scene would silently never play.
+- **Fix:** `priority: 10` on the scene (and on the ME2 loyalty conflicts, which tied with
+  crit-path beats harmlessly). The validator now warns on pre-emption and lists ties.
+
+### The golden career silently skipped two of its picks
+
+- **Symptom:** none: `test_golden_career` passed while the career shot Kaidan at the Citadel and
+  never did the krogan team mission. Caught by a new assertion that every GOLDEN pick is in
+  `final.chosen`.
+- **Cause:** (1) Genesis's rachni choice wasn't scripted, so the queen was released and the
+  scripted `free_breeder` was unavailable. Priority: Tuchanka then closed the mission. (2) The
+  policy took scripted picks as soon as they appeared, so in ME3 it rushed the priority missions
+  and reached Citadel II without the reputation that `talk_down` needs.
+- **Fix:** script the Genesis choice. In ME3 the policy plays optional content first. In ME2 it
+  keeps taking scripted picks promptly, because doing optional missions first brings the crew
+  abduction forward and closes Legion's reactivation. Any fallback now fails the test.
 
 ### A golden-path test made disastrous choices
 
@@ -91,5 +141,11 @@ ME1/ME2 variable instead.
   `meplot build` lists them in `build/anomalies.txt`.
 - ME1 has two roster families: `Utility.Henchman.<Race>` and `Utility.Henchman.InParty.<Race>`.
   ME3 treats `InParty` as "recruited", so bind that one.
+- `Wrex_is_dead` is not "Wreav leads". LE3's Wreav checks (`Check_Wreav`,
+  `Time_for_KroGru_Wreav_*`, `Wreav_in_warroom`) test whether Wrex ended ME1 in the squad
+  (`!Utility.Henchmen.ME1.Wrex_is_present`). An ME1 Wrex who was never recruited, a Genesis
+  "Wrex died", and a fresh ME3 start all count as not dead but still give Wreav. The model
+  derived leadership from `Wrex_is_dead` and had Wrex leading in all three. It now lifts
+  `Wrex_is_present`.
 - Transition targets are inferred from names and can be wrong; treat a "medium" confidence match
   as a hint, not as fact.

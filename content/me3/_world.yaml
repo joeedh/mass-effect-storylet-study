@@ -29,6 +29,17 @@ conditions:
     ref: me3.cond.1630
     path: "me3:Global.Henchmen.Other.Wrex.Wrex_is_dead"
     code: "me1.bool.3028 == true || me1.bool.3029 == true || me1.bool.5543 == true || me3.bool.19769 == true"
+  me3.me1.wrex_present:
+    ref: me3.cond.194
+    path: "me3:Utility.Henchmen.ME1.Wrex_is_present"
+    code: "me1.bool.3021 == false && me1.bool.3942 == true"
+    doc: >-
+      Wrex ended ME1 on Shepard's squad. LE3's Wreav checks (Check_Wreav, Time_for_KroGru_Wreav_*,
+      Wreav_in_warroom) test exactly the negation of this, not Wrex_is_dead: an ME1 Wrex who was
+      never recruited is not "dead" in LE3's sense, but Wreav still leads.
+  me3.genophage.wreav_leads:
+    code: "!me3.me1.wrex_present"
+    doc: Wreav, not Wrex, leads Clan Urdnot in ME3.
   me3.fate.kirrahe_dead:
     ref: me3.cond.1631
     path: "me3:Global.Henchmen.Other.Kirrahe.Kirrahe_is_Dead"

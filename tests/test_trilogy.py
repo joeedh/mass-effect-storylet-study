@@ -12,7 +12,7 @@ ROOT = Path(__file__).resolve().parents[1]
 # A deliberate "golden" ME2 -> ME3 career: everyone recruited and loyal, ideal suicide-mission
 # picks, heretics rewritten, Koris saved; every optional op done before the point of no return.
 GOLDEN = {
-    "campaign.start": "me2", "me2.player.style": "paragon", "me2.recruit.legion": "activate",
+    "campaign.start": "me2", "me2.genesis.rachni": "released", "me2.player.style": "paragon", "me2.recruit.legion": "activate",
     "me2.loyalty.legion": "rewrite", "me2.loyalty.mordin": "keep_data", "me2.loyalty.tali": "charm",
     "me2.conflict.miranda_jack": "resolve", "me2.conflict.tali_legion": "resolve",
     "me2.sm.choose_tech": "legion", "me2.sm.choose_leader1": "garrus", "me2.sm.choose_biotic": "samara",
@@ -20,18 +20,24 @@ GOLDEN = {
     "me2.sm.choose_party2": "tali", "me2.sm.final_decision": "destroy",
     "me3.citadel.standoff": "talk_down", "me3.rannoch.admiral_koris": "save_koris",
     "me3.rannoch.reaper_base": "peace", "me3.genophage.shroud": "cure", "me3.thessia": "challenge_tim",
-    "me3.horizon": "miranda_warned", "me3.monastery": "stop_samara", "me3.attican.krogan_team": "free_breeder",
+    "me3.horizon": "miranda_warned", "me3.monastery": "stop_samara", "me3.attican.krogan_team": "free_queen",
     "me3.earth.illusive_man": "persuade", "me3.earth.catalyst": "destroy",
 }
 LAST = ("me2.sm.launch", "me3.import.me2_save", "me3.cronos", "me3.earth.london")
 
 
 def golden_policy(state, opts):
-    for st, cid in opts:
-        if st.id in GOLDEN and GOLDEN[st.id] == cid:
-            return st, cid
+    """Scripted picks are taken as soon as they are offered in ME2, where windows close
+    (Legion must be reactivated before the crew is taken). In ME3 the career is a completionist:
+    optional content comes first, because priority missions close it and its reputation is what
+    the persuasion checks need. The point-of-no-return storylets in LAST always come last."""
+    scripted = [(st, cid) for st, cid in opts if st.id in GOLDEN and GOLDEN[st.id] == cid]
     free = [(st, cid) for st, cid in opts if st.id not in LAST and st.id not in GOLDEN]
-    return (free or opts)[0]
+    in_me3 = dict(state.values).get("story.game") == 3
+    for pool in ((free, scripted) if in_me3 else (scripted, free)):
+        if pool:
+            return pool[0]
+    return opts[0]
 
 
 class TrilogyTests(unittest.TestCase):
@@ -46,6 +52,8 @@ class TrilogyTests(unittest.TestCase):
     def test_golden_career(self):
         t = self.engine.run(self.engine.initial(), random.Random(0), policy=golden_policy)
         s = t.final
+        # every scripted pick was taken; otherwise the policy silently fell back to another option
+        self.assertEqual(sorted(set(GOLDEN.items()) - s.chosen), [])
         self.assertTrue(self.val(s, "me2.progress.game_done && !story.me2.shepard_dead"))
         self.assertEqual(self.val(s, "count(me2.squad.legion.dead, me2.squad.tali.dead, me2.squad.garrus.dead)"), 0)
         self.assertIn(("me3.rannoch.reaper_base", "peace"), s.chosen)   # needs ~8 decisions across ME2+ME3
@@ -68,6 +76,42 @@ class TrilogyTests(unittest.TestCase):
         # ME3: a sabotaged cure + Wrex alive after Rannoch -> the Citadel confrontation fires
         later = e.initial({"me1.squad.wrex": True, "me3.genophage.cure_sabotaged": True, "me3.order.Gth002": 12})
         self.assertTrue(self.val(later, "me3.citadel.time_for_wrex_confrontation"))
+
+    def test_wreav_leads_unless_wrex_ended_me1_in_the_squad(self):
+        # LE3 decides by the lifted Wrex_is_present, not by Wrex_is_dead.
+        e = self.engine
+        careers = {
+            "talked down": ({"me1.squad.wrex": True, "me1.virmire.wrex_success": True}, False),
+            "shot on Virmire": ({"me1.virmire.wrex_failure": True, "me1.virmire.wrex_killed_by_player": True}, True),
+            "never recruited": ({}, True),  # also a fresh ME3 start: every table at its default
+        }
+        for name, (overrides, wreav) in careers.items():
+            with self.subTest(name):
+                self.assertEqual(self.val(e.initial(overrides), "me3.genophage.wreav_leads"), wreav)
+        self.assertFalse(self.val(e.initial(), "me3.fate.wrex_dead"))  # why Wrex_is_dead is the wrong test
+
+    def test_wreav_leads_after_genesis_wrex_died(self):
+        e = self.engine
+        for virmire, wreav in (("kaidan_lives_wrex_dies", True), ("kaidan_lives_wrex_lives", False)):
+            s = e.fire(e.initial(), "campaign.start", "me2")
+            for sid, cid in (("me2.genesis.shepard", "male"), ("me2.genesis.fist", "killed"),
+                             ("me2.genesis.rachni", "killed"), ("me2.genesis.virmire", virmire)):
+                s = e.fire(s, sid, cid)
+            with self.subTest(virmire):
+                self.assertEqual(self.val(s, "me3.genophage.wreav_leads"), wreav)
+
+    def test_mordin_can_be_talked_out_of_the_cure(self):
+        # Needs Wreav in charge and Eve dead, i.e. Maelon's data destroyed (regression: the choice
+        # used to test eve_dead, which only the same storylet's effects set, so it never appeared).
+        e = self.engine
+        shroud = self.content.storylets["me3.genophage.shroud"]
+        base = {"story.game": 3, "me3.order.KroGar": 1, "me3.order.Kro001": 2, "me2.squad.mordin.recruited": True}
+        offered = lambda extra: "sabotage_persuade" in {c.id for c in e.choices(shroud, e.initial({**base, **extra}))}
+        self.assertTrue(offered({}))
+        self.assertFalse(offered({"me2.mordin.saved_data": True}))
+        self.assertFalse(offered({"me1.squad.wrex": True}))
+        s = e.fire(e.initial(base), shroud, "sabotage_persuade")
+        self.assertTrue(self.val(s, "me3.genophage.eve_dead && me3.genophage.sabotage_mordin_lived"))
 
     def test_tuchanka_bomb_timer_is_lifted(self):
         e = self.engine
