@@ -18,11 +18,12 @@ their options and their output stay the same, apart from the deviations listed b
   properties), `.ts` extensions in imports and `import type` for types. These tsconfig options
   enforce that: `erasableSyntaxOnly`, `verbatimModuleSyntax`, `allowImportingTsExtensions`.
 - **Strict typing:** `strict`, `noUncheckedIndexedAccess`, `exactOptionalPropertyTypes`,
-  `noImplicitReturns`, `noFallthroughCasesInSwitch`, `noImplicitOverride`.
-- **Tests: Vitest.** It gives readable deep-equality diffs for Sets and Maps, `describe.skipIf` for
-  the catalog tests, and watch mode. `node:test` would avoid the dependency, but its assertion
-  output is weaker. Vitest transforms TS itself, so the tsconfig settings above are what keep test
-  code and CLI code within the same syntax.
+  `noImplicitReturns`, `noFallthroughCasesInSwitch`, `noImplicitOverride`. TS 7 defaults `types`
+  to `[]`, so the config sets `"types": ["node"]` and installs `@types/node`.
+- **Tests: `node:test`** (changed from Vitest after review). It runs the same type stripping as
+  the CLI, so tests can't pass on syntax the CLI rejects. It needs no dependency, and
+  `node:assert`'s `deepStrictEqual` diffs Sets and Maps. The catalog tests use `{ skip }` when
+  `build/plotdb` is missing. Run with `node --test "tests/**/*.test.ts"`.
 - **Runtime dependencies:**
   - `yaml` with `version: "1.1"`, to match PyYAML's `safe_load`.
   - `commander`, for subcommand CLIs like argparse.
@@ -32,10 +33,16 @@ their options and their output stay the same, apart from the deviations listed b
   `node src/<pkg>/cli.ts`. `pnpm test`, `pnpm typecheck` and `pnpm lint` cover the checks.
   CLAUDE.md's pre-commit checks become `pnpm typecheck && pnpm lint && pnpm test &&
   pnpm storylet validate`.
-- **Linting:** `lintrix:recommended`, plus the type-aware rules that suit a strictly typed
-  codebase (`no-unsafe-*`, `strict-boolean-expressions`, `no-floating-promises`,
-  `consistent-type-imports`). The final set is whatever runs cleanly; any rule left off gets a
-  reason in the config.
+- **Linting:** `lintrix:recommended` (which includes `no-unsafe-*`), plus
+  `strict-boolean-expressions` and `no-floating-promises`. The config sets `project` to
+  `tsconfig.json`.
+  - The npm package lints through WASM, and WASM silently skips every type-aware rule. Verified:
+    an `any` member access passed through WASM and was caught with a native binary on PATH.
+  - `pnpm lint` therefore runs `lintrix --engine native`, which fails loudly when no native
+    `lintrix` is on PATH, instead of passing without type checks.
+  - The binary's location is machine-specific (`C:\dev\fastlint\build\release\bin`), so it goes
+    on PATH, not into the committed config. The docs say so.
+  - Any rule left off gets a reason in the config.
 
 ## Layout
 
@@ -47,8 +54,8 @@ The files keep their names, so history and docs still map one to one:
 - New files:
   - `src/storylet/pyrandom.ts` (see below).
   - `src/storylet/pycompat.ts`: Python value semantics, plus `repr` for messages.
-- `package.json`, `pnpm-lock.yaml`, `tsconfig.json`, `lintrix.config.json` and
-  `vitest.config.ts` replace `pyproject.toml`. `.gitignore` gains `node_modules/`.
+- `package.json`, `pnpm-lock.yaml`, `tsconfig.json` and `lintrix.config.json` replace
+  `pyproject.toml`. `.gitignore` gains `node_modules/` and `.lintrix.native.json`.
 
 ## Semantics that have to be carried over deliberately
 
@@ -57,13 +64,41 @@ These are the places where a line-by-line translation would silently change beha
 - **Expression values** are `boolean | number | string`. Python's int and float both become JS
   numbers. The places where Python's rules differ from JS get explicit helpers:
   - `==`/`!=`: bool and number compare numerically (`true == 1`); everything else is strict.
-  - `<`, `+`, `-`, `*`, `/`, `%`, unary `-`: numbers and bools only, except `+` on two strings.
-    Mixed types throw, as Python raises `TypeError`.
+  - `+`, `-`, `*`, `/`, `%`, unary `-` work on numbers and bools.
+    - `+` also joins two strings.
+    - `*` also repeats a string by an integer.
+    - `<`, `<=`, `>`, `>=` also compare two strings.
+    - Any other mix of types throws, as Python raises `TypeError`.
   - `/` or `%` by zero throws, like Python. `%` is floored, as in Python.
+  - `&&` and `||` return bools, not an operand.
   - `int()` truncates; it accepts bools and integer strings and throws on anything else.
-  - `min()`/`max()` need at least two arguments and return the first extreme element.
-  - Truthiness is Python's for these primitive types, which is the same as JS's except for `NaN`.
-    `NaN` can't arise once division by zero throws.
+  - `sum()` starts at 0, so summing strings throws.
+  - `min()`/`max()` need at least two arguments. They return the first extreme element, strings
+    included.
+  - Truthiness is Python's for these primitive types, which matches JS except that `NaN` is
+    truthy.
+- **Errors:**
+  - `ValueError` and `ExprError extends ValueError` mirror Python's classes, because tests assert
+    on `ValueError`.
+  - Python's `TypeError` and `ZeroDivisionError` become `PyTypeError`, which is not an
+    `ExprError`.
+  - Every `catch` that Python wrote as `except ExprError` rethrows anything else.
+- **State copying:** `State` holds `ReadonlyMap`/`ReadonlySet`, and `fire` never mutates its
+  input.
+  - Effects run on `new Map(state.values)`.
+  - `fired` and `chosen` are replaced by new sets.
+  - As in Python, effect expressions read the in-progress values. `seen()`/`chose()` read `mid`,
+    which already includes this storylet and its choice.
+- **Formatting:**
+  - `%5.1f`, and the atlas's `round(x, 3)`, round half to even. `toFixed` rounds half up, so a
+    `pycompat` formatter does this instead.
+  - f-strings of `None` print `None` (`arg=None` in outlines).
+  - The Python reads `raw.get(k, d)` return `None` for a key that is present with a null value.
+    A helper keeps that difference; `??` would lose it.
+  - `meplot build` prints its stats as a Python dict repr.
+- **Equality of state values:** `_pack` drops values equal to the default by Python `==`
+  (`0 == False`). The `outcomes` histogram merges `true`, `1` and `1.0` into one key, as
+  Python's `Counter` does, and labels it with the first value seen.
 - **AST:** a discriminated union (`lit`, `name`, `call`, `not`, `neg`, binary, `?:`) instead of
   Python's generic `Node(op, args, value)`. The id arguments of `seen()`/`chose()`/`total()` are
   read through one helper that accepts a name or a string literal. Anything else is rejected,
@@ -87,11 +122,19 @@ These are the places where a line-by-line translation would silently change beha
   first values for a few seeds are checked against vectors captured from CPython.
 - **YAML:** compare the parsed form of every content file (as JSON) between PyYAML and `yaml`
   with the 1.1 schema before relying on it.
-- **Catalog JSON scalars:** `str()` of a JSON bool or float differs from JS `String()`
-  (`True`/`true`, `1.0`/`1`). Before porting `GameDB`, check the plot databases for non-string
-  `label`/`argument` values and for float `sequence` values. Python's `_num` truncates float
-  numbers, `int(1.5) == 1`, but parses float strings as floats. Replicate whatever the data
-  actually contains.
+  - Watch for `y`/`n` booleans, duplicate keys and dates. For dates, PyYAML's side needs
+    `default=str`.
+  - Anchors such as `foreach: *roster` share one object, so the loader copies a mapping before
+    it pops keys, as Python's `dict(spec)` does.
+- **Catalog JSON scalars** (checked against the fetched data):
+  - `label`, `argument` and `code` are always strings or null, so `str()` versus `String()`
+    never comes up.
+  - `elementid`, `parentelementid` and `type` are sometimes integer strings.
+  - About half the `sequence` values are fractional floats (27,698 of them, such as 193.75).
+    Python's `_num` calls `int()` on them, which truncates (`int(193.75) == 193`). 2,163
+    parents end up with tied sequences, and their children fall back to element-id order.
+  - The port replicates this with `Math.trunc`, so outlines can be compared byte for byte. It
+    is reported to the user as a probable bug to fix separately.
 - **Messages** keep Python's `repr()` style for strings and lists (`'nope'`, `['a', 'b']`).
   Tests and the debugging guide quote them.
 
@@ -108,12 +151,23 @@ These are documented in the commit and in `docs/debugging.md` where they matter:
   files except people.
 - `storylet graph` sorts edges by the full edge, not just `(src, dst, via)`. Python's order for
   edges tied on those three fields depended on string hash randomization.
-- **Bug fix:** `storylet explore --game` and `storylet graph --game` dropped `conditions` from the
-  filtered content. Any requires that used a named condition then failed with "unknown
-  variable". Confirm this against Python before fixing it.
+- **Bug fix:** `_filter` (cli.py:65) never copies `conditions`. `storylet graph --game` therefore
+  loses every edge through a named condition. `explore --game` hides the bug only because the
+  filter also removes `campaign.start`, so nothing is ever available. A regression test covers
+  the fix.
 - Malformed YAML shapes (a choice without an `id`, a non-mapping storylet) become load errors
   instead of Python `KeyError`/`AttributeError` crashes. The loader narrows `unknown` input, so
   this falls out of the types.
+- YAML scalars interpolated into expressions (requires lists, trait parameters) use the
+  expression language's spelling (`true`), not Python's `str()` (`True`).
+- **CLI parsing:**
+  - commander doesn't accept argparse's abbreviated long options (`--max` for
+    `--max-states`).
+  - Usage errors still exit with code 2.
+- `meplot find` patterns are JavaScript regexes. Python-only syntax such as `(?P<name>…)` is
+  rejected.
+- `meplot fetch` uses Node's `fetch`, which ignores `HTTP(S)_PROXY` (Python's `urllib`
+  honoured it).
 
 ## Steps
 
@@ -121,7 +175,12 @@ These are documented in the commit and in `docs/debugging.md` where they matter:
    for every command (list below) into the scratchpad. Nothing from this is committed: it is
    derived from the plot data.
 2. **Scaffold.** Add `package.json` (`"type": "module"`, `engines.node >= 24`), the tsconfig,
-   the lintrix and Vitest configs, and `.gitignore`. Run `pnpm install`.
+   the lintrix config and `.gitignore`. Run `pnpm install`.
+   - pnpm runs scripts from the package root, so the CLIs resolve relative path arguments
+     (`-o`, `--content`) against `INIT_CWD` when pnpm sets it.
+   - Check whether pnpm prints a banner on stdout. If it does, the docs use `pnpm -s` wherever
+     output is piped.
+   - Check the zip's compression method before relying on `fflate`.
 3. **storylet core**, in dependency order:
    - `pycompat`, `pyrandom`, `expr`, `model`, `loader`, `engine`, `validate`, `graph`,
      `atlas`, `porting`, `cli`.
@@ -129,6 +188,9 @@ These are documented in the commit and in `docs/debugging.md` where they matter:
 4. **meplot:** `catalog`, `graph`, `outline`, `fetch`, `cli`. Then the catalog tests.
 5. **Parity check.** A scratch script runs both implementations and diffs them. Remaining
    differences must all be listed under "Intended deviations".
+   - The script calls `node` directly, not through pnpm.
+   - Python runs with `PYTHONHASHSEED=0`.
+   - The commands compared:
    - `storylet validate -v` (with and without the catalog, `--runs 300`)
    - `simulate --seed {0,3,4} --state`, `simulate --choose …`, `available --set …`
    - `explore --max-states 2000`
@@ -160,18 +222,56 @@ These are documented in the commit and in `docs/debugging.md` where they matter:
 - lintrix is young (0.1.x), and its type-aware rules need `tsc --api` from the TS 7 install.
   If a rule misbehaves on valid code, turn it off with a reason. Don't contort the code to
   satisfy it. Custom rules are out of scope unless something specific calls for one.
-- The Python test count is 35. The TS suite should cover the same cases, plus `pyrandom`
-  vectors and the `pycompat` helpers.
-- Vitest's own transform and Node's type stripping could disagree on some syntax. `tsc` with
-  `erasableSyntaxOnly` should catch that before either runs.
+- TS 7.0.2's API server crashes when serializing an empty tuple type (microsoft/typescript-go#64080;
+  see fastlint docs/tsgo-client.md). If lintrix reports "type query failed", that is the likely
+  cause.
+- The Python test count is 35. The TS suite should cover the same cases, plus `pyrandom` vectors
+  (captured from CPython 3.15.1), the `pycompat` helpers and the `_filter` regression.
 
 ## Review
 
-(to be filled in by a fresh-context review before work starts)
+A fresh-context agent read only this plan, the Python source and the lintrix docs. Findings and
+how each was resolved:
+
+- **Must-fix: the npm lintrix lints through WASM, which skips type-aware rules silently.**
+  *Resolved:* `pnpm lint` runs `--engine native` with the native binary on PATH. This was
+  verified in a scratch project (Toolchain decisions).
+- **Must-fix: TS 7 defaults `types` to `[]`.** *Resolved:* `"types": ["node"]`, `@types/node`,
+  and `module`/`moduleResolution` set to `nodenext`.
+- **Must-fix: the plan didn't say how `fire` copies state.** *Resolved:* the "State copying"
+  bullet.
+- **Must-fix: the `_num` truncation is real.** *Resolved:* it is replicated, and reported to the
+  user as a probable bug (Catalog JSON scalars).
+- **Should-fix: Python equality in `_pack` and in the `outcomes` Counter.** *Resolved:* the
+  "Equality of state values" bullet.
+- **Should-fix: `%5.1f` rounds half to even.** *Resolved:* a pycompat formatter.
+- **Should-fix: `None` in f-strings, YAML scalars through `str()`, `raw.get` with nulls.**
+  *Resolved:* the Formatting bullets and a deviation entry.
+- **Should-fix: YAML anchors shared between entries, `y`/`n`, duplicate keys, dates.**
+  *Resolved:* the YAML bullets. The comparison runs in step 3, before the loader is trusted.
+- **Should-fix: pnpm's banner and working directory.** *Resolved:* step 2. Parity runs call
+  `node` directly.
+- **Should-fix: the exception hierarchy, and catch-alls swallowing real bugs.** *Resolved:* the
+  Errors bullet.
+- **Should-fix: argparse versus commander.** *Resolved:* listed as deviations. Usage errors keep
+  exit code 2.
+- **Should-fix: string `<`, `str * int`, `min`/`max` on strings, `&&`/`||` returning bools,
+  `sum` starting at 0.** *Resolved:* the Expression values bullet now supports or specifies each.
+- **Nit: an empty-tuple crash in TS 7.0.2's API.** Noted under Risks.
+- **Nit: `consistent-type-imports` duplicates `verbatimModuleSyntax`.** Dropped.
+- **Nit: `node:test` avoids the syntax mismatch between Vitest and Node.** Adopted.
+- **Nit: fflate supports only some compression methods; `fetch` ignores proxies.** Step 2, and
+  a deviation entry.
+- **Nit: use `process.exitCode`, not `process.exit()`.** Adopted, so piped output isn't cut off.
+- **Nit: JS regexes in `find`, and the dict repr printed by `build`.** Listed as a deviation and
+  under Formatting.
+- **Nit: confirm the Path sort order and record the CPython version.** Both verified (3.15.1).
+- **Nit: the `_filter` bug needs a regression test, not a confirmation step.** Adopted.
+- **Nit: run the Python side with `PYTHONHASHSEED=0`.** Adopted (step 5).
 
 ## Status
 
-- [ ] 1 baseline
+- [x] 1 baseline (outputs in the session scratchpad, not committed)
 - [ ] 2 scaffold
 - [ ] 3 storylet core
 - [ ] 4 meplot
