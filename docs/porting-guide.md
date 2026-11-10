@@ -59,7 +59,8 @@ Paste the output into the area file's `vars:` / `conditions:`. Rules:
 - Prefer gating on plot variables (`me1.world.time_for_virmire_open`) over `seen()`. Use
   `seen()` for sequencing inside a mission, where the game has no variable.
 - Use `choices` for what the player decides and `outcomes` for what the game decides
-  (`resolve: first` for priority lists).
+  (`resolve: first` for priority lists, `limit: "<expr>"` when the first N matches apply and N
+  is computed).
 - Shared per-game mechanics go into `traits` (`me2.mission`, `{me3.mission: {code: Kro002}}`),
   and families of similar storylets into `foreach`.
 - Write summaries in your own words at the plot-beat level. Don't transcribe dialogue.

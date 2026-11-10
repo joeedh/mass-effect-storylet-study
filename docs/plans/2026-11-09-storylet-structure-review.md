@@ -83,7 +83,8 @@ bridge trigger.** Each fix addresses the cause. No change.
 
 ## Deferred (proposed, not done here)
 
-- **`limit:` on outcomes instead of the hold-the-line loop.** `me2.sm.hold_the_line` is a
+- **Done (2026-11-10, at the user's request; see `2026-11-10-outcome-limit.md`).**
+  **`limit:` on outcomes instead of the hold-the-line loop.** `me2.sm.hold_the_line` is a
   repeatable auto storylet decrementing `story.me2.sm.htl_deaths_pending`, with a `nobody_left`
   outcome and a `pending == 0` guard on the next storylet. `resolve: first` is the special case
   `limit: 1`. A `limit: "<expr>"` would turn the loop into one storylet. This is a schema change

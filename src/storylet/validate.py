@@ -33,6 +33,8 @@ def _iter_exprs(content: Content):
             for e in c.effects:
                 yield w, e.expr, "read"
                 yield w, e, "write"
+        if st.limit is not None:
+            yield st.id, st.limit, "read"
         for o in st.outcomes:
             w = f"{st.id}/{o.id}"
             yield w, o.when, "read"

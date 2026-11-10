@@ -113,6 +113,37 @@ class TrilogyTests(unittest.TestCase):
         s = e.fire(e.initial(base), shroud, "sabotage_persuade")
         self.assertTrue(self.val(s, "me3.genophage.eve_dead && me3.genophage.sabotage_mordin_lived"))
 
+    def hold_the_line(self, squad, party=("grunt", "zaeed")):
+        """Fire the final battle, holding the line and the escape from a constructed state.
+        ``squad`` maps each recruited squadmate to whether they are loyal."""
+        e = self.engine
+        ov = {"story.game": 2, "story.me2.sm.escort": "none",
+              "story.me2.sm.party1": party[0], "story.me2.sm.party2": party[1]}
+        for who, loyal in squad.items():
+            ov[f"me2.squad.{who}.recruited"] = True
+            ov[f"me2.squad.{who}.loyal"] = loyal
+        s = e.initial(ov)
+        for sid in ("me2.sm.final_battle", "me2.sm.hold_the_line", "me2.sm.shepard_fate"):
+            s = e.fire(s, sid)
+        fallen = {c for sid, c in s.chosen if sid == "me2.sm.hold_the_line"}
+        return fallen, s
+
+    def test_weak_defence_takes_disloyal_first_then_anyone(self):
+        # Defenders mordin (0, disloyal), tali/kasumi/jack (0 + 1 loyal): average 0.75 -> two die.
+        # Only one is disloyal, so the limited pass crosses into the full priority list.
+        fallen, s = self.hold_the_line({"mordin": False, "tali": True, "kasumi": True, "jack": True,
+                                        "grunt": True, "zaeed": True})
+        self.assertEqual(fallen, {"mordin_falls_disloyal", "tali_falls"})
+        self.assertFalse(self.val(s, "story.me2.shepard_dead"))
+
+    def test_strong_defence_loses_nobody(self):
+        fallen, s = self.hold_the_line({"garrus": True, "grunt": True, "zaeed": True, "miranda": True,
+                                        "jacob": True}, party=("miranda", "jacob"))
+        self.assertEqual(fallen, set())
+        self.assertIn("me2.sm.hold_the_line", s.fired)
+        self.assertIn("me2.sm.shepard_fate", s.fired)
+        self.assertEqual(self.val(s, "count(me2.squad.garrus.dead, me2.squad.grunt.dead, me2.squad.zaeed.dead)"), 0)
+
     def test_tuchanka_bomb_timer_is_lifted(self):
         e = self.engine
         s = e.initial({"me3.order.KroN7a": 5, "me3.progress.mission_count": 7})

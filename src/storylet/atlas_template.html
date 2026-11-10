@@ -226,7 +226,7 @@ function renderDetail(id) {
   }
   const n = byId[id];
   const choices = n.ch.length ? `<section><div class="eyebrow">Choices</div><ul>${n.ch.map(c => `<li><b>${esc(c.l || c.id)}</b>${c.req !== "true" ? `<span class="expr">requires ${esc(c.req)}</span>` : ""}${c.eff.length ? `<span class="expr">${esc(c.eff.join("\n"))}</span>` : ""}</li>`).join("")}</ul></section>` : "";
-  const outs = n.oc.length ? `<section><div class="eyebrow">Outcomes (resolved by the game)</div><ul>${n.oc.slice(0, 14).map(o => `<li><code>${esc(o.id)}</code><span class="expr">when ${esc(o.w)}</span></li>`).join("")}${n.oc.length > 14 ? `<li>… ${n.oc.length - 14} more</li>` : ""}</ul></section>` : "";
+  const outs = n.oc.length ? `<section><div class="eyebrow">Outcomes (resolved by the game${n.lim == null ? "" : n.lim === "1" ? "; first match only" : `; first ${esc(n.lim)} matches`})</div><ul>${n.oc.slice(0, 14).map(o => `<li><code>${esc(o.id)}</code><span class="expr">when ${esc(o.w)}</span></li>`).join("")}${n.oc.length > 14 ? `<li>… ${n.oc.length - 14} more</li>` : ""}</ul></section>` : "";
   el.innerHTML = `<div class="eyebrow g-${n.g}">${esc(n.g.toUpperCase())} · ${esc(n.a)} · ${n.tr === "auto" ? "fires automatically" : "player-driven"}${n.k === "bridge" ? " · bridge" : ""}</div>
     <h2>${esc(n.t)}</h2>
     <p>${esc(n.sum || "")}</p>

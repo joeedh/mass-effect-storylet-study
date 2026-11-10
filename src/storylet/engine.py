@@ -183,8 +183,13 @@ class Engine:
         for eff in effects:
             ref, vtype = self.ref_of(eff.target)
             self._assign(values, ref, vtype, eff.op, self.eval(eff.expr, mid, values), eff.target)
-        # v2: system-resolved outcomes, evaluated in order against the updated state
+        # v2: system-resolved outcomes, evaluated in order against the updated state, stopping
+        # once `limit` of them have applied (`resolve: first` is limit 1)
+        cap = None if st.limit is None else self.outcome_limit(st, mid, values)
+        applied = 0
         for o in st.outcomes:
+            if cap is not None and applied >= cap:
+                break
             mid = State(mid.values, mid.fired, chosen)
             if self.eval(o.when, mid, values):
                 chosen = chosen | {(st.id, o.id)}
@@ -192,9 +197,14 @@ class Engine:
                 for eff in o.effects:
                     ref, vtype = self.ref_of(eff.target)
                     self._assign(values, ref, vtype, eff.op, self.eval(eff.expr, mid, values), eff.target)
-                if st.resolve == "first":
-                    break
+                applied += 1
         return self._pack(values, mid.fired, chosen)
+
+    def outcome_limit(self, st: Storylet, state: State, values: dict) -> int:
+        v = self.eval(st.limit, state, values)
+        if isinstance(v, str) or v is None:
+            raise ExprError(f"{st.id}: limit {st.limit} is {v!r}, not a number")
+        return max(0, int(v))
 
     def _pack(self, values: dict, fired: frozenset, chosen: frozenset) -> State:
         items = []

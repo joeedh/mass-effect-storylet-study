@@ -24,7 +24,8 @@ File layout (any number of files under ``content/``; all files share one namespa
         effects: ["x = true"]
         choices:  [{id: ..., requires: ..., effects: [...]}]
         outcomes: [{id: ..., when: ..., effects: [...]}]      # (v2) system-resolved
-        resolve: first                                       # (v2) or 'all' (default)
+        resolve: first                                       # (v2) or 'all' (default); same as limit: 1
+        limit: "me2.sm.htl_deaths"                           # apply at most N matching outcomes
       - foreach: [{who: garrus, code: Garrus}, ...]            # (v2) template: {who}/{code} substituted
         id: me2.loyalty.{who}
 """
@@ -41,7 +42,7 @@ from .model import STATE_TYPES, Choice, ConditionDecl, Content, Outcome, Storyle
 
 KIND_TYPE = {"bool": "bool", "int": "int", "float": "float"}
 STORYLET_KEYS = {"id", "title", "game", "area", "summary", "requires", "trigger", "repeatable", "priority",
-                 "effects", "choices", "outcomes", "resolve", "kind", "traits", "tags", "evidence", "notes"}
+                 "effects", "choices", "outcomes", "resolve", "limit", "kind", "traits", "tags", "evidence", "notes"}
 CHOICE_KEYS = {"id", "label", "requires", "effects", "summary"}
 OUTCOME_KEYS = {"id", "when", "effects", "summary"}
 TRAIT_KEYS = {"requires", "effects", "tags", "doc", "params"}
@@ -254,6 +255,18 @@ def _load_storylets(doc: dict, source: str, content: Content, traits: dict[str, 
         resolve = raw.get("resolve", "all")
         if resolve not in ("all", "first"):
             errors.append(f"{where}: resolve must be all|first")
+        limit = None
+        if "limit" in raw:
+            if resolve == "first":
+                errors.append(f"{where}: give either resolve: first or limit, not both")
+            if not outcomes:
+                errors.append(f"{where}: limit applies to outcomes, and there are none")
+            try:
+                limit = parse(" ".join(str(raw["limit"]).split()) if isinstance(raw["limit"], str) else raw["limit"])
+            except ExprError as e:
+                errors.append(f"{where}: limit: {e}")
+        elif resolve == "first":
+            limit = parse(1)
         kind = raw.get("kind", "beat")
         if kind not in ("beat", "bridge"):
             errors.append(f"{where}: kind must be beat|bridge")
@@ -262,7 +275,7 @@ def _load_storylets(doc: dict, source: str, content: Content, traits: dict[str, 
             summary=" ".join(str(raw.get("summary", "")).split()), requires=_requires(requires or None, where, errors),
             trigger=trigger, kind=kind, repeatable=bool(raw.get("repeatable", False)),
             priority=int(raw.get("priority", 0)), effects=_effects(effects_src, where, errors), choices=choices,
-            outcomes=outcomes, resolve=resolve, traits=trait_names, tags=tags,
+            outcomes=outcomes, limit=limit, traits=trait_names, tags=tags,
             trait_effects=len(effects_src) - own_effect_count,
             evidence=list(raw.get("evidence") or []), notes=raw.get("notes", ""), source=source,
         )

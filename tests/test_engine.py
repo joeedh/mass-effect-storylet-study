@@ -190,6 +190,71 @@ class SchemaV2Tests(unittest.TestCase):
             self.e.fire(s, "pick_a")
 
 
+LIMITED = """
+vars: {a: me1.bool.1, b: me1.bool.2, c: me1.bool.3, story.n: {type: int, default: 2}, story.k: {type: int}}
+storylets:
+  - id: s
+    trigger: auto
+    limit: "story.n"
+    outcomes:
+      - {id: never, when: "false", effects: ["story.k += 100"]}
+      - {id: oa, when: "!a", effects: ["a = true", "story.k += 1"]}
+      - {id: ob, when: "!b", effects: ["b = true", "story.k += 1"]}
+      - {id: oc, when: "!c", effects: ["c = true", "story.k += 1"]}
+  - id: tick
+    trigger: auto
+    repeatable: true
+    requires: "seen(s) && story.k < 5"
+    effects: ["story.k += 1"]
+"""
+
+
+class OutcomeLimitTests(unittest.TestCase):
+    def setUp(self):
+        self.c = content_from(LIMITED)
+        self.assertEqual(self.c.errors, [])
+        self.e = Engine(self.c)
+
+    def applied(self, n):
+        s = self.e.fire(self.e.initial({"story.n": n}), "s")
+        return sorted(c for _, c in s.chosen), self.e.get(s, "story.k")
+
+    def test_limit_counts_applied_outcomes_only(self):
+        self.assertEqual(self.applied(2), (["oa", "ob"], 2))      # 'never' didn't match, so didn't count
+        self.assertEqual(self.applied(5), (["oa", "ob", "oc"], 3))
+        self.assertEqual(self.applied(0), ([], 0))
+        self.assertEqual(self.applied(-1), ([], 0))
+        self.assertEqual(self.applied(1.9), (["oa"], 1))         # int() truncates
+
+    def test_limit_must_be_numeric(self):
+        with self.assertRaises(ExprError):
+            self.e.fire(self.e.initial({"story.n": "x"}), "s")
+
+    def test_resolve_first_is_limit_one(self):
+        c = content_from("""
+        vars: {a: me1.bool.1}
+        storylets:
+          - {id: s, resolve: first, outcomes: [{id: x, when: "true"}, {id: y, when: "true"}]}
+        """)
+        self.assertEqual(str(c.storylets["s"].limit), "1")
+        self.assertEqual(Engine(c).fire(Engine(c).initial(), "s").chosen, {("s", "x")})
+
+    def test_limit_load_errors(self):
+        c = content_from("""
+        storylets:
+          - {id: both, resolve: first, limit: 2, outcomes: [{id: x, when: "true"}]}
+          - {id: bare, limit: 2}
+        """)
+        text = "\n".join(c.errors)
+        self.assertIn("both: give either resolve: first or limit", text)
+        self.assertIn("bare: limit applies to outcomes", text)
+
+    def test_repeatable_storylet_fires_until_requires_fails(self):
+        t = self.e.run(self.e.initial())
+        self.assertEqual([s.storylet for s in t.steps], ["s"] + ["tick"] * 3)
+        self.assertEqual(self.e.get(t.final, "story.k"), 5)
+
+
 class ValidatorOrderingTests(unittest.TestCase):
     def test_choice_reading_own_effect_is_an_error(self):
         c = content_from("""

@@ -28,6 +28,8 @@ def _reads(engine: Engine, st: Storylet) -> tuple[set[str], set[tuple[str, str |
     refs: set[str] = set()
     specials: set[tuple[str, str | None, str]] = set()
     nodes = [st.requires, *(c.requires for c in st.choices), *(o.when for o in st.outcomes)]
+    if st.limit is not None:
+        nodes.append(st.limit)
     for node in nodes:
         for name in engine.expand_names(node):
             try:
@@ -87,7 +89,8 @@ def to_json(content: Content, edges: list[GEdge]) -> str:
               "choices": [{"id": c.id, "label": c.label, "requires": str(c.requires),
                            "effects": [str(e) for e in c.effects]} for c in s.choices],
               "outcomes": [{"id": o.id, "when": str(o.when), "effects": [str(e) for e in o.effects]}
-                           for o in s.outcomes]}
+                           for o in s.outcomes],
+              "limit": None if s.limit is None else str(s.limit)}
              for s in content.storylets.values()]
     return json.dumps({"nodes": nodes, "edges": [e.__dict__ for e in edges]}, indent=1)
 

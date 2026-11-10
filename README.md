@@ -55,7 +55,7 @@ meplot bind me1.virmire.rescued_kaidan=me1:CH2_Virmire.The_Choice.Rescued_Kaidan
 
 Across the trilogy: 145 storylets bound to 314 plot variables, 51 conditionals lifted verbatim from
 the plot databases (mission gating, crew survival, cross-game fates, the Tuchanka bomb timer, the
-Illusive Man persuasion formula), and 49 documented `story.*` variables for state the plot
+Illusive Man persuasion formula), and 48 documented `story.*` variables for state the plot
 tables don't hold or that hasn't been located yet.
 
 ## Docs

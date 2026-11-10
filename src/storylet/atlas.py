@@ -33,7 +33,8 @@ def atlas_data(content: Content, runs: int = 450, seed: int = 3, max_writers: in
         "id": s.id, "t": s.title, "g": s.game or "campaign", "a": s.area, "tr": s.trigger, "k": s.kind,
         "sum": s.summary, "req": str(s.requires), "eff": [str(x) for x in s.effects],
         "ch": [{"id": c.id, "l": c.label, "req": str(c.requires), "eff": [str(y) for y in c.effects]} for c in s.choices],
-        "oc": [{"id": o.id, "w": str(o.when)} for o in s.outcomes], "tags": s.tags, "ev": s.evidence, "n": s.notes,
+        "oc": [{"id": o.id, "w": str(o.when)} for o in s.outcomes],
+        "lim": None if s.limit is None else str(s.limit), "tags": s.tags, "ev": s.evidence, "n": s.notes,
         "x": round(statistics.median(pos[s.id]), 3) if pos[s.id] else 0,
     } for s in content.storylets.values()]
     plot = sum(1 for v in content.vars.values() if v.is_plot)

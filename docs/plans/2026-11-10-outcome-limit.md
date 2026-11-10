@@ -120,10 +120,16 @@ A fresh-context agent read only this plan and the code it points to. Findings an
 
 ## Status
 
-- [ ] 1 model/loader
-- [ ] 2 engine
-- [ ] 3 static analysis and exports
-- [ ] 4 content
-- [ ] 5 equivalence check
-- [ ] 6 tests
-- [ ] 7 docs
+Done. `python -m unittest` passes (35 tests). `storylet validate` reports 0 errors and 1 warning
+(`me2.sm.choose_party2/none`, which was already there).
+
+- [x] 1 model/loader: `Storylet.limit` replaces `Storylet.resolve`.
+- [x] 2 engine: `Engine.outcome_limit`.
+- [x] 3 static analysis and exports: validator, graph edges, `graph.to_json` `limit`, atlas `lim`
+  and the outcomes heading.
+- [x] 4 content.
+- [x] 5 equivalence check. 20,000 constructed states, 0 differences. Hold-the-line deaths:
+  0: 5412, 1: 8481, 2: 6065, 3: 42. In 372 states the pass ran out of disloyal defenders and
+  continued into the full list.
+- [x] 6 tests.
+- [x] 7 docs.

@@ -62,7 +62,7 @@ v2 feature below is the smallest addition that let that structure be ported with
 | **`derived` numeric values** | Hold-the-line casualties come from an averaged defence score | Named numeric expressions (conditions are coerced to bool; derived values aren't). New builtin `sum()`. |
 | **`enum` story variables** | Specialist / fireteam-leader / escort assignments | `{type: enum, values: [...]}`, compared with string literals and validated on assignment. |
 | **`trigger: idle`** | `Available_Missions_Complete`: when nothing else is left, the game forces the crew-abduction event | Idle storylets fire only when no auto or player storylet is available. |
-| **Repeatable outcome loops** | "N defenders die", with N computed | `me2.sm.hold_the_line` is `repeatable`, decrementing a pending-casualty counter until 0. |
+| **Repeatable outcome loops** *(superseded by `limit`, see below)* | "N defenders die", with N computed | `me2.sm.hold_the_line` is `repeatable`, decrementing a pending-casualty counter until 0. |
 
 **Lifted gating, again.** 25 conditionals were lifted verbatim, including all twelve
 `Ready_to_open_<Codename>` loyalty gates, Horizon (`Time_for_CR1_message`: Mordin, Garrus and
@@ -155,3 +155,31 @@ them:
 The same review replaced the derived `story.me3.wreav_leads` with LE3's lifted `Wrex_is_present`
 (`me3.me1.wrex_present`). It is another instance of the v3 lesson: the later game's conditional
 is the authority.
+
+## Post-v3: `limit` on outcomes
+
+Hold the line kills "the first N defenders in this priority list" (disloyal first), with N
+computed from the defence score. v2 expressed this as a loop. `hold_the_line` was a
+`repeatable` auto storylet that applied the first matching outcome and decremented a
+pending-casualty counter. The loop needed:
+
+- the counter variable;
+- a `-= 1` in every outcome;
+- a catch-all outcome for running out of defenders;
+- a counter guard on the next storylet.
+
+`limit: "<expr>"` states the rule directly: outcomes are evaluated in order, each against the
+state the previous ones left, and evaluation stops once `limit` of them have applied. The limit
+is evaluated once, before the first outcome (after the storylet's and the choice's effects),
+then truncated to an int and floored at 0. `resolve: first` is now loaded as `limit: 1`, so the
+engine has a single code path.
+
+A single limited pass gives the same result as the loop as long as applying an outcome never
+makes an *earlier* outcome start matching. Here outcomes only kill defenders, so that holds.
+This was checked on 20,000 constructed pre-battle states (0–3 deaths, including passes that run
+out of disloyal defenders): deaths and Shepard's fate were identical.
+
+The 2026-11-09 review had deferred this, because the loop already expressed the structure and
+CLAUDE.md asks for schema changes only when a game forces them. It was added at the user's
+request. `repeatable` is kept as a general feature (with an engine test), although no content
+uses it now.

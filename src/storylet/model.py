@@ -94,7 +94,8 @@ class Storylet:
     effects: list[Effect] = field(default_factory=list)
     choices: list[Choice] = field(default_factory=list)
     outcomes: list[Outcome] = field(default_factory=list)
-    resolve: str = "all"             # outcomes: 'all' apply every match in order, 'first' only the first
+    limit: Node | None = None        # outcomes: stop after this many have applied (None: all matches).
+                                     # `resolve: first` (v2) loads as limit 1.
     traits: list[str] = field(default_factory=list)
     trait_effects: int = 0           # how many of `effects` (the last ones) came from traits
     tags: list[str] = field(default_factory=list)

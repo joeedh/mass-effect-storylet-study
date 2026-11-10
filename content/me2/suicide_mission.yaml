@@ -31,7 +31,6 @@ vars:
     foreach: [{role: tech}, {role: leader1}, {role: biotic}, {role: leader2}, {role: escort}, {role: party1}, {role: party2}]
     type: enum
     values: [miranda, jacob, jack, legion, kasumi, garrus, thane, tali, mordin, grunt, samara, zaeed, none]
-  story.me2.sm.htl_deaths_pending: {type: int}
   story.me2.shepard_dead: {type: bool, doc: "Shepard dies if fewer than two squadmates survive. No ME3 import is possible."}
   me2.sm.escort_everyone_survived: {ref: me2.bool.3351, path: "me2:Act_3.EndGm2_CollectorBase.END200_Factory.TeamD_Escort_Complete.Everyone_Survived"}
   me2.sm.escort_died: {ref: me2.bool.3350, path: "me2:Act_3.EndGm2_CollectorBase.END200_Factory.TeamD_Escort_Complete.Hench_Died_Enroute"}
@@ -222,7 +221,6 @@ storylets:
       companions at Shepard's side die, and the defenders take losses that depend on their
       combined strength.
     requires: "story.me2.sm.party2 != '' && !seen(me2.sm.final_battle)"
-    effects: ["story.me2.sm.htl_deaths_pending = me2.sm.htl_deaths"]
     outcomes:
       - foreach: *roster
         id: "{who}_falls_with_shepard"
@@ -232,32 +230,33 @@ storylets:
   - id: me2.sm.hold_the_line
     title: "Suicide mission: Holding the line"
     trigger: auto
-    repeatable: true
-    resolve: first
-    summary: One defender falls. This repeats until the casualties the defence score dictates have been taken.
-    requires: "seen(me2.sm.final_battle) && story.me2.sm.htl_deaths_pending > 0"
+    summary: >-
+      The squadmates left behind hold the line against the Collectors. How many fall depends on
+      their combined defence score: none, if it is strong enough.
+    requires: "seen(me2.sm.final_battle)"
+    limit: "me2.sm.htl_deaths"
     outcomes:
       - foreach: [{who: mordin}, {who: tali}, {who: kasumi}, {who: jack}, {who: miranda}, {who: jacob}, {who: garrus}, {who: samara}, {who: legion}, {who: thane}, {who: zaeed}, {who: grunt}]
         id: "{who}_falls_disloyal"
         when: "me2.sm.defending.{who} && !me2.squad.{who}.loyal"
-        effects: ["me2.squad.{who}.dead = true", "story.me2.sm.htl_deaths_pending -= 1"]
+        effects: ["me2.squad.{who}.dead = true"]
       - foreach: [{who: mordin}, {who: tali}, {who: kasumi}, {who: jack}, {who: miranda}, {who: jacob}, {who: garrus}, {who: samara}, {who: legion}, {who: thane}, {who: zaeed}, {who: grunt}]
         id: "{who}_falls"
         when: "me2.sm.defending.{who}"
-        effects: ["me2.squad.{who}.dead = true", "story.me2.sm.htl_deaths_pending -= 1"]
-      - {id: nobody_left, when: "true", effects: ["story.me2.sm.htl_deaths_pending = 0"]}
+        effects: ["me2.squad.{who}.dead = true"]
     notes: >-
       Approximation: each defender scores a base value (Garrus/Grunt/Zaeed 3; Jacob, Legion,
       Miranda, Samara, Thane 1; others 0) plus 1 if loyal. Casualties follow the average score
-      (>=2: none, >=1.5: one, >=0.5: two, else three). Disloyal defenders fall first, in a fixed
-      priority order. The game's exact table also depends on the number of defenders.
+      (>=2: none, >=1.5: one, >=0.5: two, else three); `limit` applies that many of the outcomes
+      below. Disloyal defenders fall first, then anyone, each in a fixed priority order. The
+      game's exact table also depends on the number of defenders.
 
   - id: me2.sm.shepard_fate
     title: "Suicide mission: Escape"
     trigger: auto
     resolve: first
     summary: The survivors race back to the Normandy. If fewer than two squadmates are left alive, Shepard does not make the jump.
-    requires: "seen(me2.sm.final_battle) && story.me2.sm.htl_deaths_pending == 0 && !seen(me2.sm.shepard_fate)"
+    requires: "seen(me2.sm.hold_the_line) && !seen(me2.sm.shepard_fate)"
     outcomes:
       - {id: shepard_dies, when: "me2.sm.survivors < 2", effects: ["story.me2.shepard_dead = true", "me2.progress.game_done = true"]}
 
