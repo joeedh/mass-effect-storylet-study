@@ -129,9 +129,9 @@ binding.
   like a fuzzer. Uniform random play essentially never completed chains such as Rannoch peace
   (ME2 Legion activated, loyal, heretics rewritten, Tali loyal, both alive, Koris saved, the
   Consensus mission done, enough reputation). Guided play reaches them.
-- `storylet outcomes`: end-of-campaign distributions (ending, EMS band, Earth, cross-game
+- `pnpm storylet outcomes`: end-of-campaign distributions (ending, EMS band, Earth, cross-game
   fates) over many simulated careers.
-- `tests/test_trilogy.py`: a golden ME2→ME3 career that must reach peace, persuade the Illusive
+- `tests/trilogy.test.ts`: a golden ME2→ME3 career that must reach peace, persuade the Illusive
   Man and get EMS ≥ 4000, plus checks that ME3's fate conditions read ME1/ME2 state.
 
 ## Post-v3 review: rules the validator now enforces

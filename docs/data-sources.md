@@ -2,9 +2,9 @@
 
 ## BioWare plot databases (via LegendaryExplorer)
 
-`meplot fetch` downloads `PlotDatabases.zip` from
+`pnpm meplot fetch` downloads `PlotDatabases.zip` from
 [ME3Tweaks/LegendaryExplorer](https://github.com/ME3Tweaks/LegendaryExplorer), pinned to commit
-`b8869f92c7b80be7818447b5079f65c99b4a97b8` and verified by SHA-256 (`src/meplot/fetch.py`). It
+`b8869f92c7b80be7818447b5079f65c99b4a97b8` and verified by SHA-256 (`src/meplot/fetch.ts`). It
 contains `le1.json`, `le2.json` and `le3.json`, LegendaryExplorer's export of BioWare's internal
 plot databases for the Legendary Edition.
 
@@ -23,7 +23,7 @@ gitignored). Storylet content references individual variables by id and path.
 
 Element types and substate subtypes are documented in LegendaryExplorer's `PlotElementType.cs`.
 
-### Cross-game structure (verified by `tests/test_catalog.py`)
+### Cross-game structure (verified by `tests/catalog.test.ts`)
 
 - LE3's `ME2_Plots_for_ME3` region **is** the ME2 plot table at identical plot ids (5,545 bools
   match by id and label).
@@ -31,7 +31,7 @@ Element types and substate subtypes are documented in LegendaryExplorer's `PlotE
   3,952 bools, 111 ints and 34 floats match.
 - LE2's `ME1_Plots_for_ME2` region is **not** an alias. It holds ME2-native variables populated by
   the save importer, so content must bridge them explicitly.
-- `meplot build` writes `build/anomalies.txt`: the 18 imported elements whose label differs from the
+- `pnpm meplot build` writes `build/anomalies.txt`: the 18 imported elements whose label differs from the
   source (DB editing artifacts such as `EndBossUnion` → `Enle1ssUnion`).
 
 ### What the databases do not contain

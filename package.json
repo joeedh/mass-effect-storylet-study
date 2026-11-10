@@ -1,0 +1,28 @@
+{
+  "name": "mass-effect-storylet-study",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Extract the Mass Effect trilogy narrative graph and port it to an evolving storylet system",
+  "type": "module",
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "meplot": "node src/meplot/cli.ts",
+    "storylet": "node src/storylet/cli.ts",
+    "test": "node --test \"tests/**/*.test.ts\"",
+    "typecheck": "tsc -p .",
+    "lint": "lintrix --engine native src tests",
+    "check": "pnpm typecheck && pnpm lint && pnpm test && pnpm storylet validate"
+  },
+  "dependencies": {
+    "commander": "^15.1.0",
+    "fflate": "^0.8.3",
+    "yaml": "^2.9.1"
+  },
+  "devDependencies": {
+    "@types/node": "^24.19.2",
+    "lintrix": "^0.1.2",
+    "typescript": "7.0.2"
+  }
+}

@@ -9,26 +9,41 @@ a storylet system that evolves as each game is ported. Start with `README.md`;
 - `src/meplot/`: extraction from the plot databases (fetch, catalog, plot graph, outlines, `bind`).
 - `src/storylet/`: game-agnostic engine (expression language, loader, engine, validator, graph, atlas).
 - `content/`: storylet YAML per game (`me1/`, `me2/`, `me3/`) plus `campaign.yaml`.
-- `tests/`: unittest. Catalog tests skip unless `meplot fetch` has been run.
+- `src/storylet/pycompat.ts`, `pyrandom.ts`: Python semantics the engine was written against
+  (`true == 1`, floored `%`, CPython's seeded RNG). Seeded runs reproduce the Python version's.
+- `tests/`: `node:test`. Catalog tests skip unless `pnpm meplot fetch` has been run.
+- TypeScript runs directly on Node 24 (type stripping): no build step. Keep to erasable syntax
+  (no enums, namespaces or parameter properties); `pnpm typecheck` enforces it.
 - `build/`: generated output, gitignored. Never commit plot-database data or anything derived
   wholesale from it (see `docs/data-sources.md`).
 
 ## Checks before committing
 
 ```sh
-python -m unittest discover -s tests
-storylet validate          # must report 0 errors
+pnpm typecheck
+pnpm lint                       # needs a native lintrix on PATH (see below)
+pnpm test
+pnpm storylet validate          # must report 0 errors
 ```
 
 ## Rules
+
+### Linting
+
+- `pnpm lint` runs lintrix with `--engine native`. The npm package's WASM engine silently skips
+  the type-aware rules (`no-unsafe-*`, `strict-boolean-expressions`, `no-floating-promises`), so
+  the script refuses to fall back to it.
+- Put a native `lintrix` on PATH. One can be built from source; see the lintrix README.
+- Fix findings rather than disabling rules. A rule turned off needs a reason in
+  `lintrix.config.json`.
 
 ### Temporary comments
 
 Any temporary comment (debug notes, reminders, scaffolding to remove later) must start with
 `claudenote:` so it can be found and stripped mechanically:
 
-```python
-# claudenote: remove once Shiala's ME1 variable is located
+```ts
+// claudenote: remove once Shiala's ME1 variable is located
 ```
 
 ```yaml
@@ -64,7 +79,7 @@ wrong instead of appending contradictions.
 
 ## Conventions that matter
 
-- Bind storylet variables to canonical plot refs with their path (`meplot bind`). Prefer
+- Bind storylet variables to canonical plot refs with their path (`pnpm meplot bind`). Prefer
   lifting BioWare's conditionals verbatim over re-deriving rules.
 - When no plot variable exists yet, use a documented `story.*` variable, and put every
   modeling simplification in the storylet's `notes`.

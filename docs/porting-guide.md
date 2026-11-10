@@ -6,8 +6,8 @@ was used for all three games.
 ## 1. Find the plot structure
 
 ```sh
-meplot find me3 'Rannoch|Gth00' --type Plot --native     # where does it live?
-meplot outline 'me3:Geth_Quarian.Gth002' --no-flags       # worksheet: states, conditionals, who writes what
+pnpm meplot find me3 'Rannoch|Gth00' --type Plot --native     # where does it live?
+pnpm meplot outline 'me3:Geth_Quarian.Gth002' --no-flags       # worksheet: states, conditionals, who writes what
 ```
 
 Outlines list each state with the transitions that (probably) set it, and each conditional with
@@ -24,21 +24,23 @@ its code rewritten to canonical refs. Look for:
 To find what a later game reads from an earlier one:
 
 ```sh
-python3 - <<'EOF'
-from meplot.cli import get_catalog; from meplot.graph import READ_RE
-cat = get_catalog()
-for el in cat.dbs['me3'].elements.values():
-    if el.kind == 'cond' and not el.import_region:
-        for r in READ_RE.findall(cat.condition_code(el) or ''):
-            if r.startswith('me2.') and 'Loyalty' in cat.get(r).path: print(el.path, '->', cat.get(r).path)
+node --input-type=module <<'EOF'
+import { getCatalog } from "./src/meplot/cli.ts";
+import { READ_RE } from "./src/meplot/graph.ts";
+const cat = await getCatalog();
+for (const el of cat.dbs.get("me3").elements.values()) {
+  if (el.kind !== "cond" || el.importRegion) continue;
+  for (const r of (cat.conditionCode(el) ?? "").match(READ_RE) ?? [])
+    if (r.startsWith("me2.") && cat.get(r)?.path.includes("Loyalty")) console.log(el.path, "->", cat.get(r).path);
+}
 EOF
 ```
 
 ## 2. Bind
 
 ```sh
-meplot bind me3.rannoch.peace=me3.bool.17789 \
-            me3.rannoch.peace_possible=me3:Geth_Quarian.Gth002.Geth_2_Writing.Check_Peace_Possible_in_Theory
+pnpm meplot bind me3.rannoch.peace=me3.bool.17789 \
+                 me3.rannoch.peace_possible=me3:Geth_Quarian.Gth002.Geth_2_Writing.Check_Peace_Possible_in_Theory
 ```
 
 Paste the output into the area file's `vars:` / `conditions:`. Rules:
@@ -69,17 +71,17 @@ Paste the output into the area file's `vars:` / `conditions:`. Rules:
 ## 4. Check
 
 ```sh
-storylet validate                  # bindings, names, dataflow, coverage-guided reachability
-storylet simulate --seed 3 --choose me3.rannoch.reaper_base=peace
-storylet available --set me1.world.therum_done=true --set me1.world.feros_done=true
-storylet outcomes --start me1      # does the change shift ending/fate distributions sensibly?
-storylet coverage                  # how many of the game's quest plots are now bound
-python -m unittest discover -s tests
+pnpm storylet validate                  # bindings, names, dataflow, coverage-guided reachability
+pnpm storylet simulate --seed 3 --choose me3.rannoch.reaper_base=peace
+pnpm storylet available --set me1.world.therum_done=true --set me1.world.feros_done=true
+pnpm storylet outcomes --start me1      # does the change shift ending/fate distributions sensibly?
+pnpm storylet coverage                  # how many of the game's quest plots are now bound
+pnpm test
 ```
 
 `never fired` / `never chosen` warnings mean either a real dead end (a requires that can't hold)
 or a long chain that random play doesn't complete. Use `simulate --choose` or a test policy (see
-`tests/test_trilogy.py`) to tell which.
+`tests/trilogy.test.ts`) to tell which.
 
 ## 5. Evolve the schema only when forced
 

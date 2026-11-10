@@ -271,11 +271,43 @@ how each was resolved:
 
 ## Status
 
+Done. `pnpm typecheck` and `pnpm lint` (native) are clean. `pnpm test` passes 49 tests. That is
+the 35 ported tests, plus `PyRandom` vectors, the `pycompat` helpers, YAML scalar parity, state
+immutability, the `_filter` regression, and Python equality in `_pack`.
+`pnpm storylet validate` reports 0 errors and 1 warning (`me2.sm.choose_party2/none`, which was
+already there).
+
 - [x] 1 baseline (outputs in the session scratchpad, not committed)
-- [ ] 2 scaffold
-- [ ] 3 storylet core
-- [ ] 4 meplot
-- [ ] 5 parity check
-- [ ] 6 remove Python
-- [ ] 7 docs
-- [ ] 8 checks and commit
+- [x] 2 scaffold
+  - pnpm prints its `$ node …` banner on stderr, so stdout stays clean.
+  - Relative `-o` paths resolve against the caller's directory.
+  - The zip unpacks with fflate to files byte-identical to Python's.
+- [x] 3 storylet core
+- [x] 4 meplot
+- [x] 5 parity check. After line endings are normalized (Python on Windows wrote CRLF), the
+  following are identical to Python:
+  - `validate -v` (with and without the catalog);
+  - every seeded `simulate` (with and without `--choose`);
+  - `outcomes` (all three starts, default, uniform);
+  - `explore`, `available`, `coverage`;
+  - `graph` dot/mermaid/`--max-writers`;
+  - the atlas data, `x` included;
+  - all of `meplot`: `build` stdout, 107 outlines, `anomalies.txt`, `catalog.json`,
+    `plotgraph.json`, and `find`/`show`/`resolve`/`bind`/`outline`.
+
+  The remaining differences are all listed deviations: `True`/`False` spelled `true`/`false`,
+  `graph --format json` edge order among ties (the same edge set), and `graph --game` gaining
+  the edges the `_filter` fix restores.
+- [x] 6 remove Python
+- [x] 7 docs. Commands are now `pnpm storylet …`/`pnpm meplot …`. The debugging guide gained
+  entries for the YAML `y`/`n` trap, the silent WASM lint, and the `sequence` truncation.
+- [x] 8 checks and commit
+
+Found during the work, beyond the review:
+
+- The `yaml` 1.1 schema also differs from PyYAML on `y`/`n`, `1e5` and `09`. The content-wide
+  comparison missed this because no content uses those forms. A test caught it (see
+  docs/debugging.md).
+- Piping output into `head` crashed with EPIPE; the CLIs now stop quietly.
+- `strict-boolean-expressions` flagged every port of Python truthiness on an optional string.
+  `pycompat.nonEmpty` now names that semantics explicitly.

@@ -7,18 +7,18 @@ what actually caused them. Add to it whenever something takes more than a quick 
 
 | Question | Command |
 |---|---|
-| What can fire from this state? | `storylet available --set me1.world.therum_done=true` |
-| Play one career, forcing some choices | `storylet simulate --seed 3 --choose me3.rannoch.reaper_base=peace --state` |
-| Can a long chain be reached at all? | write a fixed policy as in `tests/test_trilogy.py` and trace it step by step |
-| What does a plot variable mean? | `meplot show me2.bool.1664` (also lists its aliases in later games) |
+| What can fire from this state? | `pnpm storylet available --set me1.world.therum_done=true` |
+| Play one career, forcing some choices | `pnpm storylet simulate --seed 3 --choose me3.rannoch.reaper_base=peace --state` |
+| Can a long chain be reached at all? | write a fixed policy as in `tests/trilogy.test.ts` and trace it step by step |
+| What does a plot variable mean? | `pnpm meplot show me2.bool.1664` (also lists its aliases in later games) |
 | What does a later game read from an earlier one? | the `READ_RE` loop in `docs/porting-guide.md` |
-| Where do outcomes land over many careers? | `storylet outcomes --start me1 --runs 500` |
+| Where do outcomes land over many careers? | `pnpm storylet outcomes --start me1 --runs 500` |
 
 To evaluate any expression against a traced state:
 
-```python
-from storylet.expr import parse
-engine.eval(parse("me3.rannoch.peace_possible"), state)
+```ts
+import { parse } from "./src/storylet/expr.ts";
+engine.eval(parse("me3.rannoch.peace_possible"), state);
 ```
 
 ## Validator messages
@@ -61,7 +61,7 @@ deciding.
   towards its choices.
 - **Fix:** apply the bonuses in an earlier storylet (`me3.rannoch.dreadnought`). **Rule:** state a
   choice depends on must be set before the storylet that offers the choice.
-- **Follow-up:** the rule was broken again (next case), so `storylet validate` now enforces it.
+- **Follow-up:** the rule was broken again (next case), so `pnpm storylet validate` now enforces it.
   Changing the engine to evaluate choices after effects was considered and rejected. It would
   shift every persuasion check by one mission's accrual from the mission trait, which makes ME2's
   ratio-based check *harder* for balanced Shepards. It would also invert the trap: a choice
@@ -108,7 +108,8 @@ deciding.
 
 ### `foreach` produced "unknown variable 'True'"
 
-- **Cause:** template substitution used Python's `str()` on YAML booleans.
+- **Cause:** template substitution used Python's `str()` on YAML booleans (before the
+  TypeScript port).
 - **Fix:** the loader substitutes booleans as `true`/`false`.
 
 ### `seen(x)` reported "unknown variable x"
@@ -116,6 +117,26 @@ deciding.
 - **Cause:** the arguments of `seen()`/`chose()` were parsed as name nodes and checked as
   variables.
 - **Fix:** `Node.names()` skips arguments of special forms (`seen`, `chose`, `total`).
+
+### A YAML key `y:` loaded as `true` (TypeScript port)
+
+- **Symptom:** in a test, var `y: me2.bool.2` was unknown ("unknown variable 'y'").
+- **Found by:** the engine tests, after a whole-content comparison of PyYAML and `yaml` had
+  passed. No content file happened to use `y` or `n`.
+- **Cause:** the `yaml` package's YAML 1.1 schema reads `y`/`n` as booleans, `1e5` as a float
+  and `09` as an int. PyYAML reads all three as strings, and the content was written against
+  PyYAML.
+- **Fix:** `YAML_OPTIONS` in `src/storylet/loader.ts` swaps in PyYAML's narrower scalar regexes.
+  A test pins the cases.
+
+### `pnpm lint` passed, but the type-aware rules had never run
+
+- **Symptom:** an `any` member access and an `any` assignment were not reported.
+- **Cause:** the lintrix npm package lints through a bundled WASM engine when no native binary
+  is found. WASM has no TypeScript type server, so it skips every type-aware rule
+  (`no-unsafe-*`, `strict-boolean-expressions`, `no-floating-promises`) and says nothing.
+- **Fix:** `pnpm lint` passes `--engine native`, which fails with exit code 2 when no native
+  `lintrix` is on PATH.
 
 ### The derived graph had ME2 → ME1 edges
 
@@ -127,7 +148,7 @@ deciding.
 
 - **Cause:** "infrastructure" variables (mission counters, morality points, EMS) are written by
   dozens of storylets and connect everything to everything.
-- **Fix:** `storylet graph --max-writers 10` drops edges through such variables. The atlas uses it.
+- **Fix:** `pnpm storylet graph --max-writers 10` drops edges through such variables. The atlas uses it.
 
 ### An optional DLC never ran (Arrival)
 
@@ -138,7 +159,7 @@ deciding.
 ## Plot-database surprises
 
 - Some labels are corrupted by an old find-and-replace (`EndBossUnion` → `Enle1ssUnion`).
-  `meplot build` lists them in `build/anomalies.txt`.
+  `pnpm meplot build` lists them in `build/anomalies.txt`.
 - ME1 has two roster families: `Utility.Henchman.<Race>` and `Utility.Henchman.InParty.<Race>`.
   ME3 treats `InParty` as "recruited", so bind that one.
 - `Wrex_is_dead` is not "Wreav leads". LE3's Wreav checks (`Check_Wreav`,
@@ -149,3 +170,10 @@ deciding.
   `Wrex_is_present`.
 - Transition targets are inferred from names and can be wrong; treat a "medium" confidence match
   as a hint, not as fact.
+- About half of all `sequence` values are fractional (27,698 of them, such as `193.75`). The
+  catalog truncates them to integers, a quirk inherited from the Python version, where
+  `int(193.75)` silently gave 193. Children whose sequences truncate to the same integer
+  (under 2,163 parents) are then ordered by element id, not by sequence. This affects outlines
+  and the order of `descendants`. It was kept through the TypeScript port so outputs could be
+  compared byte for byte. Fixing it means using the float in `sequenceOf`
+  (`src/meplot/catalog.ts`).

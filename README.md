@@ -9,7 +9,7 @@ data, and port it, one game at a time, to a storylet system that is evolved to r
     transitions, journal quests                    (requires / effects / choices)
             │  meplot (extraction)                        │  storylet (engine)
             ▼                                             ▼
- Layer 0: extracted plot graph  ◀── validated against ── Layer 1: storylet graph
+ Layer 0: extracted plot graph  ◀── validated against ── Layer 1: pnpm storylet graph
  (state skeleton, cross-game aliases)                     (emergent narrative graph, simulation)
 ```
 
@@ -23,26 +23,26 @@ data, and port it, one game at a time, to a storylet system that is evolved to r
 ## Quick start
 
 ```sh
-pip install -e .
-meplot fetch                 # download the pinned plot databases into build/plotdb (not vendored)
-meplot build                 # build/catalog.json, build/plotgraph.json, build/outlines/<game>/<region>.md
-storylet validate            # content vs. plot DB + 300 simulated playthroughs
-storylet simulate --seed 4   # one random playthrough
-storylet graph --format dot -o build/storylets.dot
-storylet coverage            # which quest plots are bound by storylets
-storylet outcomes --start me1 --runs 500   # ending / EMS / cross-game fate distributions
-storylet atlas               # build/atlas.html: interactive map of the derived graph
-python -m unittest discover -s tests
+pnpm install                      # Node 24 or later; the TypeScript runs directly, no build step
+pnpm meplot fetch                 # download the pinned plot databases into build/plotdb (not vendored)
+pnpm meplot build                 # build/catalog.json, build/plotgraph.json, build/outlines/<game>/<region>.md
+pnpm storylet validate            # content vs. plot DB + 300 simulated playthroughs
+pnpm storylet simulate --seed 4   # one random playthrough
+pnpm storylet graph --format dot -o build/storylets.dot
+pnpm storylet coverage            # which quest plots are bound by storylets
+pnpm storylet outcomes --start me1 --runs 500   # ending / EMS / cross-game fate distributions
+pnpm storylet atlas               # build/atlas.html: interactive map of the derived graph
+pnpm test                         # also: pnpm typecheck, pnpm lint
 ```
 
 Inspecting the plot data while porting:
 
 ```sh
-meplot find me1 'Virmire.*Kaidan' --type State
-meplot outline 'me1:CH2_Virmire.The_Choice'          # porting worksheet: states, conditions, writers
-meplot show me1.bool.3828                            # + its aliases in later games
-meplot bind me1.virmire.rescued_kaidan=me1:CH2_Virmire.The_Choice.Rescued_Kaidan \
-            me1.world.time_for_virmire_open=me1:Global_Plots.World_Progress.Time_For_Virmire_Open
+pnpm meplot find me1 'Virmire.*Kaidan' --type State
+pnpm meplot outline 'me1:CH2_Virmire.The_Choice'          # porting worksheet: states, conditions, writers
+pnpm meplot show me1.bool.3828                            # + its aliases in later games
+pnpm meplot bind me1.virmire.rescued_kaidan=me1:CH2_Virmire.The_Choice.Rescued_Kaidan \
+                 me1.world.time_for_virmire_open=me1:Global_Plots.World_Progress.Time_For_Virmire_Open
 ```
 
 ## Status
@@ -68,7 +68,7 @@ tables don't hold or that hasn't been located yet.
 
 ## Roadmap
 
-- **Breadth.** Quest/mission plots bound: ME1 19/89, ME2 22/54, ME3 24/33 (`storylet coverage`).
+- **Breadth.** Quest/mission plots bound: ME1 19/89, ME2 22/54, ME3 24/33 (`pnpm storylet coverage`).
   ME1's count includes many small side quests. Side quests, N7 missions, ME3 romances and the Citadel/Omega DLCs are
   next. They are mostly content work on the existing schema.
 - **Close the `story.*` gaps.** Shiala, Fist, Sidonis, Kasumi's graybox, Shepard's sex in ME1. Look
