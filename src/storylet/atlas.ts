@@ -9,6 +9,7 @@ import type { Content } from './model.ts';
 import * as py from './pycompat.ts';
 
 const TEMPLATE = new URL('./atlas_template.html', import.meta.url);
+const DATA_SLOT = '/*DATA*/ null';
 
 function median(xs: readonly number[]): number {
   const s = [...xs].sort((a, b) => a - b);
@@ -91,9 +92,11 @@ export function buildAtlas(content: Content, out: string): string {
   const data = JSON.stringify(atlasData(content)).replaceAll('</', '<\\/');
   fs.mkdirSync(path.dirname(out), { recursive: true });
   const template = fs.readFileSync(TEMPLATE, 'utf8');
+  // The template says `/*DATA*/ null` so its script stays valid JS that prettier can format.
+  if (!template.includes(DATA_SLOT)) throw new Error(`atlas template has no ${DATA_SLOT}`);
   fs.writeFileSync(
     out,
-    template.replace('/*DATA*/', () => data),
+    template.replace(DATA_SLOT, () => data),
     'utf8',
   );
   return out;

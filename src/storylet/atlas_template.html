@@ -403,29 +403,54 @@
 </section>
 
 <script>
-  const DATA = /*DATA*/;
-  const GAMES = [["me1","Mass Effect"],["me2","Mass Effect 2"],["me3","Mass Effect 3"]];
-  const byId = Object.fromEntries(DATA.nodes.map(n => [n.id, n]));
-  const outE = {}, inE = {};
-  for (const e of DATA.edges) { (outE[e.s] ||= []).push(e); (inE[e.d] ||= []).push(e); }
-  const gi = g => ({campaign: 0, me1: 1, me2: 2, me3: 3})[g] ?? 0;
-  const isCross = e => byId[e.s].g !== "campaign" && byId[e.d].g !== "campaign" && byId[e.s].g !== byId[e.d].g;
-  const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"})[c]);
+  const DATA = /*DATA*/ null;
+  const GAMES = [
+    ['me1', 'Mass Effect'],
+    ['me2', 'Mass Effect 2'],
+    ['me3', 'Mass Effect 3'],
+  ];
+  const byId = Object.fromEntries(DATA.nodes.map((n) => [n.id, n]));
+  const outE = {},
+    inE = {};
+  for (const e of DATA.edges) {
+    (outE[e.s] ||= []).push(e);
+    (inE[e.d] ||= []).push(e);
+  }
+  const gi = (g) => ({ campaign: 0, me1: 1, me2: 2, me3: 3 })[g] ?? 0;
+  const isCross = (e) =>
+    byId[e.s].g !== 'campaign' && byId[e.d].g !== 'campaign' && byId[e.s].g !== byId[e.d].g;
+  const esc = (s) =>
+    String(s).replace(
+      /[&<>"]/g,
+      (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c],
+    );
 
   const st = DATA.stats;
-  document.getElementById("stats").innerHTML = [
-    [st.storylets, "storylets"], [st.plotvars, "plot variables bound"], [st.lifted, "conditionals lifted"], [st.edges, "derived links"]
-  ].map(([v, l]) => `<div><b>${v}</b><span>${l}</span></div>`).join("");
+  document.getElementById('stats').innerHTML = [
+    [st.storylets, 'storylets'],
+    [st.plotvars, 'plot variables bound'],
+    [st.lifted, 'conditionals lifted'],
+    [st.edges, 'derived links'],
+  ]
+    .map(([v, l]) => `<div><b>${v}</b><span>${l}</span></div>`)
+    .join('');
 
   // --- layout ---------------------------------------------------------------------------------
-  const W = 1180, LEFT = 150, RIGHT = 30, ROW = 26, BAND_PAD = 34;
-  const pos = {}; let y = 14; const bands = [];
+  const W = 1180,
+    LEFT = 150,
+    RIGHT = 30,
+    ROW = 26,
+    BAND_PAD = 34;
+  const pos = {};
+  let y = 14;
+  const bands = [];
   for (const [g, name] of GAMES) {
-    const ns = DATA.nodes.filter(n => n.g === g);
+    const ns = DATA.nodes.filter((n) => n.g === g);
     const areas = {};
     for (const n of ns) (areas[n.a] ||= []).push(n);
     const order = Object.keys(areas).sort((a, b) => median(areas[a]) - median(areas[b]));
-    const top = y; y += BAND_PAD;
+    const top = y;
+    y += BAND_PAD;
     const rows = [];
     for (const a of order) {
       const items = areas[a].sort((p, q) => p.x - q.x);
@@ -437,89 +462,158 @@
         last = px;
         pos[n.id] = [Math.min(px, W - RIGHT), y];
       }
-      rows.push([a, y]); y += ROW;
+      rows.push([a, y]);
+      y += ROW;
     }
-    bands.push({g, name, top, bottom: y + 6, rows}); y += 18;
+    bands.push({ g, name, top, bottom: y + 6, rows });
+    y += 18;
   }
-  const camp = DATA.nodes.find(n => n.g === "campaign");
+  const camp = DATA.nodes.find((n) => n.g === 'campaign');
   if (camp) pos[camp.id] = [LEFT - 20, bands[0].top + 14];
-  function median(arr) { const xs = arr.map(n => n.x).sort((a, b) => a - b); return xs[Math.floor(xs.length / 2)]; }
+  function median(arr) {
+    const xs = arr.map((n) => n.x).sort((a, b) => a - b);
+    return xs[Math.floor(xs.length / 2)];
+  }
 
-  const svg = document.getElementById("svg");
+  const svg = document.getElementById('svg');
   const H = y;
-  svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
-  const NS = "http://www.w3.org/2000/svg";
-  const mk = (tag, attrs, parent) => { const el = document.createElementNS(NS, tag); for (const k in attrs) el.setAttribute(k, attrs[k]); parent && parent.appendChild(el); return el; };
+  svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+  const NS = 'http://www.w3.org/2000/svg';
+  const mk = (tag, attrs, parent) => {
+    const el = document.createElementNS(NS, tag);
+    for (const k in attrs) el.setAttribute(k, attrs[k]);
+    parent && parent.appendChild(el);
+    return el;
+  };
 
   for (const b of bands) {
-    mk("rect", {x: 0, y: b.top, width: W, height: b.bottom - b.top, fill: `var(--${b.g})`, opacity: .06, rx: 6}, svg);
-    const t = mk("text", {x: 12, y: b.top + 20, class: "band-label", fill: `var(--${b.g})`}, svg);
-    t.style.fill = `var(--${b.g})`; t.textContent = b.name.toUpperCase();
+    mk(
+      'rect',
+      {
+        x: 0,
+        y: b.top,
+        width: W,
+        height: b.bottom - b.top,
+        fill: `var(--${b.g})`,
+        opacity: 0.06,
+        rx: 6,
+      },
+      svg,
+    );
+    const t = mk('text', { x: 12, y: b.top + 20, class: 'band-label', fill: `var(--${b.g})` }, svg);
+    t.style.fill = `var(--${b.g})`;
+    t.textContent = b.name.toUpperCase();
     for (const [a, ry] of b.rows) {
-      mk("line", {x1: LEFT - 6, x2: W - RIGHT + 8, y1: ry, y2: ry, stroke: "var(--line)", "stroke-width": 1}, svg);
-      const lt = mk("text", {x: LEFT - 12, y: ry + 4, "text-anchor": "end", class: "area-label"}, svg);
-      lt.textContent = a.split(".").slice(1).join(".") || a;
+      mk(
+        'line',
+        {
+          x1: LEFT - 6,
+          x2: W - RIGHT + 8,
+          y1: ry,
+          y2: ry,
+          stroke: 'var(--line)',
+          'stroke-width': 1,
+        },
+        svg,
+      );
+      const lt = mk(
+        'text',
+        { x: LEFT - 12, y: ry + 4, 'text-anchor': 'end', class: 'area-label' },
+        svg,
+      );
+      lt.textContent = a.split('.').slice(1).join('.') || a;
     }
   }
-  mk("text", {x: LEFT, y: H - 2, class: "area-label"}, svg).textContent = "earlier in the game";
-  mk("text", {x: W - RIGHT, y: H - 2, class: "area-label", "text-anchor": "end"}, svg).textContent = "later";
+  mk('text', { x: LEFT, y: H - 2, class: 'area-label' }, svg).textContent = 'earlier in the game';
+  mk(
+    'text',
+    { x: W - RIGHT, y: H - 2, class: 'area-label', 'text-anchor': 'end' },
+    svg,
+  ).textContent = 'later';
 
-  const edgeLayer = mk("g", {}, svg);
-  const nodeLayer = mk("g", {}, svg);
+  const edgeLayer = mk('g', {}, svg);
+  const nodeLayer = mk('g', {}, svg);
   const nodeEls = {};
   for (const n of DATA.nodes) {
     const [px, py] = pos[n.id];
-    const g = mk("g", {class: "node", tabindex: 0, role: "button", "aria-label": n.t}, nodeLayer);
+    const g = mk('g', { class: 'node', tabindex: 0, role: 'button', 'aria-label': n.t }, nodeLayer);
     const r = n.ch.length || n.oc.length ? 6 : 4.5;
-    const c = mk("circle", {cx: px, cy: py, r, fill: `var(--${n.g})`}, g);
-    if (n.tr === "auto") c.setAttribute("fill-opacity", ".55");
-    const lbl = mk("text", {x: px + 8, y: py - 7}, g); lbl.textContent = n.t; lbl.style.display = "none";
-    g.addEventListener("click", () => select(n.id));
-    g.addEventListener("keydown", ev => { if (ev.key === "Enter" || ev.key === " ") { ev.preventDefault(); select(n.id); } });
-    g.addEventListener("mouseenter", () => lbl.style.display = "");
-    g.addEventListener("mouseleave", () => { if (sel !== n.id) lbl.style.display = "none"; });
-    nodeEls[n.id] = {g, lbl};
+    const c = mk('circle', { cx: px, cy: py, r, fill: `var(--${n.g})` }, g);
+    if (n.tr === 'auto') c.setAttribute('fill-opacity', '.55');
+    const lbl = mk('text', { x: px + 8, y: py - 7 }, g);
+    lbl.textContent = n.t;
+    lbl.style.display = 'none';
+    g.addEventListener('click', () => select(n.id));
+    g.addEventListener('keydown', (ev) => {
+      if (ev.key === 'Enter' || ev.key === ' ') {
+        ev.preventDefault();
+        select(n.id);
+      }
+    });
+    g.addEventListener('mouseenter', () => (lbl.style.display = ''));
+    g.addEventListener('mouseleave', () => {
+      if (sel !== n.id) lbl.style.display = 'none';
+    });
+    nodeEls[n.id] = { g, lbl };
   }
 
   function curve(a, b) {
-    const [x1, y1] = pos[a], [x2, y2] = pos[b];
-    const dy = Math.abs(y2 - y1), bend = Math.min(120, 30 + dy * .25);
+    const [x1, y1] = pos[a],
+      [x2, y2] = pos[b];
+    const dy = Math.abs(y2 - y1),
+      bend = Math.min(120, 30 + dy * 0.25);
     return `M${x1},${y1} C${x1 + bend},${y1} ${x2 - bend},${y2} ${x2},${y2}`;
   }
   function drawEdges() {
-    edgeLayer.innerHTML = "";
+    edgeLayer.innerHTML = '';
     if (sel) {
-      for (const e of inE[sel] || []) mk("path", {d: curve(e.s, e.d), class: "edge in"}, edgeLayer);
-      for (const e of outE[sel] || []) mk("path", {d: curve(e.s, e.d), class: "edge out"}, edgeLayer);
-    } else if (document.getElementById("crossOnly").checked) {
-      for (const e of DATA.edges) if (isCross(e)) mk("path", {d: curve(e.s, e.d), class: "edge cross"}, edgeLayer);
+      for (const e of inE[sel] || [])
+        mk('path', { d: curve(e.s, e.d), class: 'edge in' }, edgeLayer);
+      for (const e of outE[sel] || [])
+        mk('path', { d: curve(e.s, e.d), class: 'edge out' }, edgeLayer);
+    } else if (document.getElementById('crossOnly').checked) {
+      for (const e of DATA.edges)
+        if (isCross(e)) mk('path', { d: curve(e.s, e.d), class: 'edge cross' }, edgeLayer);
     }
   }
 
   let sel = null;
   function select(id) {
     sel = id;
-    const linked = new Set([id, ...(inE[id] || []).map(e => e.s), ...(outE[id] || []).map(e => e.d)]);
-    for (const [nid, {g, lbl}] of Object.entries(nodeEls)) {
-      g.classList.toggle("sel", nid === id);
-      g.classList.toggle("dim", !!id && !linked.has(nid));
-      lbl.style.display = id && (nid === id || linked.has(nid)) && linked.size < 14 ? "" : "none";
+    const linked = new Set([
+      id,
+      ...(inE[id] || []).map((e) => e.s),
+      ...(outE[id] || []).map((e) => e.d),
+    ]);
+    for (const [nid, { g, lbl }] of Object.entries(nodeEls)) {
+      g.classList.toggle('sel', nid === id);
+      g.classList.toggle('dim', !!id && !linked.has(nid));
+      lbl.style.display = id && (nid === id || linked.has(nid)) && linked.size < 14 ? '' : 'none';
     }
-    if (id) nodeEls[id].lbl.style.display = "";
-    drawEdges(); renderDetail(id);
+    if (id) nodeEls[id].lbl.style.display = '';
+    drawEdges();
+    renderDetail(id);
   }
 
   function list(edges, key) {
     if (!edges || !edges.length) return "<p class='eyebrow'>none</p>";
     const sorted = [...edges].sort((a, b) => gi(byId[a[key]].g) - gi(byId[b[key]].g));
-    return "<ul>" + sorted.slice(0, 40).map(e => {
-      const n = byId[e[key]];
-      return `<li><span class="g-${n.g}">●</span> <button class="link" data-id="${esc(n.id)}">${esc(n.t)}</button><br><code>${esc(e.v.slice(0, 3).join(", "))}${e.v.length > 3 ? " …" : ""}</code></li>`;
-    }).join("") + (sorted.length > 40 ? `<li>… ${sorted.length - 40} more</li>` : "") + "</ul>";
+    return (
+      '<ul>' +
+      sorted
+        .slice(0, 40)
+        .map((e) => {
+          const n = byId[e[key]];
+          return `<li><span class="g-${n.g}">●</span> <button class="link" data-id="${esc(n.id)}">${esc(n.t)}</button><br><code>${esc(e.v.slice(0, 3).join(', '))}${e.v.length > 3 ? ' …' : ''}</code></li>`;
+        })
+        .join('') +
+      (sorted.length > 40 ? `<li>… ${sorted.length - 40} more</li>` : '') +
+      '</ul>'
+    );
   }
 
   function renderDetail(id) {
-    const el = document.getElementById("detail");
+    const el = document.getElementById('detail');
     if (!id) {
       el.innerHTML = `<div class="eyebrow">How to read this</div><h2>Pick a storylet</h2>
         <p>Each dot is a storylet. Larger dots carry player choices or system-resolved outcomes; faded dots fire automatically. Teal curves are links between games.</p>
@@ -527,44 +621,67 @@
       return;
     }
     const n = byId[id];
-    const choices = n.ch.length ? `<section><div class="eyebrow">Choices</div><ul>${n.ch.map(c => `<li><b>${esc(c.l || c.id)}</b>${c.req !== "true" ? `<span class="expr">requires ${esc(c.req)}</span>` : ""}${c.eff.length ? `<span class="expr">${esc(c.eff.join("\n"))}</span>` : ""}</li>`).join("")}</ul></section>` : "";
-    const outs = n.oc.length ? `<section><div class="eyebrow">Outcomes (resolved by the game${n.lim == null ? "" : n.lim === "1" ? "; first match only" : `; first ${esc(n.lim)} matches`})</div><ul>${n.oc.slice(0, 14).map(o => `<li><code>${esc(o.id)}</code><span class="expr">when ${esc(o.w)}</span></li>`).join("")}${n.oc.length > 14 ? `<li>… ${n.oc.length - 14} more</li>` : ""}</ul></section>` : "";
-    el.innerHTML = `<div class="eyebrow g-${n.g}">${esc(n.g.toUpperCase())} · ${esc(n.a)} · ${n.tr === "auto" ? "fires automatically" : "player-driven"}${n.k === "bridge" ? " · bridge" : ""}</div>
+    const choices = n.ch.length
+      ? `<section><div class="eyebrow">Choices</div><ul>${n.ch.map((c) => `<li><b>${esc(c.l || c.id)}</b>${c.req !== 'true' ? `<span class="expr">requires ${esc(c.req)}</span>` : ''}${c.eff.length ? `<span class="expr">${esc(c.eff.join('\n'))}</span>` : ''}</li>`).join('')}</ul></section>`
+      : '';
+    const outs = n.oc.length
+      ? `<section><div class="eyebrow">Outcomes (resolved by the game${n.lim == null ? '' : n.lim === '1' ? '; first match only' : `; first ${esc(n.lim)} matches`})</div><ul>${n.oc
+          .slice(0, 14)
+          .map(
+            (o) => `<li><code>${esc(o.id)}</code><span class="expr">when ${esc(o.w)}</span></li>`,
+          )
+          .join('')}${n.oc.length > 14 ? `<li>… ${n.oc.length - 14} more</li>` : ''}</ul></section>`
+      : '';
+    el.innerHTML = `<div class="eyebrow g-${n.g}">${esc(n.g.toUpperCase())} · ${esc(n.a)} · ${n.tr === 'auto' ? 'fires automatically' : 'player-driven'}${n.k === 'bridge' ? ' · bridge' : ''}</div>
       <h2>${esc(n.t)}</h2>
-      <p>${esc(n.sum || "")}</p>
-      <div>${n.tags.map(t => `<span class="pill">${esc(t)}</span>`).join("")}</div>
+      <p>${esc(n.sum || '')}</p>
+      <div>${n.tags.map((t) => `<span class="pill">${esc(t)}</span>`).join('')}</div>
       <section><div class="eyebrow">Requires</div><span class="expr">${esc(n.req)}</span>
-      ${n.eff.length ? `<div class="eyebrow">Effects</div><span class="expr">${esc(n.eff.join("\n"))}</span>` : ""}</section>
+      ${n.eff.length ? `<div class="eyebrow">Effects</div><span class="expr">${esc(n.eff.join('\n'))}</span>` : ''}</section>
       ${choices}${outs}
-      ${n.n ? `<section><div class="eyebrow">Modeling notes</div><p>${esc(n.n)}</p></section>` : ""}
-      ${n.ev.length ? `<section><div class="eyebrow">Plot database evidence</div><ul>${n.ev.map(v => `<li><code>${esc(v)}</code></li>`).join("")}</ul></section>` : ""}
-      <section><div class="eyebrow">Enabled by (${(inE[id] || []).length})</div>${list(inE[id], "s")}</section>
-      <section><div class="eyebrow">Enables (${(outE[id] || []).length})</div>${list(outE[id], "d")}</section>
+      ${n.n ? `<section><div class="eyebrow">Modeling notes</div><p>${esc(n.n)}</p></section>` : ''}
+      ${n.ev.length ? `<section><div class="eyebrow">Plot database evidence</div><ul>${n.ev.map((v) => `<li><code>${esc(v)}</code></li>`).join('')}</ul></section>` : ''}
+      <section><div class="eyebrow">Enabled by (${(inE[id] || []).length})</div>${list(inE[id], 's')}</section>
+      <section><div class="eyebrow">Enables (${(outE[id] || []).length})</div>${list(outE[id], 'd')}</section>
       <p><button class="link" data-clear="1">Clear selection</button></p>`;
   }
 
-  document.addEventListener("click", ev => {
-    const b = ev.target.closest("[data-id],[data-clear]");
+  document.addEventListener('click', (ev) => {
+    const b = ev.target.closest('[data-id],[data-clear]');
     if (!b) return;
-    if (b.dataset.clear) select(null); else { select(b.dataset.id); nodeEls[b.dataset.id].g.scrollIntoView({block: "nearest", inline: "nearest"}); }
+    if (b.dataset.clear) select(null);
+    else {
+      select(b.dataset.id);
+      nodeEls[b.dataset.id].g.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+    }
   });
-  document.getElementById("crossOnly").addEventListener("change", drawEdges);
-  document.getElementById("q").addEventListener("input", ev => {
+  document.getElementById('crossOnly').addEventListener('change', drawEdges);
+  document.getElementById('q').addEventListener('input', (ev) => {
     const q = ev.target.value.trim().toLowerCase();
-    for (const [nid, {g}] of Object.entries(nodeEls)) {
+    for (const [nid, { g }] of Object.entries(nodeEls)) {
       const n = byId[nid];
-      g.classList.toggle("dim", !!q && !(n.t.toLowerCase().includes(q) || nid.includes(q)));
+      g.classList.toggle('dim', !!q && !(n.t.toLowerCase().includes(q) || nid.includes(q)));
     }
     if (!q) select(sel);
   });
 
   // cross-game threads, grouped by source decision
-  const threads = DATA.edges.filter(e => isCross(e) && gi(byId[e.d].g) > gi(byId[e.s].g) && byId[e.s].k !== "bridge" && byId[e.d].k !== "bridge")
+  const threads = DATA.edges
+    .filter(
+      (e) =>
+        isCross(e) &&
+        gi(byId[e.d].g) > gi(byId[e.s].g) &&
+        byId[e.s].k !== 'bridge' &&
+        byId[e.d].k !== 'bridge',
+    )
     .sort((a, b) => gi(byId[a.s].g) - gi(byId[b.s].g) || byId[a.s].x - byId[b.s].x);
-  document.getElementById("threads").innerHTML = threads.map(e => {
-    const s = byId[e.s], d = byId[e.d];
-    return `<div class="thread"><div class="hop"><span class="g-${s.g}">●</span><button class="link" data-id="${esc(s.id)}">${esc(s.t)}</button><span aria-hidden="true">→</span><span class="g-${d.g}">●</span><button class="link" data-id="${esc(d.id)}">${esc(d.t)}</button></div><div class="via">${esc(e.v.join(", "))}</div></div>`;
-  }).join("");
+  document.getElementById('threads').innerHTML = threads
+    .map((e) => {
+      const s = byId[e.s],
+        d = byId[e.d];
+      return `<div class="thread"><div class="hop"><span class="g-${s.g}">●</span><button class="link" data-id="${esc(s.id)}">${esc(s.t)}</button><span aria-hidden="true">→</span><span class="g-${d.g}">●</span><button class="link" data-id="${esc(d.id)}">${esc(d.t)}</button></div><div class="via">${esc(e.v.join(', '))}</div></div>`;
+    })
+    .join('');
 
   select(null);
 </script>
