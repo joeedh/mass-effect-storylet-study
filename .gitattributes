@@ -1,0 +1,2 @@
+# Keep LF everywhere: prettier checks for LF, and core.autocrlf would otherwise check out CRLF.
+* text=auto eol=lf

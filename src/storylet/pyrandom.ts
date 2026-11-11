@@ -98,7 +98,9 @@ export class PyRandom {
 
   /** `k` random bits, for 0 <= k <= 32 (all that `choice` needs). */
   getrandbits(k: number): number {
-    if (!Number.isInteger(k) || k < 0 || k > 32) throw new RangeError(`getrandbits(${k}) supports 0..32 bits`);
+    if (!Number.isInteger(k) || k < 0 || k > 32) {
+      throw new RangeError(`getrandbits(${k}) supports 0..32 bits`);
+    }
     if (k === 0) return 0;
     return this.genrandUint32() >>> (32 - k);
   }
@@ -112,18 +114,22 @@ export class PyRandom {
   }
 
   choice<T>(seq: readonly T[]): T {
-    if (seq.length === 0) throw new RangeError("cannot choose from an empty sequence");
+    if (seq.length === 0) throw new RangeError('cannot choose from an empty sequence');
     return seq[this.randbelow(seq.length)]!;
   }
 
   /** One weighted pick, as `random.choices(population, weights)[0]`. */
   weightedChoice<T>(population: readonly T[], weights: readonly number[]): T {
-    if (population.length !== weights.length) throw new RangeError("population and weights differ in length");
+    if (population.length !== weights.length) {
+      throw new RangeError('population and weights differ in length');
+    }
     const cum: number[] = [];
     let acc = 0;
     for (const w of weights) cum.push((acc += w));
     const total = acc;
-    if (!(total > 0) || !Number.isFinite(total)) throw new RangeError("total of weights must be positive and finite");
+    if (!(total > 0) || !Number.isFinite(total)) {
+      throw new RangeError('total of weights must be positive and finite');
+    }
     return population[bisectRight(cum, this.random() * total, 0, population.length - 1)]!;
   }
 }
@@ -144,7 +150,9 @@ function bisectRight(a: readonly number[], x: number, lo: number, hi: number): n
 
 /** Python seeds with the absolute value, split into 32-bit words, least significant first. */
 function seedKey(seed: number | bigint): number[] {
-  if (typeof seed === "number" && !Number.isSafeInteger(seed)) throw new RangeError(`seed must be an integer: ${seed}`);
+  if (typeof seed === 'number' && !Number.isSafeInteger(seed)) {
+    throw new RangeError(`seed must be an integer: ${seed}`);
+  }
   let n = BigInt(seed);
   if (n < 0n) n = -n;
   const key: number[] = [];

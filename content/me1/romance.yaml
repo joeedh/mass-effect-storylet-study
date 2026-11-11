@@ -7,23 +7,43 @@ storylets:
   - id: me1.normandy.romance
     title: A relationship aboard the Normandy
     summary: Between missions, Shepard can pursue a relationship with a squadmate.
-    requires: "me1.citadel.player_is_spectre && !me1.citadel.grounded && !(me1.romance.ashley || me1.romance.kaidan || me1.romance.liara)"
+    requires: 'me1.citadel.player_is_spectre && !me1.citadel.grounded && !(me1.romance.ashley || me1.romance.kaidan || me1.romance.liara)'
     choices:
-      - {id: ashley, label: Ashley, requires: "!story.shepard.female && me1.squad.ashley", effects: ["me1.romance.ashley = true"]}
-      - {id: kaidan, label: Kaidan, requires: "story.shepard.female && me1.squad.kaidan", effects: ["me1.romance.kaidan = true"]}
-      - {id: liara, label: Liara, requires: "me1.squad.liara", effects: ["me1.romance.liara = true"]}
-      - {id: none, label: Stay professional}
+      - {
+          id: ashley,
+          label: Ashley,
+          requires: '!story.shepard.female && me1.squad.ashley',
+          effects: ['me1.romance.ashley = true'],
+        }
+      - {
+          id: kaidan,
+          label: Kaidan,
+          requires: 'story.shepard.female && me1.squad.kaidan',
+          effects: ['me1.romance.kaidan = true'],
+        }
+      - {
+          id: liara,
+          label: Liara,
+          requires: 'me1.squad.liara',
+          effects: ['me1.romance.liara = true'],
+        }
+      - { id: none, label: Stay professional }
     tags: [romance, cross-game]
-    evidence: ["me1:Global_Plots.Henchman_Ash", "me1:Global_Plots.Henchman_Kaidan", "me1:Global_Plots.Henchman_Liara"]
+    evidence:
+      [
+        'me1:Global_Plots.Henchman_Ash',
+        'me1:Global_Plots.Henchman_Kaidan',
+        'me1:Global_Plots.Henchman_Liara',
+      ]
 
   - id: me1.normandy.romance_night
     title: The night before Ilos
     trigger: auto
-    priority: 10  # must win over me1.ilos.unlock/vigil, which would end the window
+    priority: 10 # must win over me1.ilos.unlock/vigil, which would end the window
     summary: After the escape from the Citadel, Shepard's love interest comes to Shepard's quarters.
     requires: >-
       me1.citadel.escape_over && !me1.ilos.enter_archives && !me1.romance.consummated &&
       ((me1.romance.ashley && me1.squad.ashley) || (me1.romance.kaidan && me1.squad.kaidan) || me1.romance.liara)
-    effects: ["me1.romance.consummated = true"]
+    effects: ['me1.romance.consummated = true']
     tags: [romance]
-    evidence: ["me1:Global_Plots.Romance_State"]
+    evidence: ['me1:Global_Plots.Romance_State']

@@ -6,7 +6,7 @@ area: campaign
 vars:
   story.game:
     type: int
-    doc: "Game currently being played: 0 = campaign not started, 1/2/3 = ME1/ME2/ME3."
+    doc: 'Game currently being played: 0 = campaign not started, 1/2/3 = ME1/ME2/ME3.'
 
 storylets:
   - id: campaign.start
@@ -15,11 +15,11 @@ storylets:
     trigger: auto
     priority: 1000
     summary: Begin a new Shepard in ME1, or start fresh in a later game with no imported save.
-    requires: "story.game == 0"
+    requires: 'story.game == 0'
     choices:
-      - {id: me1, label: "Mass Effect", effects: ["story.game = 1"]}
-      - {id: me2, label: "Mass Effect 2 (no import)", effects: ["story.game = 2"]}
-      - {id: me3, label: "Mass Effect 3 (no import)", effects: ["story.game = 3"]}
+      - { id: me1, label: 'Mass Effect', effects: ['story.game = 1'] }
+      - { id: me2, label: 'Mass Effect 2 (no import)', effects: ['story.game = 2'] }
+      - { id: me3, label: 'Mass Effect 3 (no import)', effects: ['story.game = 3'] }
     notes: >-
       A fresh ME3 start leaves the ME1/ME2 tables at their defaults, and LE3's own lifted
       conditions decide what that means. For example Kaiden_Is_Dead holds, because

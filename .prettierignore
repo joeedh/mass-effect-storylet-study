@@ -1,0 +1,2 @@
+# Prettier 3 also skips everything in .gitignore (build/, node_modules/).
+pnpm-lock.yaml

@@ -1,7 +1,7 @@
 # Porting guide
 
-How to port a piece of a game into storylets: a mission, a side quest or a decision. The same loop
-was used for all three games.
+How to port a piece of a game into storylets: a mission, a side quest or a decision. The
+same loop was used for all three games.
 
 ## 1. Find the plot structure
 
@@ -10,16 +10,18 @@ pnpm meplot find me3 'Rannoch|Gth00' --type Plot --native     # where does it li
 pnpm meplot outline 'me3:Geth_Quarian.Gth002' --no-flags       # worksheet: states, conditionals, who writes what
 ```
 
-Outlines list each state with the transitions that (probably) set it, and each conditional with
-its code rewritten to canonical refs. Look for:
+Outlines list each state with the transitions that (probably) set it, and each conditional
+with its code rewritten to canonical refs. Look for:
 
-- **Critical-path / journal plots** (`*_Critical_Path`, `JournalGoal`/`JournalTask`): these are the beats.
-- **Decision states with substates** (`Choice_Is_Made` → `Save_the_Council` / `Destroy_the_Council`):
-  these are the choices.
-- **`Time_for_*`, `*_available`, `Ready_to_open_*` conditionals**: the game's own gating. Lift
-  them instead of re-deriving.
-- **`*_is_Dead`, `*_is_present`, `Check_*` conditionals in a *later* game**: they tell you which
-  earlier-game variables matter, and are the best evidence for what an earlier variable means.
+- **Critical-path / journal plots** (`*_Critical_Path`, `JournalGoal`/`JournalTask`):
+  these are the beats.
+- **Decision states with substates** (`Choice_Is_Made` → `Save_the_Council` /
+  `Destroy_the_Council`): these are the choices.
+- **`Time_for_*`, `*_available`, `Ready_to_open_*` conditionals**: the game's own gating.
+  Lift them instead of re-deriving.
+- **`*_is_Dead`, `*_is_present`, `Check_*` conditionals in a _later_ game**: they tell you
+  which earlier-game variables matter, and are the best evidence for what an earlier
+  variable means.
 
 To find what a later game reads from an earlier one:
 
@@ -45,14 +47,14 @@ pnpm meplot bind me3.rannoch.peace=me3.bool.17789 \
 
 Paste the output into the area file's `vars:` / `conditions:`. Rules:
 
-- Bind the **canonical** ref. The validator rejects LE3 import-region aliases (`me3.bool.13828`
-  → bind `me1.bool.3828`).
-- Keep the `path`. The validator checks it still resolves to the ref, which catches typos and
-  database drift.
+- Bind the **canonical** ref. The validator rejects LE3 import-region aliases
+  (`me3.bool.13828` → bind `me1.bool.3828`).
+- Keep the `path`. The validator checks it still resolves to the ref, which catches typos
+  and database drift.
 - Lifted `conditions` keep BioWare's code verbatim, and the validator compares it with the
   database. If you need different logic, write a separate, unbound condition.
-- When no variable exists or can be found yet, use a `story.*` variable and write in `doc` what
-  it stands for and where the real one might be. These are tracked gaps, not fixes.
+- When no variable exists or can be found yet, use a `story.*` variable and write in `doc`
+  what it stands for and where the real one might be. These are tracked gaps, not fixes.
 
 ## 3. Write storylets
 
@@ -61,10 +63,10 @@ Paste the output into the area file's `vars:` / `conditions:`. Rules:
 - Prefer gating on plot variables (`me1.world.time_for_virmire_open`) over `seen()`. Use
   `seen()` for sequencing inside a mission, where the game has no variable.
 - Use `choices` for what the player decides and `outcomes` for what the game decides
-  (`resolve: first` for priority lists, `limit: "<expr>"` when the first N matches apply and N
-  is computed).
-- Shared per-game mechanics go into `traits` (`me2.mission`, `{me3.mission: {code: Kro002}}`),
-  and families of similar storylets into `foreach`.
+  (`resolve: first` for priority lists, `limit: "<expr>"` when the first N matches apply
+  and N is computed).
+- Shared per-game mechanics go into `traits` (`me2.mission`,
+  `{me3.mission: {code: Kro002}}`), and families of similar storylets into `foreach`.
 - Write summaries in your own words at the plot-beat level. Don't transcribe dialogue.
 - Put every simplification in `notes`.
 
@@ -79,12 +81,13 @@ pnpm storylet coverage                  # how many of the game's quest plots are
 pnpm test
 ```
 
-`never fired` / `never chosen` warnings mean either a real dead end (a requires that can't hold)
-or a long chain that random play doesn't complete. Use `simulate --choose` or a test policy (see
-`tests/trilogy.test.ts`) to tell which.
+`never fired` / `never chosen` warnings mean either a real dead end (a requires that can't
+hold) or a long chain that random play doesn't complete. Use `simulate --choose` or a test
+policy (see `tests/trilogy.test.ts`) to tell which.
 
 ## 5. Evolve the schema only when forced
 
-If a structure can't be expressed without hand-unrolling or misrepresenting it, extend the schema
-with the smallest construct that fits. Then record it in `docs/schema-evolution.md`: what was
-added, which narrative structure forced it, and what was considered and rejected.
+If a structure can't be expressed without hand-unrolling or misrepresenting it, extend the
+schema with the smallest construct that fits. Then record it in
+`docs/schema-evolution.md`: what was added, which narrative structure forced it, and what
+was considered and rejected.

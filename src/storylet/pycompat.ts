@@ -11,7 +11,7 @@ export type Value = boolean | number | string;
 
 /** Python's `ValueError`: bad content or a bad request (firing an unavailable storylet). */
 export class ValueError extends Error {
-  override name = "ValueError";
+  override name = 'ValueError';
 }
 
 /**
@@ -19,17 +19,17 @@ export class ValueError extends Error {
  * not a `ValueError`: code that catches expression errors must not swallow these.
  */
 export class PyTypeError extends Error {
-  override name = "PyTypeError";
+  override name = 'PyTypeError';
 }
 
 type Num = number | boolean;
 
 function isNum(v: Value): v is Num {
-  return typeof v === "number" || typeof v === "boolean";
+  return typeof v === 'number' || typeof v === 'boolean';
 }
 
 function typeName(v: Value): string {
-  return typeof v === "boolean" ? "bool" : typeof v === "number" ? "number" : "str";
+  return typeof v === 'boolean' ? 'bool' : typeof v === 'number' ? 'number' : 'str';
 }
 
 function num(v: Value, op: string, other?: Value): number {
@@ -41,7 +41,7 @@ function num(v: Value, op: string, other?: Value): number {
 }
 
 export function truthy(v: Value): boolean {
-  return typeof v === "number" ? v !== 0 : Boolean(v); // NaN is truthy in Python
+  return typeof v === 'number' ? v !== 0 : Boolean(v); // NaN is truthy in Python
 }
 
 /** `==`: numbers and bools compare by value (`true == 1`); everything else must match exactly. */
@@ -51,49 +51,49 @@ export function eq(a: Value, b: Value): boolean {
 }
 
 /** Ordering: numbers and bools numerically, two strings by code unit; anything else throws. */
-export function compare(op: "<" | "<=" | ">" | ">=", a: Value, b: Value): boolean {
+export function compare(op: '<' | '<=' | '>' | '>=', a: Value, b: Value): boolean {
   let x: number | string;
   let y: number | string;
   if (isNum(a) && isNum(b)) {
     x = Number(a);
     y = Number(b);
-  } else if (typeof a === "string" && typeof b === "string") {
+  } else if (typeof a === 'string' && typeof b === 'string') {
     x = a;
     y = b;
   } else {
     throw new PyTypeError(`'${op}' not supported between ${typeName(a)} and ${typeName(b)}`);
   }
   switch (op) {
-    case "<":
+    case '<':
       return x < y;
-    case "<=":
+    case '<=':
       return x <= y;
-    case ">":
+    case '>':
       return x > y;
-    case ">=":
+    case '>=':
       return x >= y;
   }
 }
 
 export function add(a: Value, b: Value): Value {
-  if (typeof a === "string" && typeof b === "string") return a + b;
-  return num(a, "+", b) + num(b, "+", a);
+  if (typeof a === 'string' && typeof b === 'string') return a + b;
+  return num(a, '+', b) + num(b, '+', a);
 }
 
-export function arith(op: "-" | "*" | "/" | "%", a: Value, b: Value): Value {
-  if (op === "*" && (typeof a === "string" || typeof b === "string")) return repeat(a, b);
+export function arith(op: '-' | '*' | '/' | '%', a: Value, b: Value): Value {
+  if (op === '*' && (typeof a === 'string' || typeof b === 'string')) return repeat(a, b);
   const x = num(a, op, b);
   const y = num(b, op, a);
   switch (op) {
-    case "-":
+    case '-':
       return x - y;
-    case "*":
+    case '*':
       return x * y;
-    case "/":
-      if (y === 0) throw new PyTypeError("division by zero");
+    case '/':
+      if (y === 0) throw new PyTypeError('division by zero');
       return x / y;
-    case "%": {
-      if (y === 0) throw new PyTypeError("modulo by zero");
+    case '%': {
+      if (y === 0) throw new PyTypeError('modulo by zero');
       const r = x % y;
       return r !== 0 && r < 0 !== y < 0 ? r + y : r; // floored, like Python
     }
@@ -102,20 +102,20 @@ export function arith(op: "-" | "*" | "/" | "%", a: Value, b: Value): Value {
 
 /** `"ab" * 3`: a string times an integer (or bool) repeats it, as in Python. */
 function repeat(a: Value, b: Value): string {
-  const [s, n] = typeof a === "string" ? [a, b] : [b, a];
-  if (typeof s !== "string" || typeof n === "string" || !Number.isInteger(Number(n))) {
+  const [s, n] = typeof a === 'string' ? [a, b] : [b, a];
+  if (typeof s !== 'string' || typeof n === 'string' || !Number.isInteger(Number(n))) {
     throw new PyTypeError(`can't multiply sequence by non-int of type '${typeName(n)}'`);
   }
   return s.repeat(Math.max(0, Number(n)));
 }
 
 export function neg(a: Value): number {
-  return -num(a, "unary -");
+  return -num(a, 'unary -');
 }
 
 /** Python's `int()`: truncates numbers, accepts bools and integer strings. */
 export function toInt(v: Value): number {
-  if (typeof v === "string") {
+  if (typeof v === 'string') {
     if (!/^\s*[+-]?\d+\s*$/.test(v)) throw new PyTypeError(`invalid literal for int(): '${v}'`);
     return Number.parseInt(v, 10);
   }
@@ -126,31 +126,33 @@ export function toInt(v: Value): number {
 
 /** Python's `float()` for the values state can hold. */
 export function toFloat(v: Value): number {
-  if (typeof v === "string") {
+  if (typeof v === 'string') {
     const n = Number(v.trim());
-    if (v.trim() === "" || Number.isNaN(n)) throw new PyTypeError(`could not convert string to float: '${v}'`);
+    if (v.trim() === '' || Number.isNaN(n)) {
+      throw new PyTypeError(`could not convert string to float: '${v}'`);
+    }
     return n;
   }
   return Number(v);
 }
 
 /** Python's `max(a, b, ...)` / `min(...)`: at least two arguments; the first extreme one wins. */
-export function extreme(kind: "min" | "max", args: readonly Value[]): Value {
+export function extreme(kind: 'min' | 'max', args: readonly Value[]): Value {
   if (args.length < 2) throw new PyTypeError(`${kind}() takes at least two arguments here`);
   let best = args[0]!;
   for (const v of args.slice(1)) {
-    if (kind === "max" ? compare(">", v, best) : compare("<", v, best)) best = v;
+    if (kind === 'max' ? compare('>', v, best) : compare('<', v, best)) best = v;
   }
   return best;
 }
 
 export function abs(v: Value): number {
-  return Math.abs(num(v, "abs()"));
+  return Math.abs(num(v, 'abs()'));
 }
 
 /** Python's `str()` of a value, except that bools keep the expression language's spelling. */
 export function str(v: Value): string {
-  return typeof v === "boolean" ? (v ? "true" : "false") : String(v);
+  return typeof v === 'boolean' ? (v ? 'true' : 'false') : String(v);
 }
 
 /**
@@ -158,11 +160,15 @@ export function str(v: Value): string {
  * Bools are spelled `true`/`false`, as in content.
  */
 export function repr(v: Value | null | undefined | readonly (Value | null)[]): string {
-  if (Array.isArray(v)) return `[${(v as readonly (Value | null)[]).map(repr).join(", ")}]`;
-  if (v === null || v === undefined) return "None";
-  if (typeof v !== "string") return str(v as Value);
+  if (Array.isArray(v)) return `[${(v as readonly (Value | null)[]).map(repr).join(', ')}]`;
+  if (v === null || v === undefined) return 'None';
+  if (typeof v !== 'string') return str(v as Value);
   const quote = v.includes("'") && !v.includes('"') ? '"' : "'";
-  let body = v.replaceAll("\\", "\\\\").replaceAll("\n", "\\n").replaceAll("\r", "\\r").replaceAll("\t", "\\t");
+  let body = v
+    .replaceAll('\\', '\\\\')
+    .replaceAll('\n', '\\n')
+    .replaceAll('\r', '\\r')
+    .replaceAll('\t', '\\t');
   if (quote === "'") body = body.replaceAll("'", "\\'");
   return quote + body + quote;
 }
@@ -181,7 +187,10 @@ export function cmpTuple(a: readonly (string | number)[], b: readonly (string | 
 
 /** `sorted(xs, key=...)` with a tuple key. Stable, like Python's sort. */
 export function sortedBy<T>(xs: Iterable<T>, key: (x: T) => readonly (string | number)[]): T[] {
-  return [...xs].map((x) => [key(x), x] as const).sort((p, q) => cmpTuple(p[0], q[0])).map((p) => p[1]);
+  return [...xs]
+    .map((x) => [key(x), x] as const)
+    .sort((p, q) => cmpTuple(p[0], q[0]))
+    .map((p) => p[1]);
 }
 
 /**
@@ -192,11 +201,15 @@ export function fixed(x: number, digits: number): string {
   const up = x.toFixed(digits);
   const scaled = Math.abs(x) * 10 ** digits;
   // An exact tie needs the scaled value to be a representable half; then pick the even neighbour.
-  if (Number.isFinite(scaled) && scaled - Math.floor(scaled) === 0.5 && Number.isSafeInteger(Math.floor(scaled) * 2 + 1)) {
+  if (
+    Number.isFinite(scaled) &&
+    scaled - Math.floor(scaled) === 0.5 &&
+    Number.isSafeInteger(Math.floor(scaled) * 2 + 1)
+  ) {
     if (isExactlyHalf(Math.abs(x), digits)) {
       const lo = Math.floor(scaled);
       const even = lo % 2 === 0 ? lo : lo + 1;
-      return (x < 0 && even !== 0 ? "-" : "") + (even / 10 ** digits).toFixed(digits);
+      return (x < 0 && even !== 0 ? '-' : '') + (even / 10 ** digits).toFixed(digits);
     }
   }
   return up;
@@ -231,10 +244,10 @@ export function round(x: number, digits: number): number {
 
 /** Python's truthiness of an optional string: neither None nor empty. */
 export function nonEmpty(s: string | null | undefined): s is string {
-  return s !== null && s !== undefined && s !== "";
+  return s !== null && s !== undefined && s !== '';
 }
 
 /** `" ".join(s.split())`: collapse runs of whitespace and trim. */
 export function squash(s: string): string {
-  return s.split(/\s+/).filter(Boolean).join(" ");
+  return s.split(/\s+/).filter(Boolean).join(' ');
 }

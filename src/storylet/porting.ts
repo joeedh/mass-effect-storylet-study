@@ -11,12 +11,20 @@
  *
  * A quest plot is *bound* when a storylet variable or evidence entry points into its subtree.
  */
-import type { Catalog, Element } from "../meplot/catalog.ts";
-import { isPlotVar } from "./model.ts";
-import type { Content } from "./model.ts";
-import * as py from "./pycompat.ts";
+import type { Catalog, Element } from '../meplot/catalog.ts';
+import { isPlotVar } from './model.ts';
+import type { Content } from './model.ts';
+import * as py from './pycompat.ts';
 
-const ME2_MISSION_REGIONS = new Set(["Act_1", "Act_2", "Act_3", "Acquisition_Missions", "Legacy_Missions", "Loyalty_Missions", "N7_Missions"]);
+const ME2_MISSION_REGIONS = new Set([
+  'Act_1',
+  'Act_2',
+  'Act_3',
+  'Acquisition_Missions',
+  'Legacy_Missions',
+  'Loyalty_Missions',
+  'N7_Missions',
+]);
 
 export interface PlotCoverage {
   readonly game: string;
@@ -33,7 +41,7 @@ function ownerPlots(catalog: Catalog, ref: string): Element[] {
   const db = catalog.dbs.get(el.db)!;
   const out: Element[] = [];
   for (let cur: Element | undefined = el; cur !== undefined; cur = db.elements.get(cur.parentEid)) {
-    if (cur.typeName === "Plot") out.push(cur);
+    if (cur.typeName === 'Plot') out.push(cur);
   }
   return out;
 }
@@ -46,21 +54,28 @@ export function questCoverage(content: Content, catalog: Catalog): Map<string, P
     s.add(by);
   };
   for (const decl of content.vars.values()) {
-    if (isPlotVar(decl)) for (const p of ownerPlots(catalog, decl.ref)) touch(p.ref, `var:${decl.name}`);
+    if (isPlotVar(decl)) {
+      for (const p of ownerPlots(catalog, decl.ref)) touch(p.ref, `var:${decl.name}`);
+    }
   }
   for (const st of content.storylets.values()) {
     for (const ev of st.evidence) {
-      const els = ev.includes(":") ? catalog.resolvePath(ev) : [catalog.get(ev)];
+      const els = ev.includes(':') ? catalog.resolvePath(ev) : [catalog.get(ev)];
       for (const el of els) {
         if (el === undefined) continue;
-        for (const p of [...ownerPlots(catalog, el.canonical), ...(el.typeName === "Plot" ? [el] : [])]) touch(p.ref, st.id);
+        for (const p of [
+          ...ownerPlots(catalog, el.canonical),
+          ...(el.typeName === 'Plot' ? [el] : []),
+        ]) {
+          touch(p.ref, st.id);
+        }
       }
     }
   }
   let me3Codes = new Set<string>();
-  const me3 = catalog.dbs.get("me3");
+  const me3 = catalog.dbs.get('me3');
   if (me3 !== undefined) {
-    for (const el of catalog.resolvePath("me3:Global.Game_Progress.Mission_Completion_Order")) {
+    for (const el of catalog.resolvePath('me3:Global.Game_Progress.Mission_Completion_Order')) {
       me3Codes = new Set(el.children.map((c) => me3.elements.get(c)!.label));
     }
   }
@@ -68,36 +83,50 @@ export function questCoverage(content: Content, catalog: Catalog): Map<string, P
   for (const [game, db] of catalog.dbs) {
     const rows: PlotCoverage[] = [];
     for (const el of db.elements.values()) {
-      if (el.typeName !== "Plot" || el.importRegion !== null) continue;
-      const goals = el.children.map((c) => db.elements.get(c)!).filter((c) => c.typeName === "JournalGoal").map((c) => c.label);
+      if (el.typeName !== 'Plot' || el.importRegion !== null) continue;
+      const goals = el.children
+        .map((c) => db.elements.get(c)!)
+        .filter((c) => c.typeName === 'JournalGoal')
+        .map((c) => c.label);
       const region = db.regionOf(el);
-      if (game === "me2") {
+      if (game === 'me2') {
         const parent = db.elements.get(el.parentEid);
         if (!(parent === region && ME2_MISSION_REGIONS.has(region.label))) continue;
-      } else if (game === "me3") {
-        if (!me3Codes.has(el.label) || el.label.startsWith("MP")) continue;
+      } else if (game === 'me3') {
+        if (!me3Codes.has(el.label) || el.label.startsWith('MP')) continue;
       } else if (!goals.length) {
         continue;
       }
-      if (["TEST", "DELETED", "DEBUG", "SANDBOX"].some((t) => el.path.toUpperCase().includes(t))) continue;
-      rows.push({ game, ref: el.ref, path: el.path, goals, boundBy: touched.get(el.ref) ?? new Set() });
+      if (['TEST', 'DELETED', 'DEBUG', 'SANDBOX'].some((t) => el.path.toUpperCase().includes(t))) {
+        continue;
+      }
+      rows.push({
+        game,
+        ref : el.ref,
+        path: el.path,
+        goals,
+        boundBy: touched.get(el.ref) ?? new Set(),
+      });
     }
-    out.set(game, py.sortedBy(rows, (r) => [r.path]));
+    out.set(
+      game,
+      py.sortedBy(rows, (r) => [r.path]),
+    );
   }
   return out;
 }
 
 export function coverageMarkdown(cov: ReadonlyMap<string, readonly PlotCoverage[]>): string {
-  const lines = ["# Porting coverage (quest plots bound by storylets)", ""];
+  const lines = ['# Porting coverage (quest plots bound by storylets)', ''];
   for (const [game, rows] of cov) {
     const bound = rows.filter((r) => r.boundBy.size).length;
-    lines.push(`## ${game}: ${bound}/${rows.length} quest plots bound`, "");
+    lines.push(`## ${game}: ${bound}/${rows.length} quest plots bound`, '');
     for (const r of rows) {
-      const mark = r.boundBy.size ? "x" : " ";
-      const extra = r.goals.length ? ` (${r.goals.length} journal goals)` : "";
+      const mark = r.boundBy.size ? 'x' : ' ';
+      const extra = r.goals.length ? ` (${r.goals.length} journal goals)` : '';
       lines.push(`- [${mark}] \`${r.path}\`${extra}`);
     }
-    lines.push("");
+    lines.push('');
   }
-  return lines.join("\n");
+  return lines.join('\n');
 }

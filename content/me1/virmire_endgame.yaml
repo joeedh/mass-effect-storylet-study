@@ -3,59 +3,98 @@ game: me1
 area: me1.virmire
 
 vars:
-  me1.virmire.landed: {ref: me1.bool.5255, path: "me1:CH2_Virmire.Virmire_Critical_Path.Landed_on_Virmire"}
-  me1.virmire.spoke_to_kirrahe: {ref: me1.bool.5913, path: "me1:CH2_Virmire.Virmire_Critical_Path.Spoke_to_Kirrahe"}
-  me1.virmire.complete: {ref: me1.bool.5271, path: "me1:CH2_Virmire.Virmire_Critical_Path.Complete"}
-  me1.virmire.conundrum_started: {ref: me1.bool.5472, path: "me1:CH2_Virmire.Krogan_conundrum.Conundrum_Started"}
-  me1.virmire.wrex_failure: {ref: me1.bool.3021, path: "me1:CH2_Virmire.Krogan_conundrum.Failure"}
-  me1.virmire.geth_flyers_disabled: {ref: me1.bool.4464, path: "me1:CH2_Virmire.Incursion_40.GethFlyers_Disabled"}
-  me1.virmire.geth_flyers_reported: {ref: me1.bool.4459, path: "me1:CH2_Virmire.Incursion_40.jug40_captainupdate.GethFlyers_Reported"}
-  me1.virmire.wrex_success: {ref: me1.bool.3015, path: "me1:CH2_Virmire.Krogan_conundrum.Success"}
-  me1.virmire.wrex_killed_by_ashley: {ref: me1.bool.3028, path: "me1:CH2_Virmire.Krogan_conundrum.Failure.Failure_KilledBy_Ashley"}
+  me1.virmire.landed:
+    { ref: me1.bool.5255, path: 'me1:CH2_Virmire.Virmire_Critical_Path.Landed_on_Virmire' }
+  me1.virmire.spoke_to_kirrahe:
+    { ref: me1.bool.5913, path: 'me1:CH2_Virmire.Virmire_Critical_Path.Spoke_to_Kirrahe' }
+  me1.virmire.complete:
+    { ref: me1.bool.5271, path: 'me1:CH2_Virmire.Virmire_Critical_Path.Complete' }
+  me1.virmire.conundrum_started:
+    { ref: me1.bool.5472, path: 'me1:CH2_Virmire.Krogan_conundrum.Conundrum_Started' }
+  me1.virmire.wrex_failure: { ref: me1.bool.3021, path: 'me1:CH2_Virmire.Krogan_conundrum.Failure' }
+  me1.virmire.geth_flyers_disabled:
+    { ref: me1.bool.4464, path: 'me1:CH2_Virmire.Incursion_40.GethFlyers_Disabled' }
+  me1.virmire.geth_flyers_reported:
+    {
+      ref: me1.bool.4459,
+      path: 'me1:CH2_Virmire.Incursion_40.jug40_captainupdate.GethFlyers_Reported',
+    }
+  me1.virmire.wrex_success: { ref: me1.bool.3015, path: 'me1:CH2_Virmire.Krogan_conundrum.Success' }
+  me1.virmire.wrex_killed_by_ashley:
+    { ref: me1.bool.3028, path: 'me1:CH2_Virmire.Krogan_conundrum.Failure.Failure_KilledBy_Ashley' }
   me1.virmire.wrex_ash_killed_without_permission:
     ref: me1.bool.5543
-    path: "me1:CH2_Virmire.Krogan_conundrum.Failure.Failure_AshKilledWithoutPermission"
+    path: 'me1:CH2_Virmire.Krogan_conundrum.Failure.Failure_AshKilledWithoutPermission'
     default: false
     doc: Ashley firing unprompted (a variant this model doesn't reach); ME3's Wrex_is_dead reads it.
-  me1.virmire.wrex_killed_by_player: {ref: me1.bool.3029, path: "me1:CH2_Virmire.Krogan_conundrum.Failure.Failure_KilledBy_Player"}
-  me1.virmire.kirrahe_dead: {ref: me1.bool.7198, path: "me1:CH2_Virmire.Incursion_40.Kirrahe_Dead"}
-  me1.virmire.sent_ash: {ref: me1.bool.3825, path: "me1:CH2_Virmire.The_Choice.Sent_Ash"}
-  me1.virmire.rescued_ash: {ref: me1.bool.3827, path: "me1:CH2_Virmire.The_Choice.Rescued_Ash"}
-  me1.virmire.rescued_kaidan: {ref: me1.bool.3828, path: "me1:CH2_Virmire.The_Choice.Rescued_Kaidan"}
-  me1.saren.virmire_convinced: {ref: me1.bool.4263, path: "me1:Global_Plots.Saren_convinced.Virmire_Convinced"}
-  me1.saren.convinced: {ref: me1.bool.4264, path: "me1:Global_Plots.Saren_convinced.Saren_convinced"}
+  me1.virmire.wrex_killed_by_player:
+    { ref: me1.bool.3029, path: 'me1:CH2_Virmire.Krogan_conundrum.Failure.Failure_KilledBy_Player' }
+  me1.virmire.kirrahe_dead:
+    { ref: me1.bool.7198, path: 'me1:CH2_Virmire.Incursion_40.Kirrahe_Dead' }
+  me1.virmire.sent_ash: { ref: me1.bool.3825, path: 'me1:CH2_Virmire.The_Choice.Sent_Ash' }
+  me1.virmire.rescued_ash: { ref: me1.bool.3827, path: 'me1:CH2_Virmire.The_Choice.Rescued_Ash' }
+  me1.virmire.rescued_kaidan:
+    { ref: me1.bool.3828, path: 'me1:CH2_Virmire.The_Choice.Rescued_Kaidan' }
+  me1.saren.virmire_convinced:
+    { ref: me1.bool.4263, path: 'me1:Global_Plots.Saren_convinced.Virmire_Convinced' }
+  me1.saren.convinced:
+    { ref: me1.bool.4264, path: 'me1:Global_Plots.Saren_convinced.Saren_convinced' }
 
-  me1.citadel.grounded: {ref: me1.bool.4388, path: "me1:CH1_Star_Citadel.Normandy_Grounded.Grounded"}
-  me1.citadel.escape_via_ambassador_office: {ref: me1.bool.4391, path: "me1:CH1_Star_Citadel.Normandy_Grounded.Escape_plan.Ambassador_Office"}
-  me1.citadel.escape_via_citadel_control: {ref: me1.bool.4390, path: "me1:CH1_Star_Citadel.Normandy_Grounded.Escape_plan.Citadel_Control"}
-  me1.citadel.escape_over: {ref: me1.bool.4393, path: "me1:CH1_Star_Citadel.Normandy_Grounded.Normandy_Escape_Over"}
+  me1.citadel.grounded:
+    { ref: me1.bool.4388, path: 'me1:CH1_Star_Citadel.Normandy_Grounded.Grounded' }
+  me1.citadel.escape_via_ambassador_office:
+    {
+      ref: me1.bool.4391,
+      path: 'me1:CH1_Star_Citadel.Normandy_Grounded.Escape_plan.Ambassador_Office',
+    }
+  me1.citadel.escape_via_citadel_control:
+    {
+      ref: me1.bool.4390,
+      path: 'me1:CH1_Star_Citadel.Normandy_Grounded.Escape_plan.Citadel_Control',
+    }
+  me1.citadel.escape_over:
+    { ref: me1.bool.4393, path: 'me1:CH1_Star_Citadel.Normandy_Grounded.Normandy_Escape_Over' }
 
-  me1.ilos.enter_archives: {ref: me1.bool.5251, path: "me1:CH3_Ilos.Ilos_Critical_Path.Enter_Archives"}
-  me1.ilos.use_conduit: {ref: me1.bool.5252, path: "me1:CH3_Ilos.Ilos_Critical_Path.Use_the_Conduit"}
+  me1.ilos.enter_archives:
+    { ref: me1.bool.5251, path: 'me1:CH3_Ilos.Ilos_Critical_Path.Enter_Archives' }
+  me1.ilos.use_conduit:
+    { ref: me1.bool.5252, path: 'me1:CH3_Ilos.Ilos_Critical_Path.Use_the_Conduit' }
 
-  me1.end.choice_made: {ref: me1.bool.3000, path: "me1:CH4_Star_Citadel.Final_Choice.Choice_Is_Made"}
-  me1.end.saved_council: {ref: me1.bool.3001, path: "me1:CH4_Star_Citadel.Final_Choice.Choice_Is_Made.Save_the_Council"}
-  me1.end.council_died: {ref: me1.bool.3002, path: "me1:CH4_Star_Citadel.Final_Choice.Choice_Is_Made.Destroy_the_Council"}
-  me1.end.chose_udina: {ref: me1.bool.5434, path: "me1:CH4_Star_Citadel.Final_Choice.Chose_ambassador"}
-  me1.end.chose_anderson: {ref: me1.bool.5435, path: "me1:CH4_Star_Citadel.Final_Choice.Chose_Anderson"}
-  me1.end.game_complete: {ref: me1.bool.6530, path: "me1:CH4_Star_Citadel.Final_Choice.Game_Complete"}
+  me1.end.choice_made:
+    { ref: me1.bool.3000, path: 'me1:CH4_Star_Citadel.Final_Choice.Choice_Is_Made' }
+  me1.end.saved_council:
+    {
+      ref: me1.bool.3001,
+      path: 'me1:CH4_Star_Citadel.Final_Choice.Choice_Is_Made.Save_the_Council',
+    }
+  me1.end.council_died:
+    {
+      ref: me1.bool.3002,
+      path: 'me1:CH4_Star_Citadel.Final_Choice.Choice_Is_Made.Destroy_the_Council',
+    }
+  me1.end.chose_udina:
+    { ref: me1.bool.5434, path: 'me1:CH4_Star_Citadel.Final_Choice.Chose_ambassador' }
+  me1.end.chose_anderson:
+    { ref: me1.bool.5435, path: 'me1:CH4_Star_Citadel.Final_Choice.Chose_Anderson' }
+  me1.end.game_complete:
+    { ref: me1.bool.6530, path: 'me1:CH4_Star_Citadel.Final_Choice.Game_Complete' }
 
 conditions:
   me1.player.persuasive:
-    code: "me1.player.paragon >= 6 || me1.player.renegade >= 6"
+    code: 'me1.player.paragon >= 6 || me1.player.renegade >= 6'
     doc: >-
       Abstraction of ME1's Charm/Intimidate skill checks (ranks unlock with paragon/renegade
       points). Used for the Wrex standoff and both Saren persuasions.
   me1.virmire.wrex_can_be_talked_down:
-    code: "me1.wrex.got_armor || me1.player.persuasive"
+    code: 'me1.wrex.got_armor || me1.player.persuasive'
 
 storylets:
   - id: me1.virmire.unlock
     title: Salarian distress call
     trigger: auto
     summary: A garbled transmission from a salarian STG team leads the Normandy to Virmire.
-    requires: "me1.world.time_for_virmire_open"
-    effects: ["me1.world.virmire_open = true"]
+    requires: 'me1.world.time_for_virmire_open'
+    effects: ['me1.world.virmire_open = true']
 
   - id: me1.virmire.landing
     title: "Virmire: Kirrahe's camp"
@@ -63,89 +102,120 @@ storylets:
       Captain Kirrahe's team has found Saren's base: a facility breeding a cure for the genophage
       to raise a krogan army. The salarians plan to destroy it with the Normandy's drive core as
       a nuclear bomb.
-    requires: "me1.world.virmire_open && !me1.virmire.landed"
-    effects: ["me1.virmire.landed = true", "me1.virmire.spoke_to_kirrahe = true"]
-    evidence: ["me1:CH2_Virmire.Virmire_Critical_Path", "me1:CH2_Virmire.Rendezvous_20"]
+    requires: 'me1.world.virmire_open && !me1.virmire.landed'
+    effects: ['me1.virmire.landed = true', 'me1.virmire.spoke_to_kirrahe = true']
+    evidence: ['me1:CH2_Virmire.Virmire_Critical_Path', 'me1:CH2_Virmire.Rendezvous_20']
 
   - id: me1.virmire.wrex_standoff
     title: "Virmire: Wrex's standoff"
     trigger: auto
     summary: Learning that Saren has a cure for the genophage, Wrex refuses to let the base be destroyed and draws his gun on Shepard.
-    requires: "me1.virmire.landed && me1.squad.wrex && !me1.virmire.conundrum_started"
+    requires: 'me1.virmire.landed && me1.squad.wrex && !me1.virmire.conundrum_started'
     choices:
       - id: talk_down
         label: Talk him down
-        requires: "me1.virmire.wrex_can_be_talked_down"
-        effects: ["me1.virmire.conundrum_started = true", "me1.virmire.wrex_success = true"]
+        requires: 'me1.virmire.wrex_can_be_talked_down'
+        effects: ['me1.virmire.conundrum_started = true', 'me1.virmire.wrex_success = true']
       - id: shepard_shoots
         label: Shoot Wrex
-        effects: ["me1.virmire.conundrum_started = true", "me1.virmire.wrex_failure = true", "me1.virmire.wrex_killed_by_player = true", "me1.squad.wrex = false", "me1.player.renegade += 2"]
+        effects:
+          [
+            'me1.virmire.conundrum_started = true',
+            'me1.virmire.wrex_failure = true',
+            'me1.virmire.wrex_killed_by_player = true',
+            'me1.squad.wrex = false',
+            'me1.player.renegade += 2',
+          ]
       - id: ashley_shoots
         label: Signal Ashley
-        requires: "me1.squad.ashley"
-        effects: ["me1.virmire.conundrum_started = true", "me1.virmire.wrex_failure = true", "me1.virmire.wrex_killed_by_ashley = true", "me1.squad.wrex = false"]
+        requires: 'me1.squad.ashley'
+        effects:
+          [
+            'me1.virmire.conundrum_started = true',
+            'me1.virmire.wrex_failure = true',
+            'me1.virmire.wrex_killed_by_ashley = true',
+            'me1.squad.wrex = false',
+          ]
     tags: [cross-game]
-    evidence: ["me1:CH2_Virmire.Krogan_conundrum"]
+    evidence: ['me1:CH2_Virmire.Krogan_conundrum']
 
   - id: me1.virmire.assault
-    title: "Virmire: The assault"
+    title: 'Virmire: The assault'
     trigger: auto
     summary: >-
       Ashley joins Kirrahe's salarian diversion while Kaidan rigs the bomb. Shepard's team
       infiltrates the base; how well Shepard disrupts its defences decides whether Kirrahe's
       team survives.
-    requires: "me1.virmire.landed && (me1.virmire.conundrum_started || !me1.squad.wrex) && !me1.virmire.sent_ash"
+    requires: 'me1.virmire.landed && (me1.virmire.conundrum_started || !me1.squad.wrex) && !me1.virmire.sent_ash'
     choices:
-      - {id: support_salarians, label: "Disrupt the defences", effects: ["me1.virmire.sent_ash = true", "me1.virmire.geth_flyers_disabled = true", "me1.virmire.geth_flyers_reported = true"]}
-      - {id: push_through, label: "Go straight for the core", effects: ["me1.virmire.sent_ash = true", "me1.virmire.kirrahe_dead = true"]}
+      - {
+          id: support_salarians,
+          label: 'Disrupt the defences',
+          effects:
+            [
+              'me1.virmire.sent_ash = true',
+              'me1.virmire.geth_flyers_disabled = true',
+              'me1.virmire.geth_flyers_reported = true',
+            ],
+        }
+      - {
+          id: push_through,
+          label: 'Go straight for the core',
+          effects: ['me1.virmire.sent_ash = true', 'me1.virmire.kirrahe_dead = true'],
+        }
     notes: >-
       The plot DB also has Sent_Kaidan, a variant this model does not reach. Kirrahe's survival is
       what ME3 tests (Kirrahe_is_Dead := !GethFlyers_Disabled || !GethFlyers_Reported), so the
       supporting choice sets exactly those two variables.
-    evidence: ["me1:CH2_Virmire.Incursion_40", "me1:CH2_Virmire.Infiltration_70"]
+    evidence: ['me1:CH2_Virmire.Incursion_40', 'me1:CH2_Virmire.Infiltration_70']
 
   - id: me1.virmire.sovereign
-    title: "Virmire: Sovereign"
+    title: 'Virmire: Sovereign'
     trigger: auto
     summary: >-
       In the lab, Shepard finds a second beacon, then speaks with Sovereign. It is no geth
       dreadnought but a Reaper, a race of machines that wipes out galactic civilization in cycles.
-    requires: "me1.virmire.sent_ash && !seen(me1.virmire.sovereign)"
-    evidence: ["me1:CH2_Virmire.Infiltration_70"]
+    requires: 'me1.virmire.sent_ash && !seen(me1.virmire.sovereign)'
+    evidence: ['me1:CH2_Virmire.Infiltration_70']
 
   - id: me1.virmire.saren
-    title: "Virmire: Confronting Saren"
+    title: 'Virmire: Confronting Saren'
     trigger: auto
     summary: Saren believes submission to the Reapers is the only way to survive. Shepard can sow doubt about his indoctrination.
-    requires: "seen(me1.virmire.sovereign) && !seen(me1.virmire.saren)"
+    requires: 'seen(me1.virmire.sovereign) && !seen(me1.virmire.saren)'
     choices:
-      - {id: sow_doubt, label: "He's been indoctrinated", requires: "me1.player.persuasive", effects: ["me1.saren.virmire_convinced = true"]}
-      - {id: fight, label: "Fight him"}
-    evidence: ["me1:Global_Plots.Saren_convinced"]
+      - {
+          id: sow_doubt,
+          label: "He's been indoctrinated",
+          requires: 'me1.player.persuasive',
+          effects: ['me1.saren.virmire_convinced = true'],
+        }
+      - { id: fight, label: 'Fight him' }
+    evidence: ['me1:Global_Plots.Saren_convinced']
 
   - id: me1.virmire.the_choice
-    title: "Virmire: The choice"
+    title: 'Virmire: The choice'
     trigger: auto
     summary: >-
       With the bomb armed, both the bomb site (Kaidan) and the AA tower (Ashley) come under geth
       attack. Shepard can only save one of them.
-    requires: "seen(me1.virmire.saren) && !me1.virmire.complete"
+    requires: 'seen(me1.virmire.saren) && !me1.virmire.complete'
     choices:
       - id: save_kaidan
         label: Go back for Kaidan
-        effects: ["me1.virmire.rescued_kaidan = true", "me1.squad.ashley = false"]
+        effects: ['me1.virmire.rescued_kaidan = true', 'me1.squad.ashley = false']
       - id: save_ashley
         label: Save Ashley at the tower
-        effects: ["me1.virmire.rescued_ash = true", "me1.squad.kaidan = false"]
+        effects: ['me1.virmire.rescued_ash = true', 'me1.squad.kaidan = false']
     tags: [cross-game, death]
-    evidence: ["me1:CH2_Virmire.The_Choice"]
+    evidence: ['me1:CH2_Virmire.The_Choice']
 
   - id: me1.virmire.complete
-    title: "Virmire: Aftermath"
+    title: 'Virmire: Aftermath'
     trigger: auto
     summary: The base is destroyed. Using the Cipher, Liara pieces the beacon visions together; the Conduit is on Ilos, behind the Mu relay.
-    requires: "me1.virmire.rescued_kaidan || me1.virmire.rescued_ash"
-    effects: ["me1.virmire.complete = true", "me1.world.virmire_done = true"]
+    requires: 'me1.virmire.rescued_kaidan || me1.virmire.rescued_ash'
+    effects: ['me1.virmire.complete = true', 'me1.world.virmire_done = true']
 
   # --- endgame -----------------------------------------------------------------------------
   - id: me1.citadel.grounded
@@ -155,46 +225,56 @@ storylets:
     summary: >-
       The Council will not risk war in the Terminus Systems: it sends a fleet to blockade the Mu
       relay instead and locks the Normandy down. Anderson offers to help Shepard steal the ship.
-    requires: "me1.citadel.time_for_council_meeting"
-    effects: ["me1.citadel.grounded = true"]
-    evidence: ["me1:CH1_Star_Citadel.Normandy_Grounded"]
+    requires: 'me1.citadel.time_for_council_meeting'
+    effects: ['me1.citadel.grounded = true']
+    evidence: ['me1:CH1_Star_Citadel.Normandy_Grounded']
 
   - id: me1.citadel.escape
     title: Stealing the Normandy
     area: me1.endgame
     trigger: auto
     summary: Anderson overrides the lockdown so the Normandy can launch for Ilos, at the cost of his career.
-    requires: "me1.citadel.grounded && !me1.citadel.escape_over"
+    requires: 'me1.citadel.grounded && !me1.citadel.escape_over'
     choices:
-      - {id: ambassador_office, label: "Anderson uses Udina's terminal", effects: ["me1.citadel.escape_via_ambassador_office = true", "me1.citadel.escape_over = true"]}
-      - {id: citadel_control, label: "Anderson storms Citadel Control", effects: ["me1.citadel.escape_via_citadel_control = true", "me1.citadel.escape_over = true"]}
+      - {
+          id: ambassador_office,
+          label: "Anderson uses Udina's terminal",
+          effects:
+            ['me1.citadel.escape_via_ambassador_office = true', 'me1.citadel.escape_over = true'],
+        }
+      - {
+          id: citadel_control,
+          label: 'Anderson storms Citadel Control',
+          effects:
+            ['me1.citadel.escape_via_citadel_control = true', 'me1.citadel.escape_over = true'],
+        }
 
   - id: me1.ilos.unlock
     title: Through the Mu relay
     area: me1.endgame
     trigger: auto
-    requires: "me1.citadel.escape_over && me1.world.time_for_ilos_open"
-    effects: ["me1.world.ilos_open = true"]
+    requires: 'me1.citadel.escape_over && me1.world.time_for_ilos_open'
+    effects: ['me1.world.ilos_open = true']
 
   - id: me1.ilos.vigil
-    title: "Ilos: Vigil"
+    title: 'Ilos: Vigil'
     area: me1.ilos
     trigger: auto
     summary: >-
       In the archives, the Prothean VI Vigil explains the Reaper cycle: the Citadel is a mass
       relay to dark space, and its keepers once sent the signal that summoned the Reapers. The
       Conduit is a reverse relay that leads into the Citadel.
-    requires: "me1.world.ilos_open && !me1.ilos.enter_archives"
-    effects: ["me1.ilos.enter_archives = true"]
-    evidence: ["me1:CH3_Ilos.Ilos_Critical_Path", "me1:CH3_Ilos.Vigil_dialog"]
+    requires: 'me1.world.ilos_open && !me1.ilos.enter_archives'
+    effects: ['me1.ilos.enter_archives = true']
+    evidence: ['me1:CH3_Ilos.Ilos_Critical_Path', 'me1:CH3_Ilos.Vigil_dialog']
 
   - id: me1.ilos.conduit
-    title: "Ilos: The Conduit"
+    title: 'Ilos: The Conduit'
     area: me1.ilos
     trigger: auto
     summary: The Mako races Saren's forces through the Conduit and lands on the Citadel as the geth attack it.
-    requires: "me1.ilos.enter_archives && !me1.ilos.use_conduit"
-    effects: ["me1.ilos.use_conduit = true", "me1.world.ilos_done = true"]
+    requires: 'me1.ilos.enter_archives && !me1.ilos.use_conduit'
+    effects: ['me1.ilos.use_conduit = true', 'me1.world.ilos_done = true']
 
   - id: me1.citadel.saren_final
     title: Saren on the Council podium
@@ -204,11 +284,16 @@ storylets:
       Saren is about to open the Citadel to the Reapers. If Shepard sowed doubt on Virmire, Saren
       can be convinced that he is indoctrinated and shoots himself; otherwise he is gunned down.
       Sovereign then takes over his body.
-    requires: "me1.ilos.use_conduit && !seen(me1.citadel.saren_final)"
+    requires: 'me1.ilos.use_conduit && !seen(me1.citadel.saren_final)'
     choices:
-      - {id: persuade, label: "Convince him he is indoctrinated", requires: "me1.saren.virmire_convinced && me1.player.persuasive", effects: ["me1.saren.convinced = true"]}
-      - {id: fight, label: "Fight him"}
-    evidence: ["me1:CH4_Star_Citadel.Saren_Combat"]
+      - {
+          id: persuade,
+          label: 'Convince him he is indoctrinated',
+          requires: 'me1.saren.virmire_convinced && me1.player.persuasive',
+          effects: ['me1.saren.convinced = true'],
+        }
+      - { id: fight, label: 'Fight him' }
+    evidence: ['me1:CH4_Star_Citadel.Saren_Combat']
 
   - id: me1.citadel.destiny_ascension
     title: The Destiny Ascension
@@ -218,12 +303,30 @@ storylets:
       With the Citadel arms open, the Alliance fleet waits. The Council's flagship Destiny
       Ascension is being torn apart. Shepard decides whether the fleet saves it or holds back to
       focus on Sovereign.
-    requires: "seen(me1.citadel.saren_final) && !me1.end.choice_made"
+    requires: 'seen(me1.citadel.saren_final) && !me1.end.choice_made'
     choices:
-      - {id: save_council, label: "Save the Council", effects: ["me1.end.choice_made = true", "me1.end.saved_council = true", "me1.player.paragon += 3"]}
-      - {id: sacrifice_council, label: "Concentrate on Sovereign", effects: ["me1.end.choice_made = true", "me1.end.council_died = true", "me1.player.renegade += 3"]}
+      - {
+          id: save_council,
+          label: 'Save the Council',
+          effects:
+            [
+              'me1.end.choice_made = true',
+              'me1.end.saved_council = true',
+              'me1.player.paragon += 3',
+            ],
+        }
+      - {
+          id: sacrifice_council,
+          label: 'Concentrate on Sovereign',
+          effects:
+            [
+              'me1.end.choice_made = true',
+              'me1.end.council_died = true',
+              'me1.player.renegade += 3',
+            ],
+        }
     tags: [cross-game]
-    evidence: ["me1:CH4_Star_Citadel.Final_Choice"]
+    evidence: ['me1:CH4_Star_Citadel.Final_Choice']
 
   - id: me1.citadel.human_councilor
     title: A new order
@@ -232,8 +335,26 @@ storylets:
     summary: >-
       Sovereign is destroyed. Humanity's place in the galaxy has changed, and Shepard names the
       human who will lead it: Anderson or Udina.
-    requires: "me1.end.choice_made && !me1.end.game_complete"
+    requires: 'me1.end.choice_made && !me1.end.game_complete'
     choices:
-      - {id: anderson, label: "Anderson", effects: ["me1.end.chose_anderson = true", "me1.end.game_complete = true", "me1.world.end_game_done = true"]}
-      - {id: udina, label: "Udina", effects: ["me1.end.chose_udina = true", "me1.end.game_complete = true", "me1.world.end_game_done = true"]}
+      - {
+          id: anderson,
+          label: 'Anderson',
+          effects:
+            [
+              'me1.end.chose_anderson = true',
+              'me1.end.game_complete = true',
+              'me1.world.end_game_done = true',
+            ],
+        }
+      - {
+          id: udina,
+          label: 'Udina',
+          effects:
+            [
+              'me1.end.chose_udina = true',
+              'me1.end.game_complete = true',
+              'me1.world.end_game_done = true',
+            ],
+        }
     tags: [cross-game]

@@ -16,9 +16,9 @@ traits:
       (Tuchanka_bomb_exploded: KroN7a done, KroN7b not, Mission_Count >= order(KroN7a) + 3).
       Missions also accrue reputation and refresh EMS.
     effects:
-      - "me3.progress.mission_count += 1"
-      - "me3.order.{code} = me3.progress.mission_count"
-      - "me3.player.reputation += 20"
+      - 'me3.progress.mission_count += 1'
+      - 'me3.order.{code} = me3.progress.mission_count'
+      - 'me3.player.reputation += 20'
       - "me3.player.paragon += story.shepard.style == 'paragon' ? 25 : (story.shepard.style == 'balanced' ? 12 : 2)"
       - "me3.player.renegade += story.shepard.style == 'renegade' ? 25 : (story.shepard.style == 'balanced' ? 12 : 2)"
       - "me3.ems.current_rating = total('war_asset')"
@@ -27,199 +27,243 @@ traits:
 conditions:
   me3.fate.wrex_dead:
     ref: me3.cond.1630
-    path: "me3:Global.Henchmen.Other.Wrex.Wrex_is_dead"
-    code: "me1.bool.3028 == true || me1.bool.3029 == true || me1.bool.5543 == true || me3.bool.19769 == true"
+    path: 'me3:Global.Henchmen.Other.Wrex.Wrex_is_dead'
+    code: 'me1.bool.3028 == true || me1.bool.3029 == true || me1.bool.5543 == true || me3.bool.19769 == true'
   me3.me1.wrex_present:
     ref: me3.cond.194
-    path: "me3:Utility.Henchmen.ME1.Wrex_is_present"
-    code: "me1.bool.3021 == false && me1.bool.3942 == true"
+    path: 'me3:Utility.Henchmen.ME1.Wrex_is_present'
+    code: 'me1.bool.3021 == false && me1.bool.3942 == true'
     doc: >-
       Wrex ended ME1 on Shepard's squad. LE3's Wreav checks (Check_Wreav, Time_for_KroGru_Wreav_*,
       Wreav_in_warroom) test exactly the negation of this, not Wrex_is_dead: an ME1 Wrex who was
       never recruited is not "dead" in LE3's sense, but Wreav still leads.
   me3.genophage.wreav_leads:
-    code: "!me3.me1.wrex_present"
+    code: '!me3.me1.wrex_present'
     doc: Wreav, not Wrex, leads Clan Urdnot in ME3.
   me3.fate.kirrahe_dead:
     ref: me3.cond.1631
-    path: "me3:Global.Henchmen.Other.Kirrahe.Kirrahe_is_Dead"
-    code: "me1.bool.4464 == false || me1.bool.4459 == false"
+    path: 'me3:Global.Henchmen.Other.Kirrahe.Kirrahe_is_Dead'
+    code: 'me1.bool.4464 == false || me1.bool.4459 == false'
   me3.fate.legion_dead:
     ref: me3.cond.1633
-    path: "me3:Global.Henchmen.Other.Legion.Legion_is_Dead"
-    code: "me2.bool.198 == true || (me2.bool.36 == true && me3.int.10173 != 0)"
+    path: 'me3:Global.Henchmen.Other.Legion.Legion_is_Dead'
+    code: 'me2.bool.198 == true || (me2.bool.36 == true && me3.int.10173 != 0)'
   me3.fate.samara_dead:
     ref: me3.cond.1627
-    path: "me3:Global.Henchmen.Other.Samara.Samara_is_Dead"
-    code: "me2.bool.205 == true || me3.bool.19303 == true"
+    path: 'me3:Global.Henchmen.Other.Samara.Samara_is_Dead'
+    code: 'me2.bool.205 == true || me3.bool.19303 == true'
   me3.fate.thane_dead:
     ref: me3.cond.1620
-    path: "me3:Global.Henchmen.Other.Thane.Thane_is_Dead"
-    code: "me2.bool.201 == true || me3.bool.18714 == true"
+    path: 'me3:Global.Henchmen.Other.Thane.Thane_is_Dead'
+    code: 'me2.bool.201 == true || me3.bool.18714 == true'
   me3.fate.tali_dead:
     ref: me3.cond.1634
-    path: "me3:Global.Henchmen.Tali.Tali_is_Dead"
-    code: "me2.bool.202 == true || me3.bool.17788 == true"
+    path: 'me3:Global.Henchmen.Tali.Tali_is_Dead'
+    code: 'me2.bool.202 == true || me3.bool.17788 == true'
   me3.fate.ashley_dead:
     ref: me3.cond.1614
-    path: "me3:Global.Henchmen.Ashley.Ashley_is_Dead"
-    code: "me1.bool.3828 == true || me3.bool.18199 == true || me3.bool.19525 == true || me3.bool.19523 == true || me3.bool.19527 == true || me3.bool.19521 == true || me3.bool.19519 == true"
+    path: 'me3:Global.Henchmen.Ashley.Ashley_is_Dead'
+    code: 'me1.bool.3828 == true || me3.bool.18199 == true || me3.bool.19525 == true || me3.bool.19523 == true || me3.bool.19527 == true || me3.bool.19521 == true || me3.bool.19519 == true'
   me3.fate.kaidan_dead:
     ref: me3.cond.1613
-    path: "me3:Global.Henchmen.Kaidan.Kaiden_Is_Dead"
-    code: "me1.bool.3828 == false || me3.bool.18445 == true || me3.bool.19526 == true || me3.bool.19524 == true || me3.bool.19528 == true || me3.bool.19522 == true || me3.bool.19520 == true"
+    path: 'me3:Global.Henchmen.Kaidan.Kaiden_Is_Dead'
+    code: 'me1.bool.3828 == false || me3.bool.18445 == true || me3.bool.19526 == true || me3.bool.19524 == true || me3.bool.19528 == true || me3.bool.19522 == true || me3.bool.19520 == true'
   me3.fate.eve_dead:
     ref: me3.cond.1628
-    path: "me3:Global.Henchmen.Other.Eve.Eve_is_Dead"
-    code: "me3.int.10179 != 0 && me3.bool.20315 == false"
+    path: 'me3:Global.Henchmen.Other.Eve.Eve_is_Dead'
+    code: 'me3.int.10179 != 0 && me3.bool.20315 == false'
   me3.rannoch.peace_possible:
     ref: me3.cond.157
-    path: "me3:Geth_Quarian.Gth002.Geth_2_Writing.Check_Peace_Possible_in_Theory"
-    code: "me2.bool.198 == false && me2.bool.40 == true && me2.bool.1499 == true && me3.int.10176 != 0"
+    path: 'me3:Geth_Quarian.Gth002.Geth_2_Writing.Check_Peace_Possible_in_Theory'
+    code: 'me2.bool.198 == false && me2.bool.40 == true && me2.bool.1499 == true && me3.int.10176 != 0'
   me3.rannoch.peace_chance_at_least:
     ref: me3.cond.156
-    path: "me3:Geth_Quarian.Gth002.Geth_2_Writing.Check_Peace_Chance"
-    code: "me3.int.10212 >= argument"
+    path: 'me3:Geth_Quarian.Gth002.Geth_2_Writing.Check_Peace_Chance'
+    code: 'me3.int.10212 >= argument'
   me3.rannoch.tali_admiral:
     ref: me3.cond.216
-    path: "me3:Geth_Quarian.GthGlobals.NORGTH_Writing.Check_Tali_Admiral"
-    code: "me2.bool.40 == true && (me2.bool.2933 == true || me2.bool.2935 == true || me2.bool.2936 == true)"
+    path: 'me3:Geth_Quarian.GthGlobals.NORGTH_Writing.Check_Tali_Admiral'
+    code: 'me2.bool.40 == true && (me2.bool.2933 == true || me2.bool.2935 == true || me2.bool.2936 == true)'
   me3.rannoch.legion_is_hologram:
     ref: me3.cond.213
-    path: "me3:Geth_Quarian.GthGlobals.NORGTH_Writing.Check_Is_Legion_Hologram"
-    code: "me2.bool.36 == false || me2.bool.198 == true || me2.bool.1248 == true"
+    path: 'me3:Geth_Quarian.GthGlobals.NORGTH_Writing.Check_Is_Legion_Hologram'
+    code: 'me2.bool.36 == false || me2.bool.198 == true || me2.bool.1248 == true'
   me3.tuchanka.bomb_exploded:
     ref: me3.cond.1065
-    path: "me3:Genophage.Misc_Writing.Tuchanka_bomb_exploded"
-    code: "me3.int.10180 != 0 && me3.int.10181 == 0 && (me3.int.10165 >= (me3.int.10180 + 3) || me3.int.10185 != 0)"
+    path: 'me3:Genophage.Misc_Writing.Tuchanka_bomb_exploded'
+    code: 'me3.int.10180 != 0 && me3.int.10181 == 0 && (me3.int.10165 >= (me3.int.10180 + 3) || me3.int.10185 != 0)'
   me3.tuchanka.eve_ok:
     ref: me3.cond.1064
-    path: "me3:Genophage.Misc_Writing.FemaleKrogan_Lived_Tuchanka_Okay"
-    code: "( me3.int.10180 == 0 || me3.int.10181 != 0 || (me3.int.10165 < (me3.int.10180 + 3) && me3.int.10185 == 0) ) && me3.bool.20315 == true"
+    path: 'me3:Genophage.Misc_Writing.FemaleKrogan_Lived_Tuchanka_Okay'
+    code: '( me3.int.10180 == 0 || me3.int.10181 != 0 || (me3.int.10165 < (me3.int.10180 + 3) && me3.int.10185 == 0) ) && me3.bool.20315 == true'
   me3.citadel.time_for_wrex_confrontation:
     ref: me3.cond.1043
-    path: "me3:Citadel.CitHub.WrexWreav_Confront.Time_For_Contront"
-    code: "me3.bool.19769 == false && me3.bool.18927 == true && me3.int.10173 > 0 && me1.bool.3021 == false && me1.bool.3942 == true"
+    path: 'me3:Citadel.CitHub.WrexWreav_Confront.Time_For_Contront'
+    code: 'me3.bool.19769 == false && me3.bool.18927 == true && me3.int.10173 > 0 && me1.bool.3021 == false && me1.bool.3942 == true'
   me3.end.im_final_persuade:
     ref: me3.cond.2711
-    path: "me3:End_Game.End002.End02_NP_States.IM_Final_Persuade"
-    code: "(((me3.int.10380 + me3.int.10159 + me3.int.10160) * (1.0 + me3.float.10065)) > me3.int.10644) && me3.int.10665 >= argument"
+    path: 'me3:End_Game.End002.End02_NP_States.IM_Final_Persuade'
+    code: '(((me3.int.10380 + me3.int.10159 + me3.int.10160) * (1.0 + me3.float.10065)) > me3.int.10644) && me3.int.10665 >= argument'
   me3.ems.rating_high:
     ref: me3.cond.1294
-    path: "me3:Global.Game_Progress.Ending_Options.Rating_Level_High"
-    code: "me3.int.10430 >= 3250"
+    path: 'me3:Global.Game_Progress.Ending_Options.Rating_Level_High'
+    code: 'me3.int.10430 >= 3250'
   me3.ems.rating_medium:
     ref: me3.cond.1295
-    path: "me3:Global.Game_Progress.Ending_Options.Rating_Level_Medium"
-    code: "me3.int.10430 >= 2350 && me3.int.10430 < 3250"
+    path: 'me3:Global.Game_Progress.Ending_Options.Rating_Level_Medium'
+    code: 'me3.int.10430 >= 2350 && me3.int.10430 < 3250'
   me3.ems.rating_low:
     ref: me3.cond.1296
-    path: "me3:Global.Game_Progress.Ending_Options.Rating_Level_Low"
-    code: "me3.int.10430 >= 0 && me3.int.10430 < 2350"
+    path: 'me3:Global.Game_Progress.Ending_Options.Rating_Level_Low'
+    code: 'me3.int.10430 >= 0 && me3.int.10430 < 2350'
   me3.squad.morinth_banshee:
     ref: me3.cond.1764
-    path: "me3:End_Game.End001.Characters.Morinth_is_a_Banshee"
-    code: "me2.bool.43 == true && me2.bool.1664 == true"
+    path: 'me3:End_Game.End001.Characters.Morinth_is_a_Banshee'
+    code: 'me2.bool.43 == true && me2.bool.1664 == true'
   me3.player.persuasive:
-    code: "(me3.player.reputation + me3.player.paragon + me3.player.renegade) * (1.0 + me3.player.persuade_multiplier) > me3.player.reputation_level5 * 0.5"
+    code: '(me3.player.reputation + me3.player.paragon + me3.player.renegade) * (1.0 + me3.player.persuade_multiplier) > me3.player.reputation_level5 * 0.5'
     doc: Mid-game persuasion, modeled on the shape of the lifted IM_Final_Persuade check (half its bar).
   me3.ems.can_synthesize:
-    code: "me3.ems.current_rating >= 2800"
+    code: 'me3.ems.current_rating >= 2800'
     doc: Community-documented Extended Cut threshold (the ending logic is native code, not plot data).
 
 vars:
-  me3.progress.mission_count: {ref: me3.int.10165, path: "me3:Global.Game_Progress.Mission_Count"}
-  me3.progress.me2_import: {ref: me3.bool.21554, path: "me3:Global.Game_Progress.ME2_Import"}
-  me3.progress.me1_import: {ref: me3.bool.22226, path: "me3:Global.Game_Progress.ME1_Import"}
-  me3.ems.current_rating: {ref: me3.int.10430, path: "me3:Global.Game_Progress.Ending_Options.Current_Rating"}
-  me3.end.reapers_destroyed: {ref: me3.bool.20965, path: "me3:Global.Game_Progress.Ending_Options.Reapers_Destroyed"}
-  me3.end.become_a_reaper: {ref: me3.bool.20966, path: "me3:Global.Game_Progress.Ending_Options.Become_A_Reaper"}
-  me3.end.reapers_leave: {ref: me3.bool.20970, path: "me3:Global.Game_Progress.Ending_Options.Reapers_Leave"}
-  me3.end.earth_destroyed: {ref: me3.bool.20967, path: "me3:Global.Game_Progress.Ending_Options.Earth_Destroyed"}
-  me3.end.earth_devastated: {ref: me3.bool.20968, path: "me3:Global.Game_Progress.Ending_Options.Earth_Devastated"}
-  me3.end.earth_ok: {ref: me3.bool.20969, path: "me3:Global.Game_Progress.Ending_Options.Earth_Ok"}
-  me3.end.synthesis: {ref: me3.bool.20971, path: "me3:Global.Game_Progress.Ending_Options.Harmony_Of_Man_And_Machine"}
-  me3.end.shepard_alive: {ref: me3.bool.20972, path: "me3:Global.Game_Progress.Ending_Options.Shepard_Alive"}
-  me3.end.chose_red: {ref: me3.bool.22763, path: "me3:End_Game.End002.End002_LD.Chose_Red"}
-  me3.end.chose_blue: {ref: me3.bool.22764, path: "me3:End_Game.End002.End002_LD.Chose_Blue"}
-  me3.end.chose_green: {ref: me3.bool.22762, path: "me3:End_Game.End002.End002_LD.Chose_Green"}
-  me3.end.made_final_decision: {ref: me3.bool.22426, path: "me3:End_Game.End002.End002_LD.Made_Final_Decision"}
-  me3.end.tim_suicide: {ref: me3.bool.22600, path: "me3:End_Game.End002.End002_LD.TIM_Suicide"}
-  me3.end.anderson_dead: {ref: me3.bool.22601, path: "me3:End_Game.End002.End002_LD.Anderson_Dead"}
-  me3.end.shepard_dead: {ref: me3.bool.22603, path: "me3:End_Game.End002.End002_LD.Shepard_Dead"}
-  me3.player.reputation: {ref: me3.int.10380, path: "me3:Utility.Player_Info.Reputation_Points"}
-  me3.player.paragon: {ref: me3.int.10159, path: "me3:Utility.Player_Info.Paragon_Points"}
-  me3.player.renegade: {ref: me3.int.10160, path: "me3:Utility.Player_Info.Renegade_Points"}
-  me3.player.persuade_multiplier: {ref: me3.float.10065, path: "me3:Utility.Player_Info.PersuadeMultiplier", default: 0.0}
-  me3.player.reputation_level5: {ref: me3.int.10644, path: "me3:Utility.Player_Info.ReputationValues.Level5", default: 900, doc: "Set by native code in-game; a model constant here."}
-  me3.tim.how_persuaded: {ref: me3.int.10665, path: "me3:Global.Illusive_Man.How_Persuaded"}
-  me3.genophage.cure_real: {ref: me3.bool.18926, path: "me3:Genophage.Kro002.Writing.Genophage_Cure_Real"}
-  me3.genophage.cure_sabotaged: {ref: me3.bool.18927, path: "me3:Genophage.Kro002.Writing.Genophage_Cure_Sabotaged"}
-  me3.genophage.deal_revealed: {ref: me3.bool.18928, path: "me3:Genophage.Kro002.Writing.Salarian_Deal_Revealed"}
-  me3.genophage.eve_dead: {ref: me3.bool.19060, path: "me3:Genophage.Kro002.Writing.Female_Krogan_Dead"}
-  me3.genophage.eve_alive: {ref: me3.bool.20315, path: "me3:Genophage.Kro002.Writing.Female_Krogan_Alive"}
-  me3.genophage.shot_mordin: {ref: me3.bool.19062, path: "me3:Genophage.Kro002.Writing.Killed_salarian"}
-  me3.genophage.sabotage_mordin_lived: {ref: me3.bool.20494, path: "me3:Genophage.Kro002.Writing.Genophage_Cure_Sabotaged_Salarian_Lived"}
-  me3.citadel.wrex_confronted: {ref: me3.bool.19769, path: "me3:Citadel.CitHub.WrexWreav_Confront.Wrex_Has_Confronted"}
-  me3.rachni.queen_ally: {ref: me3.bool.17900, path: "me3:Genophage.KroGru.Writing_States.RachniQueen_is_ally"}
-  me3.rachni.queen_killed: {ref: me3.bool.17901, path: "me3:Genophage.KroGru.Writing_States.RachniQueen_killed_me3"}
-  me3.rachni.breeder_killed: {ref: me3.bool.17902, path: "me3:Genophage.KroGru.Writing_States.RachniBreeder_killed"}
-  me3.rachni.breeder_saved: {ref: me3.bool.18846, path: "me3:Genophage.KroGru.Writing_States.Breeder_is_saved"}
-  me3.rannoch.geth_destroyed: {ref: me3.bool.17787, path: "me3:Geth_Quarian.Gth002.Final_Decision.Geth_Destroyed"}
-  me3.rannoch.peace: {ref: me3.bool.17789, path: "me3:Geth_Quarian.Gth002.Final_Decision.Peace"}
-  me3.rannoch.quarians_dead: {ref: me3.bool.17788, path: "me3:Geth_Quarian.Gth002.Final_Decision.Quarians_Dead"}
-  me3.rannoch.peace_chance: {ref: me3.int.10212, path: "me3:Geth_Quarian.Gth002.Geth_2_Writing.Peace_Chance_Score"}
-  me3.coup.shepard_shot_ashley: {ref: me3.bool.18199, path: "me3:Catalyst.Cat003.500_Showdown.Ash_Shot"}
-  me3.coup.shepard_shot_kaidan: {ref: me3.bool.18445, path: "me3:Catalyst.Cat003.500_Showdown.Kaidan_Shot"}
-  me3.coup.kirrahe_saved_councilor: {ref: me3.bool.19189, path: "me3:Catalyst.Cat003.200_CSEC.Salarian_Councilor_Kirrahe_Save"}
-  me3.coup.thane_dead: {ref: me3.bool.18714, path: "me3:Catalyst.Cat003.600_Hospital.Thane_Dead"}
-  me3.horizon.miranda_killed: {ref: me3.bool.20278, path: "me3:Cerberus.CerMir.WritingStates.Miranda_killed_me3"}
-  me3.horizon.miranda_survives: {ref: me3.bool.20687, path: "me3:Cerberus.CerMir.WritingStates.Miranda_survives_ME3"}
-  me3.monastery.samara_dies: {ref: me3.bool.19303, path: "me3:Citadel.CitSam.Writing.samara_dies"}
-  me3.monastery.falere_dies: {ref: me3.bool.19304, path: "me3:Citadel.CitSam.Writing.Falere_dies"}
-  me3.cronos.done: {ref: me3.bool.19143, path: "me3:Catalyst.Cat004.Cat004_Done"}
+  me3.progress.mission_count: { ref: me3.int.10165, path: 'me3:Global.Game_Progress.Mission_Count' }
+  me3.progress.me2_import: { ref: me3.bool.21554, path: 'me3:Global.Game_Progress.ME2_Import' }
+  me3.progress.me1_import: { ref: me3.bool.22226, path: 'me3:Global.Game_Progress.ME1_Import' }
+  me3.ems.current_rating:
+    { ref: me3.int.10430, path: 'me3:Global.Game_Progress.Ending_Options.Current_Rating' }
+  me3.end.reapers_destroyed:
+    { ref: me3.bool.20965, path: 'me3:Global.Game_Progress.Ending_Options.Reapers_Destroyed' }
+  me3.end.become_a_reaper:
+    { ref: me3.bool.20966, path: 'me3:Global.Game_Progress.Ending_Options.Become_A_Reaper' }
+  me3.end.reapers_leave:
+    { ref: me3.bool.20970, path: 'me3:Global.Game_Progress.Ending_Options.Reapers_Leave' }
+  me3.end.earth_destroyed:
+    { ref: me3.bool.20967, path: 'me3:Global.Game_Progress.Ending_Options.Earth_Destroyed' }
+  me3.end.earth_devastated:
+    { ref: me3.bool.20968, path: 'me3:Global.Game_Progress.Ending_Options.Earth_Devastated' }
+  me3.end.earth_ok:
+    { ref: me3.bool.20969, path: 'me3:Global.Game_Progress.Ending_Options.Earth_Ok' }
+  me3.end.synthesis:
+    {
+      ref: me3.bool.20971,
+      path: 'me3:Global.Game_Progress.Ending_Options.Harmony_Of_Man_And_Machine',
+    }
+  me3.end.shepard_alive:
+    { ref: me3.bool.20972, path: 'me3:Global.Game_Progress.Ending_Options.Shepard_Alive' }
+  me3.end.chose_red: { ref: me3.bool.22763, path: 'me3:End_Game.End002.End002_LD.Chose_Red' }
+  me3.end.chose_blue: { ref: me3.bool.22764, path: 'me3:End_Game.End002.End002_LD.Chose_Blue' }
+  me3.end.chose_green: { ref: me3.bool.22762, path: 'me3:End_Game.End002.End002_LD.Chose_Green' }
+  me3.end.made_final_decision:
+    { ref: me3.bool.22426, path: 'me3:End_Game.End002.End002_LD.Made_Final_Decision' }
+  me3.end.tim_suicide: { ref: me3.bool.22600, path: 'me3:End_Game.End002.End002_LD.TIM_Suicide' }
+  me3.end.anderson_dead:
+    { ref: me3.bool.22601, path: 'me3:End_Game.End002.End002_LD.Anderson_Dead' }
+  me3.end.shepard_dead: { ref: me3.bool.22603, path: 'me3:End_Game.End002.End002_LD.Shepard_Dead' }
+  me3.player.reputation: { ref: me3.int.10380, path: 'me3:Utility.Player_Info.Reputation_Points' }
+  me3.player.paragon: { ref: me3.int.10159, path: 'me3:Utility.Player_Info.Paragon_Points' }
+  me3.player.renegade: { ref: me3.int.10160, path: 'me3:Utility.Player_Info.Renegade_Points' }
+  me3.player.persuade_multiplier:
+    { ref: me3.float.10065, path: 'me3:Utility.Player_Info.PersuadeMultiplier', default: 0.0 }
+  me3.player.reputation_level5:
+    {
+      ref: me3.int.10644,
+      path: 'me3:Utility.Player_Info.ReputationValues.Level5',
+      default: 900,
+      doc: 'Set by native code in-game; a model constant here.',
+    }
+  me3.tim.how_persuaded: { ref: me3.int.10665, path: 'me3:Global.Illusive_Man.How_Persuaded' }
+  me3.genophage.cure_real:
+    { ref: me3.bool.18926, path: 'me3:Genophage.Kro002.Writing.Genophage_Cure_Real' }
+  me3.genophage.cure_sabotaged:
+    { ref: me3.bool.18927, path: 'me3:Genophage.Kro002.Writing.Genophage_Cure_Sabotaged' }
+  me3.genophage.deal_revealed:
+    { ref: me3.bool.18928, path: 'me3:Genophage.Kro002.Writing.Salarian_Deal_Revealed' }
+  me3.genophage.eve_dead:
+    { ref: me3.bool.19060, path: 'me3:Genophage.Kro002.Writing.Female_Krogan_Dead' }
+  me3.genophage.eve_alive:
+    { ref: me3.bool.20315, path: 'me3:Genophage.Kro002.Writing.Female_Krogan_Alive' }
+  me3.genophage.shot_mordin:
+    { ref: me3.bool.19062, path: 'me3:Genophage.Kro002.Writing.Killed_salarian' }
+  me3.genophage.sabotage_mordin_lived:
+    {
+      ref: me3.bool.20494,
+      path: 'me3:Genophage.Kro002.Writing.Genophage_Cure_Sabotaged_Salarian_Lived',
+    }
+  me3.citadel.wrex_confronted:
+    { ref: me3.bool.19769, path: 'me3:Citadel.CitHub.WrexWreav_Confront.Wrex_Has_Confronted' }
+  me3.rachni.queen_ally:
+    { ref: me3.bool.17900, path: 'me3:Genophage.KroGru.Writing_States.RachniQueen_is_ally' }
+  me3.rachni.queen_killed:
+    { ref: me3.bool.17901, path: 'me3:Genophage.KroGru.Writing_States.RachniQueen_killed_me3' }
+  me3.rachni.breeder_killed:
+    { ref: me3.bool.17902, path: 'me3:Genophage.KroGru.Writing_States.RachniBreeder_killed' }
+  me3.rachni.breeder_saved:
+    { ref: me3.bool.18846, path: 'me3:Genophage.KroGru.Writing_States.Breeder_is_saved' }
+  me3.rannoch.geth_destroyed:
+    { ref: me3.bool.17787, path: 'me3:Geth_Quarian.Gth002.Final_Decision.Geth_Destroyed' }
+  me3.rannoch.peace: { ref: me3.bool.17789, path: 'me3:Geth_Quarian.Gth002.Final_Decision.Peace' }
+  me3.rannoch.quarians_dead:
+    { ref: me3.bool.17788, path: 'me3:Geth_Quarian.Gth002.Final_Decision.Quarians_Dead' }
+  me3.rannoch.peace_chance:
+    { ref: me3.int.10212, path: 'me3:Geth_Quarian.Gth002.Geth_2_Writing.Peace_Chance_Score' }
+  me3.coup.shepard_shot_ashley:
+    { ref: me3.bool.18199, path: 'me3:Catalyst.Cat003.500_Showdown.Ash_Shot' }
+  me3.coup.shepard_shot_kaidan:
+    { ref: me3.bool.18445, path: 'me3:Catalyst.Cat003.500_Showdown.Kaidan_Shot' }
+  me3.coup.kirrahe_saved_councilor:
+    { ref: me3.bool.19189, path: 'me3:Catalyst.Cat003.200_CSEC.Salarian_Councilor_Kirrahe_Save' }
+  me3.coup.thane_dead: { ref: me3.bool.18714, path: 'me3:Catalyst.Cat003.600_Hospital.Thane_Dead' }
+  me3.horizon.miranda_killed:
+    { ref: me3.bool.20278, path: 'me3:Cerberus.CerMir.WritingStates.Miranda_killed_me3' }
+  me3.horizon.miranda_survives:
+    { ref: me3.bool.20687, path: 'me3:Cerberus.CerMir.WritingStates.Miranda_survives_ME3' }
+  me3.monastery.samara_dies: { ref: me3.bool.19303, path: 'me3:Citadel.CitSam.Writing.samara_dies' }
+  me3.monastery.falere_dies: { ref: me3.bool.19304, path: 'me3:Citadel.CitSam.Writing.Falere_dies' }
+  me3.cronos.done: { ref: me3.bool.19143, path: 'me3:Catalyst.Cat004.Cat004_Done' }
   me3.order.{code}:
     foreach:
-      - {code: ProEar, ref: me3.int.10166}
-      - {code: ProMar, ref: me3.int.10167}
-      - {code: ProCit, ref: me3.int.10168}
-      - {code: KroGar, ref: me3.int.10213}
-      - {code: Kro001, ref: me3.int.10178}
-      - {code: KroGru, ref: me3.int.10182}
-      - {code: KroN7a, ref: me3.int.10180}
-      - {code: KroN7b, ref: me3.int.10181}
-      - {code: Kro002, ref: me3.int.10179}
-      - {code: Cat001, ref: me3.int.10177}
-      - {code: Cat002, ref: me3.int.10183}
-      - {code: Cat003, ref: me3.int.10184}
-      - {code: Cat004, ref: me3.int.10185}
-      - {code: Gth001, ref: me3.int.10172}
-      - {code: GthN7a, ref: me3.int.10174}
-      - {code: Gth002, ref: me3.int.10173}
-      - {code: GthLeg, ref: me3.int.10176}
-      - {code: CitSam, ref: me3.int.10195}
-      - {code: OmgJck, ref: me3.int.10200}
-      - {code: CerMir, ref: me3.int.10188}
-      - {code: End001, ref: me3.int.10202}
-      - {code: End002, ref: me3.int.10203}
-      - {code: End003, ref: me3.int.10204}
-    ref: "{ref}"
-    path: "me3:Global.Game_Progress.Mission_Completion_Order.{code}"
+      - { code: ProEar, ref: me3.int.10166 }
+      - { code: ProMar, ref: me3.int.10167 }
+      - { code: ProCit, ref: me3.int.10168 }
+      - { code: KroGar, ref: me3.int.10213 }
+      - { code: Kro001, ref: me3.int.10178 }
+      - { code: KroGru, ref: me3.int.10182 }
+      - { code: KroN7a, ref: me3.int.10180 }
+      - { code: KroN7b, ref: me3.int.10181 }
+      - { code: Kro002, ref: me3.int.10179 }
+      - { code: Cat001, ref: me3.int.10177 }
+      - { code: Cat002, ref: me3.int.10183 }
+      - { code: Cat003, ref: me3.int.10184 }
+      - { code: Cat004, ref: me3.int.10185 }
+      - { code: Gth001, ref: me3.int.10172 }
+      - { code: GthN7a, ref: me3.int.10174 }
+      - { code: Gth002, ref: me3.int.10173 }
+      - { code: GthLeg, ref: me3.int.10176 }
+      - { code: CitSam, ref: me3.int.10195 }
+      - { code: OmgJck, ref: me3.int.10200 }
+      - { code: CerMir, ref: me3.int.10188 }
+      - { code: End001, ref: me3.int.10202 }
+      - { code: End002, ref: me3.int.10203 }
+      - { code: End003, ref: me3.int.10204 }
+    ref: '{ref}'
+    path: 'me3:Global.Game_Progress.Mission_Completion_Order.{code}'
   # Unmodeled shooters in the Citadel II standoff; lifted fate conditions read them.
   me3.coup.other_shot_{who}_{by}:
     foreach:
-      - {who: ash, by: prothean, ref: me3.bool.19527, path: Prothean_Shot_Ash}
-      - {who: ash, by: james, ref: me3.bool.19521, path: James_Shot_Ash}
-      - {who: ash, by: garrus, ref: me3.bool.19519, path: Garrus_Shot_Ash}
-      - {who: ash, by: edi, ref: me3.bool.19525, path: EDI_Shot_Ash}
-      - {who: ash, by: liara, ref: me3.bool.19523, path: Liara_Shot_Ash}
-      - {who: kaidan, by: prothean, ref: me3.bool.19528, path: Prothean_Shot_Kaidan}
-      - {who: kaidan, by: james, ref: me3.bool.19522, path: James_Shot_Kaidan}
-      - {who: kaidan, by: garrus, ref: me3.bool.19520, path: Garrus_Shot_Kaidan}
-      - {who: kaidan, by: edi, ref: me3.bool.19526, path: EDI_Shot_Kaidan}
-      - {who: kaidan, by: liara, ref: me3.bool.19524, path: Liara_Shot_Kaidan}
-    ref: "{ref}"
-    path: "me3:Catalyst.Cat003.500_Showdown.{path}"
+      - { who: ash, by: prothean, ref: me3.bool.19527, path: Prothean_Shot_Ash }
+      - { who: ash, by: james, ref: me3.bool.19521, path: James_Shot_Ash }
+      - { who: ash, by: garrus, ref: me3.bool.19519, path: Garrus_Shot_Ash }
+      - { who: ash, by: edi, ref: me3.bool.19525, path: EDI_Shot_Ash }
+      - { who: ash, by: liara, ref: me3.bool.19523, path: Liara_Shot_Ash }
+      - { who: kaidan, by: prothean, ref: me3.bool.19528, path: Prothean_Shot_Kaidan }
+      - { who: kaidan, by: james, ref: me3.bool.19522, path: James_Shot_Kaidan }
+      - { who: kaidan, by: garrus, ref: me3.bool.19520, path: Garrus_Shot_Kaidan }
+      - { who: kaidan, by: edi, ref: me3.bool.19526, path: EDI_Shot_Kaidan }
+      - { who: kaidan, by: liara, ref: me3.bool.19524, path: Liara_Shot_Kaidan }
+    ref: '{ref}'
+    path: 'me3:Catalyst.Cat003.500_Showdown.{path}'
     default: false
     doc: Squadmate-fired variants of the standoff; not modeled (the model has Shepard fire).
 
@@ -227,21 +271,21 @@ vars:
   # Values approximate the games' war-asset ratings and assume full galactic readiness.
   story.me3.asset.{name}:
     foreach:
-      - {name: alliance}
-      - {name: destiny_ascension}
-      - {name: me2_legacy}
-      - {name: turian}
-      - {name: krogan}
-      - {name: aralakh_company}
-      - {name: rachni}
-      - {name: salarian}
-      - {name: geth}
-      - {name: quarian}
-      - {name: asari}
-      - {name: grissom_students}
-      - {name: monastery}
-      - {name: sanctuary}
-      - {name: javik}
+      - { name: alliance }
+      - { name: destiny_ascension }
+      - { name: me2_legacy }
+      - { name: turian }
+      - { name: krogan }
+      - { name: aralakh_company }
+      - { name: rachni }
+      - { name: salarian }
+      - { name: geth }
+      - { name: quarian }
+      - { name: asari }
+      - { name: grissom_students }
+      - { name: monastery }
+      - { name: sanctuary }
+      - { name: javik }
     type: int
     tags: [war_asset]
 
@@ -253,6 +297,6 @@ storylets:
     summary: For a Shepard with no ME2 history in this model, the dialogue style is declared here.
     requires: "story.shepard.style == ''"
     choices:
-      - {id: paragon, effects: ["story.shepard.style = 'paragon'"]}
-      - {id: renegade, effects: ["story.shepard.style = 'renegade'"]}
-      - {id: balanced, effects: ["story.shepard.style = 'balanced'"]}
+      - { id: paragon, effects: ["story.shepard.style = 'paragon'"] }
+      - { id: renegade, effects: ["story.shepard.style = 'renegade'"] }
+      - { id: balanced, effects: ["story.shepard.style = 'balanced'"] }

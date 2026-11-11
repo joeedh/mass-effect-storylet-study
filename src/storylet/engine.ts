@@ -1,13 +1,29 @@
 /** Storylet runtime: availability, firing, simulation and exhaustive exploration. */
-import { ExprError, FUNCTIONS, SPECIAL_FORMS, calls, evaluate, idArg, names, show } from "./expr.ts";
-import type { Call, Node } from "./expr.ts";
-import { CAMPAIGN_VAR, DEFAULTS, GAME_INDEX, initialValue, isVarType, storyletChoice } from "./model.ts";
-import type { Choice, Content, Storylet, VarDecl, VarType } from "./model.ts";
-import { PyRandom } from "./pyrandom.ts";
-import * as py from "./pycompat.ts";
-import type { Value } from "./pycompat.ts";
+import {
+  ExprError,
+  FUNCTIONS,
+  SPECIAL_FORMS,
+  calls,
+  evaluate,
+  idArg,
+  names,
+  show,
+} from './expr.ts';
+import type { Call, Node } from './expr.ts';
+import {
+  CAMPAIGN_VAR,
+  DEFAULTS,
+  GAME_INDEX,
+  initialValue,
+  isVarType,
+  storyletChoice,
+} from './model.ts';
+import type { Choice, Content, Storylet, VarDecl, VarType } from './model.ts';
+import { PyRandom } from './pyrandom.ts';
+import * as py from './pycompat.ts';
+import type { Value } from './pycompat.ts';
 
-const REF_KINDS: ReadonlySet<string> = new Set(["bool", "int", "float"]);
+const REF_KINDS: ReadonlySet<string> = new Set(['bool', 'int', 'float']);
 
 /** A set of string tuples, compared by value (Python's set of tuples). */
 export class TupleSet<T extends readonly string[]> implements Iterable<T> {
@@ -55,7 +71,10 @@ export class TupleSet<T extends readonly string[]> implements Iterable<T> {
 }
 
 export type ChosenPair = readonly [storylet: string, choice: string];
-export type ReadonlyTupleSet<T extends readonly string[]> = Pick<TupleSet<T>, "has" | "with" | "size" | "sorted"> &
+export type ReadonlyTupleSet<T extends readonly string[]> = Pick<
+  TupleSet<T>,
+  'has' | 'with' | 'size' | 'sorted'
+> &
   Iterable<T>;
 
 /**
@@ -123,9 +142,16 @@ export class Engine {
   refOf(name: string): readonly [string, VarType] {
     const decl = this.content.vars.get(name);
     if (decl !== undefined) return [decl.ref, decl.type];
-    const parts = name.split(".");
+    const parts = name.split('.');
     const kind = parts[1];
-    if (parts.length === 3 && ["me1", "me2", "me3"].includes(parts[0]!) && kind !== undefined && REF_KINDS.has(kind) && /^\d+$/.test(parts[2]!) && isVarType(kind)) {
+    if (
+      parts.length === 3 &&
+      ['me1', 'me2', 'me3'].includes(parts[0]!) &&
+      kind !== undefined &&
+      REF_KINDS.has(kind) &&
+      /^\d+$/.test(parts[2]!) &&
+      isVarType(kind)
+    ) {
       return [name, kind];
     }
     throw new ExprError(`unknown variable ${py.repr(name)}`);
@@ -140,14 +166,18 @@ export class Engine {
   expandNames(node: Node, seen: ReadonlySet<string> = new Set()): Set<string> {
     const out = new Set<string>();
     for (const call of calls(node)) {
-      if (call.fn === "total" && call.args.length) for (const d of this.tagged(idArg(call.args[0]))) out.add(d.name);
+      if (call.fn === 'total' && call.args.length) {
+        for (const d of this.tagged(idArg(call.args[0]))) out.add(d.name);
+      }
     }
     const condNames = [...names(node), ...[...calls(node)].map((c) => c.fn)];
     for (const name of condNames) {
       const cond = this.content.conditions.get(name);
       if (cond !== undefined) {
-        if (!seen.has(name)) for (const n of this.expandNames(cond.code, new Set([...seen, name]))) out.add(n);
-      } else if (name !== "argument" && !FUNCTIONS.has(name) && !SPECIAL_FORMS.has(name)) {
+        if (!seen.has(name)) {
+          for (const n of this.expandNames(cond.code, new Set([...seen, name]))) out.add(n);
+        }
+      } else if (name !== 'argument' && !FUNCTIONS.has(name) && !SPECIAL_FORMS.has(name)) {
         out.add(name);
       }
     }
@@ -167,15 +197,23 @@ export class Engine {
 
   // -- evaluation ---------------------------------------------------------------------------------
   /** Evaluate against `values` (default: the state's own); `seen()`/`chose()` read `state`. */
-  eval(node: Node, state: State, values: Values = state.asMap(), bound?: ReadonlyMap<string, Value>, depth = 0): Value {
-    if (depth > 32) throw new ExprError("condition recursion too deep");
+  eval(
+    node: Node,
+    state: State,
+    values: Values = state.asMap(),
+    bound?: ReadonlyMap<string, Value>,
+    depth = 0,
+  ): Value {
+    if (depth > 32) throw new ExprError('condition recursion too deep');
 
     const env = (name: string): Value => {
       const b = bound?.get(name);
       if (b !== undefined) return b;
       const cond = this.content.conditions.get(name);
       if (cond !== undefined) {
-        if (cond.takesArgument) throw new ExprError(`condition ${name} takes an argument: call it as ${name}(...)`);
+        if (cond.takesArgument) {
+          throw new ExprError(`condition ${name} takes an argument: call it as ${name}(...)`);
+        }
         const v = this.eval(cond.code, state, values, undefined, depth + 1);
         return cond.numeric ? v : py.truthy(v);
       }
@@ -184,26 +222,29 @@ export class Engine {
     };
 
     const special = (call: Call): Value => {
-      if (call.fn === "seen") {
+      if (call.fn === 'seen') {
         return call.args.every((a) => {
           const id = idArg(a);
           return id !== undefined && state.fired.has(id);
         });
       }
-      if (call.fn === "chose") {
-        if (call.args.length < 2) throw new ExprError("chose() takes a storylet and a choice");
+      if (call.fn === 'chose') {
+        if (call.args.length < 2) throw new ExprError('chose() takes a storylet and a choice');
         const [s, c] = [idArg(call.args[0]), idArg(call.args[1])];
         return s !== undefined && c !== undefined && state.chosen.has([s, c]);
       }
-      if (call.fn === "total") {
+      if (call.fn === 'total') {
         // (v3) sum of all variables carrying a tag
-        if (!call.args.length) throw new ExprError("total() takes a tag");
-        return this.tagged(idArg(call.args[0])).reduce<Value>((acc, d) => py.add(acc, values.get(d.ref) ?? initialValue(d)), 0);
+        if (!call.args.length) throw new ExprError('total() takes a tag');
+        return this.tagged(idArg(call.args[0])).reduce<Value>(
+          (acc, d) => py.add(acc, values.get(d.ref) ?? initialValue(d)),
+          0,
+        );
       }
       const cond = this.content.conditions.get(call.fn);
       if (cond !== undefined && call.args.length === 1) {
         const arg = evaluate(call.args[0]!, env, special);
-        const v = this.eval(cond.code, state, values, new Map([["argument", arg]]), depth + 1);
+        const v = this.eval(cond.code, state, values, new Map([['argument', arg]]), depth + 1);
         return cond.numeric ? v : py.truthy(v);
       }
       throw new ExprError(`unknown function ${call.fn}()`);
@@ -215,8 +256,8 @@ export class Engine {
   /** v2 campaign gating: a game's storylets only run while that game is being played. */
   inCurrentGame(st: Storylet, values: Values): boolean {
     const index = GAME_INDEX.get(st.game);
-    if (!this.content.gated || st.kind === "bridge" || index === undefined) return true;
-    return py.eq(values.get(CAMPAIGN_VAR) ?? this.default(CAMPAIGN_VAR, "int"), index);
+    if (!this.content.gated || st.kind === 'bridge' || index === undefined) return true;
+    return py.eq(values.get(CAMPAIGN_VAR) ?? this.default(CAMPAIGN_VAR, 'int'), index);
   }
 
   choices(st: Storylet, state: State, values: Values = state.asMap()): Choice[] {
@@ -235,24 +276,35 @@ export class Engine {
     return this.storylets.filter((s) => this.isAvailable(s, state, values));
   }
 
-  private assign(values: Map<string, Value>, ref: string, vtype: VarType, op: string, rhs: Value, target: string): void {
+  private assign(
+    values: Map<string, Value>,
+    ref: string,
+    vtype: VarType,
+    op: string,
+    rhs: Value,
+    target: string,
+  ): void {
     const cur = (): Value => values.get(ref) ?? this.default(ref, vtype);
-    if (op === "+=") rhs = py.add(cur(), rhs);
-    else if (op === "-=") rhs = py.arith("-", cur(), rhs);
-    if (vtype === "bool") rhs = py.truthy(rhs);
-    else if (vtype === "int") rhs = py.toInt(rhs);
-    else if (vtype === "float") rhs = py.toFloat(rhs);
+    if (op === '+=') rhs = py.add(cur(), rhs);
+    else if (op === '-=') rhs = py.arith('-', cur(), rhs);
+    if (vtype === 'bool') rhs = py.truthy(rhs);
+    else if (vtype === 'int') rhs = py.toInt(rhs);
+    else if (vtype === 'float') rhs = py.toFloat(rhs);
     else {
       const decl = this.content.byRef.get(ref);
       const allowed = decl?.values ?? [];
-      if (!py.eq(rhs, "") && !allowed.some((v) => py.eq(v, rhs))) {
+      if (!py.eq(rhs, '') && !allowed.some((v) => py.eq(v, rhs))) {
         throw new py.ValueError(`${target}: ${py.repr(rhs)} is not one of ${py.repr(allowed)}`);
       }
     }
     values.set(ref, rhs);
   }
 
-  private applyEffects(effects: Iterable<{ target: string; op: string; expr: Node }>, scope: State, values: Map<string, Value>): void {
+  private applyEffects(
+    effects: Iterable<{ target: string; op: string; expr: Node }>,
+    scope: State,
+    values: Map<string, Value>,
+  ): void {
     for (const eff of effects) {
       const [ref, vtype] = this.refOf(eff.target);
       this.assign(values, ref, vtype, eff.op, this.eval(eff.expr, scope, values), eff.target);
@@ -262,7 +314,7 @@ export class Engine {
   /** Fire a storylet (with a choice, when it has choices). Returns a new state; `state` is untouched. */
   fire(state: State, storylet: Storylet | string, choice: string | null = null): State {
     let st: Storylet;
-    if (typeof storylet === "string") {
+    if (typeof storylet === 'string') {
       const found = this.content.storylets.get(storylet);
       if (found === undefined) throw new py.ValueError(`unknown storylet ${py.repr(storylet)}`);
       st = found;
@@ -275,7 +327,9 @@ export class Engine {
     if (st.choices.length) {
       const opts = this.choices(st, state);
       if (choice === null) {
-        if (opts.length !== 1) throw new py.ValueError(`${st.id}: choose one of ${py.repr(opts.map((c) => c.id))}`);
+        if (opts.length !== 1) {
+          throw new py.ValueError(`${st.id}: choose one of ${py.repr(opts.map((c) => c.id))}`);
+        }
         choice = opts[0]!.id;
       }
       const c = storyletChoice(st, choice);
@@ -310,19 +364,29 @@ export class Engine {
     const limit = st.limit;
     if (limit === null) throw new Error(`${st.id} has no limit`);
     const v = this.eval(limit, state, values);
-    if (typeof v === "string") throw new ExprError(`${st.id}: limit ${show(limit)} is ${py.repr(v)}, not a number`);
+    if (typeof v === 'string') {
+      throw new ExprError(`${st.id}: limit ${show(limit)} is ${py.repr(v)}, not a number`);
+    }
     return Math.max(0, py.toInt(v));
   }
 
-  private pack(values: Values, fired: ReadonlySet<string>, chosen: ReadonlyTupleSet<ChosenPair>): State {
+  private pack(
+    values: Values,
+    fired: ReadonlySet<string>,
+    chosen: ReadonlyTupleSet<ChosenPair>,
+  ): State {
     const items: (readonly [string, Value])[] = [];
     for (const [ref, v] of values) {
       const decl = this.content.byRef.get(ref);
-      const kind = ref.split(".")[1];
-      const vtype: VarType = decl !== undefined ? decl.type : isVarType(kind) ? kind : "bool";
+      const kind = ref.split('.')[1];
+      const vtype: VarType = decl !== undefined ? decl.type : isVarType(kind) ? kind : 'bool';
       if (!py.eq(v, this.default(ref, vtype))) items.push([ref, v]);
     }
-    return new State(py.sortedBy(items, ([ref]) => [ref]), fired, chosen);
+    return new State(
+      py.sortedBy(items, ([ref]) => [ref]),
+      fired,
+      chosen,
+    );
   }
 
   /** The starting state, with some variables (by name or raw ref) overridden. */
@@ -344,7 +408,7 @@ export class Engine {
    * distinct priorities.
    */
   private stepOptionsFrom(state: State, avail: readonly Storylet[]): [Option[], string[]] {
-    const autos = avail.filter((s) => s.trigger === "auto");
+    const autos = avail.filter((s) => s.trigger === 'auto');
     let tied: string[] = [];
     let pool: Storylet[];
     if (autos.length) {
@@ -354,8 +418,8 @@ export class Engine {
       if (atTop.length > 1) tied = atTop.map((s) => s.id);
     } else {
       // v2: 'idle' storylets fire only when the player has nothing else to do
-      const players = avail.filter((s) => s.trigger === "player");
-      pool = players.length ? players : avail.filter((s) => s.trigger === "idle");
+      const players = avail.filter((s) => s.trigger === 'player');
+      pool = players.length ? players : avail.filter((s) => s.trigger === 'idle');
     }
     const out: Option[] = [];
     const values = state.asMap();
@@ -366,12 +430,23 @@ export class Engine {
     return [out, tied];
   }
 
-  run(state: State = this.initial(), rng: PyRandom = new PyRandom(), maxSteps = 2000, policy?: Policy): Trace {
-    const trace: Trace = { steps: [], final: state, stuck: true, ties: new TupleSet(), preempted: new Set() };
+  run(
+    state: State = this.initial(),
+    rng: PyRandom = new PyRandom(),
+    maxSteps = 2000,
+    policy?: Policy,
+  ): Trace {
+    const trace: Trace = {
+      steps    : [],
+      final    : state,
+      stuck    : true,
+      ties     : new TupleSet(),
+      preempted: new Set(),
+    };
     let waiting = new Set<string>(); // auto storylets available before the last step that did not fire
     for (let i = 0; i < maxSteps; i++) {
       const avail = this.available(state);
-      const autos = new Set(avail.filter((s) => s.trigger === "auto").map((s) => s.id));
+      const autos = new Set(avail.filter((s) => s.trigger === 'auto').map((s) => s.id));
       for (const id of waiting) if (!autos.has(id)) trace.preempted.add(id);
       const [opts, tied] = this.stepOptionsFrom(state, avail);
       if (tied.length) trace.ties.add(tied);
@@ -393,7 +468,13 @@ export class Engine {
   explore(start: State = this.initial(), maxStates = 200_000): Exploration {
     const seen = new Set<string>([start.key]);
     const stack = [start];
-    const ex: Exploration = { states: 0, terminals: new Map(), fired: new Set(), chosen: new TupleSet(), truncated: false };
+    const ex: Exploration = {
+      states   : 0,
+      terminals: new Map(),
+      fired    : new Set(),
+      chosen   : new TupleSet(),
+      truncated: false,
+    };
     for (let s = stack.pop(); s !== undefined; s = stack.pop()) {
       const opts = this.stepOptions(s);
       if (!opts.length) {
@@ -439,7 +520,13 @@ export interface Coverage {
  * choices taken least often so far (coverage-guided, like a fuzzer), which reaches long
  * prerequisite chains that uniform random play almost never completes.
  */
-export function coverage(engine: Engine, runs: number, seed = 0, starts?: readonly State[], guided = true): Coverage {
+export function coverage(
+  engine: Engine,
+  runs: number,
+  seed = 0,
+  starts?: readonly State[],
+  guided = true,
+): Coverage {
   const rng = new PyRandom(seed);
   const fired = new Set<string>();
   const chosen = new TupleSet<ChosenPair>();
@@ -450,7 +537,9 @@ export function coverage(engine: Engine, runs: number, seed = 0, starts?: readon
 
   const policy: Policy = (_state, opts) => {
     if (!guided) return rng.choice(opts);
-    const weights = opts.map(([st, cid]) => 1.0 / (1 + (counts.get(countKey(st.id, cid)) ?? 0)) ** 2);
+    const weights = opts.map(
+      ([st, cid]) => 1.0 / (1 + (counts.get(countKey(st.id, cid)) ?? 0)) ** 2,
+    );
     return rng.weightedChoice(opts, weights);
   };
 

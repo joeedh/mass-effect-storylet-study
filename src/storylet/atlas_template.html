@@ -1,83 +1,368 @@
 <title>Shepard Storylet Atlas</title>
-<meta name="claude:viewport-fit-sides" content="cover">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@500;600;700&family=Source+Sans+3:wght@400;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<meta name="claude:viewport-fit-sides" content="cover" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link
+  rel="stylesheet"
+  href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@500;600;700&family=Source+Sans+3:wght@400;600&family=JetBrains+Mono:wght@400;500&display=swap"
+/>
 <style>
-/* Layout: a star-chart timeline. Three horizontal game bands (rows = story areas, x = typical
+  /* Layout: a star-chart timeline. Three horizontal game bands (rows = story areas, x = typical
    point in that game's playthrough); a detail rail beside it, below it on phones. */
-:root {
-  --bg: #eef1f5; --panel: #ffffff; --ink: #172030; --muted: #5b6577; --line: #d3d9e2;
-  --me1: #2f6fb3; --me2: #c4651a; --me3: #a3324a; --camp: #6b6f7a; --hl: #0f8a7a;
-  --display: "Barlow Semi Condensed", "Arial Narrow", system-ui, sans-serif;
-  --body: "Source Sans 3", system-ui, -apple-system, sans-serif;
-  --mono: "JetBrains Mono", ui-monospace, Menlo, monospace;
-}
-@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
-  --bg: #0d121b; --panel: #151c28; --ink: #e3e8f0; --muted: #94a0b4; --line: #2a3445;
-  --me1: #6aa6e8; --me2: #f0954a; --me3: #e2687f; --camp: #9aa0ac; --hl: #3fd0bb; color-scheme: dark } }
-:root[data-theme="dark"] {
-  --bg: #0d121b; --panel: #151c28; --ink: #e3e8f0; --muted: #94a0b4; --line: #2a3445;
-  --me1: #6aa6e8; --me2: #f0954a; --me3: #e2687f; --camp: #9aa0ac; --hl: #3fd0bb; color-scheme: dark }
-body { background: var(--bg); color: var(--ink); font: 15px/1.5 var(--body);
-  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 20px 40px; }
-h1, h2, h3 { font-family: var(--display); text-wrap: balance; margin: 0; letter-spacing: .01em; }
-h1 { font-size: 2rem; font-weight: 700; }
-h2 { font-size: 1.25rem; font-weight: 600; }
-header { display: flex; flex-wrap: wrap; gap: 12px 32px; align-items: end; justify-content: space-between; max-width: 1500px; margin: 0 auto 16px; }
-header p { margin: 4px 0 0; color: var(--muted); max-width: 70ch; }
-.stats { display: flex; flex-wrap: wrap; gap: 6px 22px; font-variant-numeric: tabular-nums; }
-.stats div { display: grid; }
-.stats b { font: 600 1.35rem var(--display); }
-.stats span { font-size: .72rem; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); }
-main { display: grid; grid-template-columns: minmax(0, 1fr) 380px; gap: 20px; max-width: 1500px; margin: 0 auto; }
-@media (max-width: 980px) { main { grid-template-columns: minmax(0, 1fr); } }
-.chart { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; min-width: 0; }
-.toolbar { display: flex; flex-wrap: wrap; gap: 10px 16px; align-items: center; padding: 10px 14px; border-bottom: 1px solid var(--line); }
-.toolbar input { font: inherit; padding: 6px 10px; border: 1px solid var(--line); border-radius: 6px; background: var(--bg); color: var(--ink); min-width: 0; flex: 1 1 220px; max-width: 340px; }
-.toolbar label { white-space: nowrap; display: flex; gap: 6px; align-items: center; font-size: .9rem; color: var(--muted); cursor: pointer; }
-.legend { display: flex; gap: 14px; font-size: .8rem; color: var(--muted); flex-wrap: wrap; }
-.legend i { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 5px; vertical-align: -1px; }
-.scroll { overflow-x: auto; }
-svg { display: block; width: 100%; min-width: 860px; height: auto; }
-svg text { fill: var(--ink); font-family: var(--body); }
-.area-label { font-size: 11px; fill: var(--muted); }
-.band-label { font: 700 15px var(--display); letter-spacing: .06em; }
-.node { cursor: pointer; }
-.node circle { stroke: var(--panel); stroke-width: 1.5; }
-.node:focus { outline: none; }
-.node:focus circle, .node.sel circle { stroke: var(--ink); stroke-width: 2.5; }
-.node.dim { opacity: .18; }
-.node text { font-size: 10.5px; pointer-events: none; paint-order: stroke; stroke: var(--panel); stroke-width: 3px; }
-.edge { fill: none; stroke-width: 1.2; opacity: .55; }
-.edge.cross { stroke: var(--hl); opacity: .5; }
-.edge.in { stroke: var(--muted); opacity: .8; }
-.edge.out { stroke: var(--hl); opacity: .9; stroke-width: 1.6; }
-aside { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 16px; min-width: 0; align-self: start; position: sticky; top: calc(env(safe-area-inset-top, 0px) + 12px); max-height: calc(100vh - 40px); overflow: auto; }
-@media (max-width: 980px) { aside { position: static; max-height: none; } }
-.eyebrow { font-size: .72rem; text-transform: uppercase; letter-spacing: .09em; color: var(--muted); }
-.pill { display: inline-block; font-size: .72rem; padding: 1px 8px; border-radius: 99px; border: 1px solid var(--line); color: var(--muted); margin: 0 4px 4px 0; }
-code, .expr { font-family: var(--mono); font-size: .78rem; }
-.expr { display: block; background: var(--bg); border-radius: 6px; padding: 6px 8px; white-space: pre-wrap; word-break: break-word; margin: 4px 0 10px; }
-aside section { margin-top: 14px; }
-aside ul { padding-left: 18px; margin: 4px 0; }
-aside li { margin: 3px 0; }
-button.link { all: unset; cursor: pointer; color: var(--hl); text-decoration: underline; text-underline-offset: 2px; }
-button.link:focus-visible { outline: 2px solid var(--hl); outline-offset: 2px; }
-.threads { max-width: 1500px; margin: 22px auto 0; }
-.threads p { color: var(--muted); max-width: 75ch; margin: 4px 0 12px; }
-.tgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 10px; }
-.thread { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; min-width: 0; }
-.thread .hop { display: flex; gap: 6px; align-items: baseline; flex-wrap: wrap; font-size: .9rem; }
-.thread .via { font-family: var(--mono); font-size: .72rem; color: var(--muted); word-break: break-word; margin-top: 4px; }
-.g-me1 { color: var(--me1); } .g-me2 { color: var(--me2); } .g-me3 { color: var(--me3); } .g-campaign { color: var(--camp); }
-@media (prefers-reduced-motion: no-preference) { .node circle { transition: r .15s; } }
+  :root {
+    --bg: #eef1f5;
+    --panel: #ffffff;
+    --ink: #172030;
+    --muted: #5b6577;
+    --line: #d3d9e2;
+    --me1: #2f6fb3;
+    --me2: #c4651a;
+    --me3: #a3324a;
+    --camp: #6b6f7a;
+    --hl: #0f8a7a;
+    --display: 'Barlow Semi Condensed', 'Arial Narrow', system-ui, sans-serif;
+    --body: 'Source Sans 3', system-ui, -apple-system, sans-serif;
+    --mono: 'JetBrains Mono', ui-monospace, Menlo, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme='light']) {
+      --bg: #0d121b;
+      --panel: #151c28;
+      --ink: #e3e8f0;
+      --muted: #94a0b4;
+      --line: #2a3445;
+      --me1: #6aa6e8;
+      --me2: #f0954a;
+      --me3: #e2687f;
+      --camp: #9aa0ac;
+      --hl: #3fd0bb;
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme='dark'] {
+    --bg: #0d121b;
+    --panel: #151c28;
+    --ink: #e3e8f0;
+    --muted: #94a0b4;
+    --line: #2a3445;
+    --me1: #6aa6e8;
+    --me2: #f0954a;
+    --me3: #e2687f;
+    --camp: #9aa0ac;
+    --hl: #3fd0bb;
+    color-scheme: dark;
+  }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font: 15px/1.5 var(--body);
+    padding-left: max(16px, env(safe-area-inset-left, 0px));
+    padding-right: max(16px, env(safe-area-inset-right, 0px));
+    padding-block: 20px 40px;
+  }
+  h1,
+  h2,
+  h3 {
+    font-family: var(--display);
+    text-wrap: balance;
+    margin: 0;
+    letter-spacing: 0.01em;
+  }
+  h1 {
+    font-size: 2rem;
+    font-weight: 700;
+  }
+  h2 {
+    font-size: 1.25rem;
+    font-weight: 600;
+  }
+  header {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px 32px;
+    align-items: end;
+    justify-content: space-between;
+    max-width: 1500px;
+    margin: 0 auto 16px;
+  }
+  header p {
+    margin: 4px 0 0;
+    color: var(--muted);
+    max-width: 70ch;
+  }
+  .stats {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 22px;
+    font-variant-numeric: tabular-nums;
+  }
+  .stats div {
+    display: grid;
+  }
+  .stats b {
+    font: 600 1.35rem var(--display);
+  }
+  .stats span {
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+  }
+  main {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 380px;
+    gap: 20px;
+    max-width: 1500px;
+    margin: 0 auto;
+  }
+  @media (max-width: 980px) {
+    main {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+  .chart {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    min-width: 0;
+  }
+  .toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px 16px;
+    align-items: center;
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--line);
+  }
+  .toolbar input {
+    font: inherit;
+    padding: 6px 10px;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    background: var(--bg);
+    color: var(--ink);
+    min-width: 0;
+    flex: 1 1 220px;
+    max-width: 340px;
+  }
+  .toolbar label {
+    white-space: nowrap;
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    font-size: 0.9rem;
+    color: var(--muted);
+    cursor: pointer;
+  }
+  .legend {
+    display: flex;
+    gap: 14px;
+    font-size: 0.8rem;
+    color: var(--muted);
+    flex-wrap: wrap;
+  }
+  .legend i {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    margin-right: 5px;
+    vertical-align: -1px;
+  }
+  .scroll {
+    overflow-x: auto;
+  }
+  svg {
+    display: block;
+    width: 100%;
+    min-width: 860px;
+    height: auto;
+  }
+  svg text {
+    fill: var(--ink);
+    font-family: var(--body);
+  }
+  .area-label {
+    font-size: 11px;
+    fill: var(--muted);
+  }
+  .band-label {
+    font: 700 15px var(--display);
+    letter-spacing: 0.06em;
+  }
+  .node {
+    cursor: pointer;
+  }
+  .node circle {
+    stroke: var(--panel);
+    stroke-width: 1.5;
+  }
+  .node:focus {
+    outline: none;
+  }
+  .node:focus circle,
+  .node.sel circle {
+    stroke: var(--ink);
+    stroke-width: 2.5;
+  }
+  .node.dim {
+    opacity: 0.18;
+  }
+  .node text {
+    font-size: 10.5px;
+    pointer-events: none;
+    paint-order: stroke;
+    stroke: var(--panel);
+    stroke-width: 3px;
+  }
+  .edge {
+    fill: none;
+    stroke-width: 1.2;
+    opacity: 0.55;
+  }
+  .edge.cross {
+    stroke: var(--hl);
+    opacity: 0.5;
+  }
+  .edge.in {
+    stroke: var(--muted);
+    opacity: 0.8;
+  }
+  .edge.out {
+    stroke: var(--hl);
+    opacity: 0.9;
+    stroke-width: 1.6;
+  }
+  aside {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 16px;
+    min-width: 0;
+    align-self: start;
+    position: sticky;
+    top: calc(env(safe-area-inset-top, 0px) + 12px);
+    max-height: calc(100vh - 40px);
+    overflow: auto;
+  }
+  @media (max-width: 980px) {
+    aside {
+      position: static;
+      max-height: none;
+    }
+  }
+  .eyebrow {
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.09em;
+    color: var(--muted);
+  }
+  .pill {
+    display: inline-block;
+    font-size: 0.72rem;
+    padding: 1px 8px;
+    border-radius: 99px;
+    border: 1px solid var(--line);
+    color: var(--muted);
+    margin: 0 4px 4px 0;
+  }
+  code,
+  .expr {
+    font-family: var(--mono);
+    font-size: 0.78rem;
+  }
+  .expr {
+    display: block;
+    background: var(--bg);
+    border-radius: 6px;
+    padding: 6px 8px;
+    white-space: pre-wrap;
+    word-break: break-word;
+    margin: 4px 0 10px;
+  }
+  aside section {
+    margin-top: 14px;
+  }
+  aside ul {
+    padding-left: 18px;
+    margin: 4px 0;
+  }
+  aside li {
+    margin: 3px 0;
+  }
+  button.link {
+    all: unset;
+    cursor: pointer;
+    color: var(--hl);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+  button.link:focus-visible {
+    outline: 2px solid var(--hl);
+    outline-offset: 2px;
+  }
+  .threads {
+    max-width: 1500px;
+    margin: 22px auto 0;
+  }
+  .threads p {
+    color: var(--muted);
+    max-width: 75ch;
+    margin: 4px 0 12px;
+  }
+  .tgrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 10px;
+  }
+  .thread {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 10px 12px;
+    min-width: 0;
+  }
+  .thread .hop {
+    display: flex;
+    gap: 6px;
+    align-items: baseline;
+    flex-wrap: wrap;
+    font-size: 0.9rem;
+  }
+  .thread .via {
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    color: var(--muted);
+    word-break: break-word;
+    margin-top: 4px;
+  }
+  .g-me1 {
+    color: var(--me1);
+  }
+  .g-me2 {
+    color: var(--me2);
+  }
+  .g-me3 {
+    color: var(--me3);
+  }
+  .g-campaign {
+    color: var(--camp);
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .node circle {
+      transition: r 0.15s;
+    }
+  }
 </style>
 
 <header>
   <div>
     <div class="eyebrow">Mass Effect Legendary Edition · storylet study</div>
     <h1>Shepard Storylet Atlas</h1>
-    <p>Every storylet ported from the trilogy, placed where it usually happens in a simulated playthrough. Edges are derived, not authored: an arrow means one storylet writes plot state another one reads. Select a storylet to trace its dependencies across games.</p>
+    <p>
+      Every storylet ported from the trilogy, placed where it usually happens in a simulated
+      playthrough. Edges are derived, not authored: an arrow means one storylet writes plot state
+      another one reads. Select a storylet to trace its dependencies across games.
+    </p>
   </div>
   <div class="stats" id="stats"></div>
 </header>
@@ -85,184 +370,201 @@ button.link:focus-visible { outline: 2px solid var(--hl); outline-offset: 2px; }
 <main>
   <div class="chart">
     <div class="toolbar">
-      <input id="q" type="search" placeholder="Find a storylet, e.g. Virmire or Rannoch" aria-label="Find a storylet">
-      <label for="crossOnly"><input id="crossOnly" type="checkbox" checked> Show cross-game threads</label>
-      <div class="legend"><span><i style="background:var(--me1)"></i>ME1</span><span><i style="background:var(--me2)"></i>ME2</span><span><i style="background:var(--me3)"></i>ME3</span><span><i style="background:var(--hl)"></i>enables</span></div>
+      <input
+        id="q"
+        type="search"
+        placeholder="Find a storylet, e.g. Virmire or Rannoch"
+        aria-label="Find a storylet"
+      />
+      <label for="crossOnly"
+        ><input id="crossOnly" type="checkbox" checked /> Show cross-game threads</label
+      >
+      <div class="legend">
+        <span><i style="background: var(--me1)"></i>ME1</span
+        ><span><i style="background: var(--me2)"></i>ME2</span
+        ><span><i style="background: var(--me3)"></i>ME3</span
+        ><span><i style="background: var(--hl)"></i>enables</span>
+      </div>
     </div>
-    <div class="scroll"><svg id="svg" role="img" aria-label="Storylet timeline across the three games"></svg></div>
+    <div class="scroll">
+      <svg id="svg" role="img" aria-label="Storylet timeline across the three games"></svg>
+    </div>
   </div>
   <aside id="detail" aria-live="polite"></aside>
 </main>
 
 <section class="threads">
   <h2>Threads that cross games</h2>
-  <p>Pairs where a decision in one game is read by a storylet in a later one. These are the trilogy's long-range narrative dependencies, recovered from data flow.</p>
+  <p>
+    Pairs where a decision in one game is read by a storylet in a later one. These are the trilogy's
+    long-range narrative dependencies, recovered from data flow.
+  </p>
   <div class="tgrid" id="threads"></div>
 </section>
 
 <script>
-const DATA = /*DATA*/;
-const GAMES = [["me1","Mass Effect"],["me2","Mass Effect 2"],["me3","Mass Effect 3"]];
-const byId = Object.fromEntries(DATA.nodes.map(n => [n.id, n]));
-const outE = {}, inE = {};
-for (const e of DATA.edges) { (outE[e.s] ||= []).push(e); (inE[e.d] ||= []).push(e); }
-const gi = g => ({campaign: 0, me1: 1, me2: 2, me3: 3})[g] ?? 0;
-const isCross = e => byId[e.s].g !== "campaign" && byId[e.d].g !== "campaign" && byId[e.s].g !== byId[e.d].g;
-const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"})[c]);
+  const DATA = /*DATA*/;
+  const GAMES = [["me1","Mass Effect"],["me2","Mass Effect 2"],["me3","Mass Effect 3"]];
+  const byId = Object.fromEntries(DATA.nodes.map(n => [n.id, n]));
+  const outE = {}, inE = {};
+  for (const e of DATA.edges) { (outE[e.s] ||= []).push(e); (inE[e.d] ||= []).push(e); }
+  const gi = g => ({campaign: 0, me1: 1, me2: 2, me3: 3})[g] ?? 0;
+  const isCross = e => byId[e.s].g !== "campaign" && byId[e.d].g !== "campaign" && byId[e.s].g !== byId[e.d].g;
+  const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"})[c]);
 
-const st = DATA.stats;
-document.getElementById("stats").innerHTML = [
-  [st.storylets, "storylets"], [st.plotvars, "plot variables bound"], [st.lifted, "conditionals lifted"], [st.edges, "derived links"]
-].map(([v, l]) => `<div><b>${v}</b><span>${l}</span></div>`).join("");
+  const st = DATA.stats;
+  document.getElementById("stats").innerHTML = [
+    [st.storylets, "storylets"], [st.plotvars, "plot variables bound"], [st.lifted, "conditionals lifted"], [st.edges, "derived links"]
+  ].map(([v, l]) => `<div><b>${v}</b><span>${l}</span></div>`).join("");
 
-// --- layout ---------------------------------------------------------------------------------
-const W = 1180, LEFT = 150, RIGHT = 30, ROW = 26, BAND_PAD = 34;
-const pos = {}; let y = 14; const bands = [];
-for (const [g, name] of GAMES) {
-  const ns = DATA.nodes.filter(n => n.g === g);
-  const areas = {};
-  for (const n of ns) (areas[n.a] ||= []).push(n);
-  const order = Object.keys(areas).sort((a, b) => median(areas[a]) - median(areas[b]));
-  const top = y; y += BAND_PAD;
-  const rows = [];
-  for (const a of order) {
-    const items = areas[a].sort((p, q) => p.x - q.x);
-    // nudge overlapping points sideways within a row
-    let last = -1e9;
-    for (const n of items) {
-      let px = LEFT + n.x * (W - LEFT - RIGHT);
-      if (px - last < 13) px = last + 13;
-      last = px;
-      pos[n.id] = [Math.min(px, W - RIGHT), y];
+  // --- layout ---------------------------------------------------------------------------------
+  const W = 1180, LEFT = 150, RIGHT = 30, ROW = 26, BAND_PAD = 34;
+  const pos = {}; let y = 14; const bands = [];
+  for (const [g, name] of GAMES) {
+    const ns = DATA.nodes.filter(n => n.g === g);
+    const areas = {};
+    for (const n of ns) (areas[n.a] ||= []).push(n);
+    const order = Object.keys(areas).sort((a, b) => median(areas[a]) - median(areas[b]));
+    const top = y; y += BAND_PAD;
+    const rows = [];
+    for (const a of order) {
+      const items = areas[a].sort((p, q) => p.x - q.x);
+      // nudge overlapping points sideways within a row
+      let last = -1e9;
+      for (const n of items) {
+        let px = LEFT + n.x * (W - LEFT - RIGHT);
+        if (px - last < 13) px = last + 13;
+        last = px;
+        pos[n.id] = [Math.min(px, W - RIGHT), y];
+      }
+      rows.push([a, y]); y += ROW;
     }
-    rows.push([a, y]); y += ROW;
+    bands.push({g, name, top, bottom: y + 6, rows}); y += 18;
   }
-  bands.push({g, name, top, bottom: y + 6, rows}); y += 18;
-}
-const camp = DATA.nodes.find(n => n.g === "campaign");
-if (camp) pos[camp.id] = [LEFT - 20, bands[0].top + 14];
-function median(arr) { const xs = arr.map(n => n.x).sort((a, b) => a - b); return xs[Math.floor(xs.length / 2)]; }
+  const camp = DATA.nodes.find(n => n.g === "campaign");
+  if (camp) pos[camp.id] = [LEFT - 20, bands[0].top + 14];
+  function median(arr) { const xs = arr.map(n => n.x).sort((a, b) => a - b); return xs[Math.floor(xs.length / 2)]; }
 
-const svg = document.getElementById("svg");
-const H = y;
-svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
-const NS = "http://www.w3.org/2000/svg";
-const mk = (tag, attrs, parent) => { const el = document.createElementNS(NS, tag); for (const k in attrs) el.setAttribute(k, attrs[k]); parent && parent.appendChild(el); return el; };
+  const svg = document.getElementById("svg");
+  const H = y;
+  svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
+  const NS = "http://www.w3.org/2000/svg";
+  const mk = (tag, attrs, parent) => { const el = document.createElementNS(NS, tag); for (const k in attrs) el.setAttribute(k, attrs[k]); parent && parent.appendChild(el); return el; };
 
-for (const b of bands) {
-  mk("rect", {x: 0, y: b.top, width: W, height: b.bottom - b.top, fill: `var(--${b.g})`, opacity: .06, rx: 6}, svg);
-  const t = mk("text", {x: 12, y: b.top + 20, class: "band-label", fill: `var(--${b.g})`}, svg);
-  t.style.fill = `var(--${b.g})`; t.textContent = b.name.toUpperCase();
-  for (const [a, ry] of b.rows) {
-    mk("line", {x1: LEFT - 6, x2: W - RIGHT + 8, y1: ry, y2: ry, stroke: "var(--line)", "stroke-width": 1}, svg);
-    const lt = mk("text", {x: LEFT - 12, y: ry + 4, "text-anchor": "end", class: "area-label"}, svg);
-    lt.textContent = a.split(".").slice(1).join(".") || a;
+  for (const b of bands) {
+    mk("rect", {x: 0, y: b.top, width: W, height: b.bottom - b.top, fill: `var(--${b.g})`, opacity: .06, rx: 6}, svg);
+    const t = mk("text", {x: 12, y: b.top + 20, class: "band-label", fill: `var(--${b.g})`}, svg);
+    t.style.fill = `var(--${b.g})`; t.textContent = b.name.toUpperCase();
+    for (const [a, ry] of b.rows) {
+      mk("line", {x1: LEFT - 6, x2: W - RIGHT + 8, y1: ry, y2: ry, stroke: "var(--line)", "stroke-width": 1}, svg);
+      const lt = mk("text", {x: LEFT - 12, y: ry + 4, "text-anchor": "end", class: "area-label"}, svg);
+      lt.textContent = a.split(".").slice(1).join(".") || a;
+    }
   }
-}
-mk("text", {x: LEFT, y: H - 2, class: "area-label"}, svg).textContent = "earlier in the game";
-mk("text", {x: W - RIGHT, y: H - 2, class: "area-label", "text-anchor": "end"}, svg).textContent = "later";
+  mk("text", {x: LEFT, y: H - 2, class: "area-label"}, svg).textContent = "earlier in the game";
+  mk("text", {x: W - RIGHT, y: H - 2, class: "area-label", "text-anchor": "end"}, svg).textContent = "later";
 
-const edgeLayer = mk("g", {}, svg);
-const nodeLayer = mk("g", {}, svg);
-const nodeEls = {};
-for (const n of DATA.nodes) {
-  const [px, py] = pos[n.id];
-  const g = mk("g", {class: "node", tabindex: 0, role: "button", "aria-label": n.t}, nodeLayer);
-  const r = n.ch.length || n.oc.length ? 6 : 4.5;
-  const c = mk("circle", {cx: px, cy: py, r, fill: `var(--${n.g})`}, g);
-  if (n.tr === "auto") c.setAttribute("fill-opacity", ".55");
-  const lbl = mk("text", {x: px + 8, y: py - 7}, g); lbl.textContent = n.t; lbl.style.display = "none";
-  g.addEventListener("click", () => select(n.id));
-  g.addEventListener("keydown", ev => { if (ev.key === "Enter" || ev.key === " ") { ev.preventDefault(); select(n.id); } });
-  g.addEventListener("mouseenter", () => lbl.style.display = "");
-  g.addEventListener("mouseleave", () => { if (sel !== n.id) lbl.style.display = "none"; });
-  nodeEls[n.id] = {g, lbl};
-}
-
-function curve(a, b) {
-  const [x1, y1] = pos[a], [x2, y2] = pos[b];
-  const dy = Math.abs(y2 - y1), bend = Math.min(120, 30 + dy * .25);
-  return `M${x1},${y1} C${x1 + bend},${y1} ${x2 - bend},${y2} ${x2},${y2}`;
-}
-function drawEdges() {
-  edgeLayer.innerHTML = "";
-  if (sel) {
-    for (const e of inE[sel] || []) mk("path", {d: curve(e.s, e.d), class: "edge in"}, edgeLayer);
-    for (const e of outE[sel] || []) mk("path", {d: curve(e.s, e.d), class: "edge out"}, edgeLayer);
-  } else if (document.getElementById("crossOnly").checked) {
-    for (const e of DATA.edges) if (isCross(e)) mk("path", {d: curve(e.s, e.d), class: "edge cross"}, edgeLayer);
+  const edgeLayer = mk("g", {}, svg);
+  const nodeLayer = mk("g", {}, svg);
+  const nodeEls = {};
+  for (const n of DATA.nodes) {
+    const [px, py] = pos[n.id];
+    const g = mk("g", {class: "node", tabindex: 0, role: "button", "aria-label": n.t}, nodeLayer);
+    const r = n.ch.length || n.oc.length ? 6 : 4.5;
+    const c = mk("circle", {cx: px, cy: py, r, fill: `var(--${n.g})`}, g);
+    if (n.tr === "auto") c.setAttribute("fill-opacity", ".55");
+    const lbl = mk("text", {x: px + 8, y: py - 7}, g); lbl.textContent = n.t; lbl.style.display = "none";
+    g.addEventListener("click", () => select(n.id));
+    g.addEventListener("keydown", ev => { if (ev.key === "Enter" || ev.key === " ") { ev.preventDefault(); select(n.id); } });
+    g.addEventListener("mouseenter", () => lbl.style.display = "");
+    g.addEventListener("mouseleave", () => { if (sel !== n.id) lbl.style.display = "none"; });
+    nodeEls[n.id] = {g, lbl};
   }
-}
 
-let sel = null;
-function select(id) {
-  sel = id;
-  const linked = new Set([id, ...(inE[id] || []).map(e => e.s), ...(outE[id] || []).map(e => e.d)]);
-  for (const [nid, {g, lbl}] of Object.entries(nodeEls)) {
-    g.classList.toggle("sel", nid === id);
-    g.classList.toggle("dim", !!id && !linked.has(nid));
-    lbl.style.display = id && (nid === id || linked.has(nid)) && linked.size < 14 ? "" : "none";
+  function curve(a, b) {
+    const [x1, y1] = pos[a], [x2, y2] = pos[b];
+    const dy = Math.abs(y2 - y1), bend = Math.min(120, 30 + dy * .25);
+    return `M${x1},${y1} C${x1 + bend},${y1} ${x2 - bend},${y2} ${x2},${y2}`;
   }
-  if (id) nodeEls[id].lbl.style.display = "";
-  drawEdges(); renderDetail(id);
-}
-
-function list(edges, key) {
-  if (!edges || !edges.length) return "<p class='eyebrow'>none</p>";
-  const sorted = [...edges].sort((a, b) => gi(byId[a[key]].g) - gi(byId[b[key]].g));
-  return "<ul>" + sorted.slice(0, 40).map(e => {
-    const n = byId[e[key]];
-    return `<li><span class="g-${n.g}">●</span> <button class="link" data-id="${esc(n.id)}">${esc(n.t)}</button><br><code>${esc(e.v.slice(0, 3).join(", "))}${e.v.length > 3 ? " …" : ""}</code></li>`;
-  }).join("") + (sorted.length > 40 ? `<li>… ${sorted.length - 40} more</li>` : "") + "</ul>";
-}
-
-function renderDetail(id) {
-  const el = document.getElementById("detail");
-  if (!id) {
-    el.innerHTML = `<div class="eyebrow">How to read this</div><h2>Pick a storylet</h2>
-      <p>Each dot is a storylet. Larger dots carry player choices or system-resolved outcomes; faded dots fire automatically. Teal curves are links between games.</p>
-      <p>Try <button class="link" data-id="me1.virmire.the_choice">Virmire: The choice</button>, <button class="link" data-id="me2.sm.infiltration">Suicide mission: The vents</button> or <button class="link" data-id="me3.rannoch.reaper_base">Priority: Rannoch</button>.</p>`;
-    return;
+  function drawEdges() {
+    edgeLayer.innerHTML = "";
+    if (sel) {
+      for (const e of inE[sel] || []) mk("path", {d: curve(e.s, e.d), class: "edge in"}, edgeLayer);
+      for (const e of outE[sel] || []) mk("path", {d: curve(e.s, e.d), class: "edge out"}, edgeLayer);
+    } else if (document.getElementById("crossOnly").checked) {
+      for (const e of DATA.edges) if (isCross(e)) mk("path", {d: curve(e.s, e.d), class: "edge cross"}, edgeLayer);
+    }
   }
-  const n = byId[id];
-  const choices = n.ch.length ? `<section><div class="eyebrow">Choices</div><ul>${n.ch.map(c => `<li><b>${esc(c.l || c.id)}</b>${c.req !== "true" ? `<span class="expr">requires ${esc(c.req)}</span>` : ""}${c.eff.length ? `<span class="expr">${esc(c.eff.join("\n"))}</span>` : ""}</li>`).join("")}</ul></section>` : "";
-  const outs = n.oc.length ? `<section><div class="eyebrow">Outcomes (resolved by the game${n.lim == null ? "" : n.lim === "1" ? "; first match only" : `; first ${esc(n.lim)} matches`})</div><ul>${n.oc.slice(0, 14).map(o => `<li><code>${esc(o.id)}</code><span class="expr">when ${esc(o.w)}</span></li>`).join("")}${n.oc.length > 14 ? `<li>… ${n.oc.length - 14} more</li>` : ""}</ul></section>` : "";
-  el.innerHTML = `<div class="eyebrow g-${n.g}">${esc(n.g.toUpperCase())} · ${esc(n.a)} · ${n.tr === "auto" ? "fires automatically" : "player-driven"}${n.k === "bridge" ? " · bridge" : ""}</div>
-    <h2>${esc(n.t)}</h2>
-    <p>${esc(n.sum || "")}</p>
-    <div>${n.tags.map(t => `<span class="pill">${esc(t)}</span>`).join("")}</div>
-    <section><div class="eyebrow">Requires</div><span class="expr">${esc(n.req)}</span>
-    ${n.eff.length ? `<div class="eyebrow">Effects</div><span class="expr">${esc(n.eff.join("\n"))}</span>` : ""}</section>
-    ${choices}${outs}
-    ${n.n ? `<section><div class="eyebrow">Modeling notes</div><p>${esc(n.n)}</p></section>` : ""}
-    ${n.ev.length ? `<section><div class="eyebrow">Plot database evidence</div><ul>${n.ev.map(v => `<li><code>${esc(v)}</code></li>`).join("")}</ul></section>` : ""}
-    <section><div class="eyebrow">Enabled by (${(inE[id] || []).length})</div>${list(inE[id], "s")}</section>
-    <section><div class="eyebrow">Enables (${(outE[id] || []).length})</div>${list(outE[id], "d")}</section>
-    <p><button class="link" data-clear="1">Clear selection</button></p>`;
-}
 
-document.addEventListener("click", ev => {
-  const b = ev.target.closest("[data-id],[data-clear]");
-  if (!b) return;
-  if (b.dataset.clear) select(null); else { select(b.dataset.id); nodeEls[b.dataset.id].g.scrollIntoView({block: "nearest", inline: "nearest"}); }
-});
-document.getElementById("crossOnly").addEventListener("change", drawEdges);
-document.getElementById("q").addEventListener("input", ev => {
-  const q = ev.target.value.trim().toLowerCase();
-  for (const [nid, {g}] of Object.entries(nodeEls)) {
-    const n = byId[nid];
-    g.classList.toggle("dim", !!q && !(n.t.toLowerCase().includes(q) || nid.includes(q)));
+  let sel = null;
+  function select(id) {
+    sel = id;
+    const linked = new Set([id, ...(inE[id] || []).map(e => e.s), ...(outE[id] || []).map(e => e.d)]);
+    for (const [nid, {g, lbl}] of Object.entries(nodeEls)) {
+      g.classList.toggle("sel", nid === id);
+      g.classList.toggle("dim", !!id && !linked.has(nid));
+      lbl.style.display = id && (nid === id || linked.has(nid)) && linked.size < 14 ? "" : "none";
+    }
+    if (id) nodeEls[id].lbl.style.display = "";
+    drawEdges(); renderDetail(id);
   }
-  if (!q) select(sel);
-});
 
-// cross-game threads, grouped by source decision
-const threads = DATA.edges.filter(e => isCross(e) && gi(byId[e.d].g) > gi(byId[e.s].g) && byId[e.s].k !== "bridge" && byId[e.d].k !== "bridge")
-  .sort((a, b) => gi(byId[a.s].g) - gi(byId[b.s].g) || byId[a.s].x - byId[b.s].x);
-document.getElementById("threads").innerHTML = threads.map(e => {
-  const s = byId[e.s], d = byId[e.d];
-  return `<div class="thread"><div class="hop"><span class="g-${s.g}">●</span><button class="link" data-id="${esc(s.id)}">${esc(s.t)}</button><span aria-hidden="true">→</span><span class="g-${d.g}">●</span><button class="link" data-id="${esc(d.id)}">${esc(d.t)}</button></div><div class="via">${esc(e.v.join(", "))}</div></div>`;
-}).join("");
+  function list(edges, key) {
+    if (!edges || !edges.length) return "<p class='eyebrow'>none</p>";
+    const sorted = [...edges].sort((a, b) => gi(byId[a[key]].g) - gi(byId[b[key]].g));
+    return "<ul>" + sorted.slice(0, 40).map(e => {
+      const n = byId[e[key]];
+      return `<li><span class="g-${n.g}">●</span> <button class="link" data-id="${esc(n.id)}">${esc(n.t)}</button><br><code>${esc(e.v.slice(0, 3).join(", "))}${e.v.length > 3 ? " …" : ""}</code></li>`;
+    }).join("") + (sorted.length > 40 ? `<li>… ${sorted.length - 40} more</li>` : "") + "</ul>";
+  }
 
-select(null);
+  function renderDetail(id) {
+    const el = document.getElementById("detail");
+    if (!id) {
+      el.innerHTML = `<div class="eyebrow">How to read this</div><h2>Pick a storylet</h2>
+        <p>Each dot is a storylet. Larger dots carry player choices or system-resolved outcomes; faded dots fire automatically. Teal curves are links between games.</p>
+        <p>Try <button class="link" data-id="me1.virmire.the_choice">Virmire: The choice</button>, <button class="link" data-id="me2.sm.infiltration">Suicide mission: The vents</button> or <button class="link" data-id="me3.rannoch.reaper_base">Priority: Rannoch</button>.</p>`;
+      return;
+    }
+    const n = byId[id];
+    const choices = n.ch.length ? `<section><div class="eyebrow">Choices</div><ul>${n.ch.map(c => `<li><b>${esc(c.l || c.id)}</b>${c.req !== "true" ? `<span class="expr">requires ${esc(c.req)}</span>` : ""}${c.eff.length ? `<span class="expr">${esc(c.eff.join("\n"))}</span>` : ""}</li>`).join("")}</ul></section>` : "";
+    const outs = n.oc.length ? `<section><div class="eyebrow">Outcomes (resolved by the game${n.lim == null ? "" : n.lim === "1" ? "; first match only" : `; first ${esc(n.lim)} matches`})</div><ul>${n.oc.slice(0, 14).map(o => `<li><code>${esc(o.id)}</code><span class="expr">when ${esc(o.w)}</span></li>`).join("")}${n.oc.length > 14 ? `<li>… ${n.oc.length - 14} more</li>` : ""}</ul></section>` : "";
+    el.innerHTML = `<div class="eyebrow g-${n.g}">${esc(n.g.toUpperCase())} · ${esc(n.a)} · ${n.tr === "auto" ? "fires automatically" : "player-driven"}${n.k === "bridge" ? " · bridge" : ""}</div>
+      <h2>${esc(n.t)}</h2>
+      <p>${esc(n.sum || "")}</p>
+      <div>${n.tags.map(t => `<span class="pill">${esc(t)}</span>`).join("")}</div>
+      <section><div class="eyebrow">Requires</div><span class="expr">${esc(n.req)}</span>
+      ${n.eff.length ? `<div class="eyebrow">Effects</div><span class="expr">${esc(n.eff.join("\n"))}</span>` : ""}</section>
+      ${choices}${outs}
+      ${n.n ? `<section><div class="eyebrow">Modeling notes</div><p>${esc(n.n)}</p></section>` : ""}
+      ${n.ev.length ? `<section><div class="eyebrow">Plot database evidence</div><ul>${n.ev.map(v => `<li><code>${esc(v)}</code></li>`).join("")}</ul></section>` : ""}
+      <section><div class="eyebrow">Enabled by (${(inE[id] || []).length})</div>${list(inE[id], "s")}</section>
+      <section><div class="eyebrow">Enables (${(outE[id] || []).length})</div>${list(outE[id], "d")}</section>
+      <p><button class="link" data-clear="1">Clear selection</button></p>`;
+  }
+
+  document.addEventListener("click", ev => {
+    const b = ev.target.closest("[data-id],[data-clear]");
+    if (!b) return;
+    if (b.dataset.clear) select(null); else { select(b.dataset.id); nodeEls[b.dataset.id].g.scrollIntoView({block: "nearest", inline: "nearest"}); }
+  });
+  document.getElementById("crossOnly").addEventListener("change", drawEdges);
+  document.getElementById("q").addEventListener("input", ev => {
+    const q = ev.target.value.trim().toLowerCase();
+    for (const [nid, {g}] of Object.entries(nodeEls)) {
+      const n = byId[nid];
+      g.classList.toggle("dim", !!q && !(n.t.toLowerCase().includes(q) || nid.includes(q)));
+    }
+    if (!q) select(sel);
+  });
+
+  // cross-game threads, grouped by source decision
+  const threads = DATA.edges.filter(e => isCross(e) && gi(byId[e.d].g) > gi(byId[e.s].g) && byId[e.s].k !== "bridge" && byId[e.d].k !== "bridge")
+    .sort((a, b) => gi(byId[a.s].g) - gi(byId[b.s].g) || byId[a.s].x - byId[b.s].x);
+  document.getElementById("threads").innerHTML = threads.map(e => {
+    const s = byId[e.s], d = byId[e.d];
+    return `<div class="thread"><div class="hop"><span class="g-${s.g}">●</span><button class="link" data-id="${esc(s.id)}">${esc(s.t)}</button><span aria-hidden="true">→</span><span class="g-${d.g}">●</span><button class="link" data-id="${esc(d.id)}">${esc(d.t)}</button></div><div class="via">${esc(e.v.join(", "))}</div></div>`;
+  }).join("");
+
+  select(null);
 </script>

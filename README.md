@@ -1,7 +1,8 @@
 # Mass Effect storylet study
 
-Extract the narrative graph of the Mass Effect Legendary Edition trilogy from BioWare's own plot
-data, and port it, one game at a time, to a storylet system that is evolved to represent it.
+Extract the narrative graph of the Mass Effect Legendary Edition trilogy from BioWare's
+own plot data, and port it, one game at a time, to a storylet system that is evolved to
+represent it.
 
 ```
  BioWare plot databases (LE1/LE2/LE3)          content/me{1,2,3}/*.yaml
@@ -13,12 +14,12 @@ data, and port it, one game at a time, to a storylet system that is evolved to r
  (state skeleton, cross-game aliases)                     (emergent narrative graph, simulation)
 ```
 
-- **Layer 0** (`src/meplot`): the *extracted* graph. 58k plot elements from the three games'
-  plot databases, with conditionals (what reads state), transitions (what writes state) and the
-  save-carryover aliases between games.
-- **Layer 1** (`src/storylet`): the *curated* graph. Storylets whose preconditions and effects
-  are expressed over the extracted variables, so every narrative beat is grounded in, and
-  validated against, the real game state.
+- **Layer 0** (`src/meplot`): the _extracted_ graph. 58k plot elements from the three
+  games' plot databases, with conditionals (what reads state), transitions (what writes
+  state) and the save-carryover aliases between games.
+- **Layer 1** (`src/storylet`): the _curated_ graph. Storylets whose preconditions and
+  effects are expressed over the extracted variables, so every narrative beat is grounded
+  in, and validated against, the real game state.
 
 ## Quick start
 
@@ -32,7 +33,7 @@ pnpm storylet graph --format dot -o build/storylets.dot
 pnpm storylet coverage            # which quest plots are bound by storylets
 pnpm storylet outcomes --start me1 --runs 500   # ending / EMS / cross-game fate distributions
 pnpm storylet atlas               # build/atlas.html: interactive map of the derived graph
-pnpm test                         # also: pnpm typecheck, pnpm lint
+pnpm test                         # also: pnpm typecheck, pnpm lint, pnpm format
 ```
 
 Inspecting the plot data while porting:
@@ -47,37 +48,38 @@ pnpm meplot bind me1.virmire.rescued_kaidan=me1:CH2_Virmire.The_Choice.Rescued_K
 
 ## Status
 
-| Game | Storylets | Notes |
-|------|-----------|-------|
-| ME1  | 40: critical path, squad, romance, cross-game decisions | v1 |
-| ME2  | 67: ME1 import + Genesis, recruitment, loyalty, crit path, the rule-driven suicide mission, LotSB, Arrival | v2 |
-| ME3  | 37: ME2 import, genophage arc, Cerberus coup, Rannoch, Thessia, Horizon, Cronos, Earth + EMS endings, side ops | v3 |
+| Game | Storylets                                                                                                      | Notes |
+| ---- | -------------------------------------------------------------------------------------------------------------- | ----- |
+| ME1  | 40: critical path, squad, romance, cross-game decisions                                                        | v1    |
+| ME2  | 67: ME1 import + Genesis, recruitment, loyalty, crit path, the rule-driven suicide mission, LotSB, Arrival     | v2    |
+| ME3  | 37: ME2 import, genophage arc, Cerberus coup, Rannoch, Thessia, Horizon, Cronos, Earth + EMS endings, side ops | v3    |
 
-Across the trilogy: 145 storylets bound to 314 plot variables, 51 conditionals lifted verbatim from
-the plot databases (mission gating, crew survival, cross-game fates, the Tuchanka bomb timer, the
-Illusive Man persuasion formula), and 48 documented `story.*` variables for state the plot
-tables don't hold or that hasn't been located yet.
+Across the trilogy: 145 storylets bound to 314 plot variables, 51 conditionals lifted
+verbatim from the plot databases (mission gating, crew survival, cross-game fates, the
+Tuchanka bomb timer, the Illusive Man persuasion formula), and 48 documented `story.*`
+variables for state the plot tables don't hold or that hasn't been located yet.
 
 ## Docs
 
-- [docs/schema-evolution.md](docs/schema-evolution.md): what each game forced the schema to add
-  (v1 ME1, v2 ME2, v3 ME3), and how porting ME3 corrected ME1/ME2 bindings.
+- [docs/schema-evolution.md](docs/schema-evolution.md): what each game forced the schema
+  to add (v1 ME1, v2 ME2, v3 ME3), and how porting ME3 corrected ME1/ME2 bindings.
 - [docs/porting-guide.md](docs/porting-guide.md): the find → bind → write → check loop.
-- [docs/data-sources.md](docs/data-sources.md): provenance, licensing, cross-game table structure,
-  and what the plot data doesn't contain.
+- [docs/data-sources.md](docs/data-sources.md): provenance, licensing, cross-game table
+  structure, and what the plot data doesn't contain.
 
 ## Roadmap
 
-- **Breadth.** Quest/mission plots bound: ME1 19/89, ME2 22/54, ME3 24/33 (`pnpm storylet coverage`).
-  ME1's count includes many small side quests. Side quests, N7 missions, ME3 romances and the Citadel/Omega DLCs are
-  next. They are mostly content work on the existing schema.
-- **Close the `story.*` gaps.** Shiala, Fist, Sidonis, Kasumi's graybox, Shepard's sex in ME1. Look
-  for later-game conditionals that read them, as was done for Legion and Mordin.
-- **Who calls what.** The plot databases don't record which conversation or Kismet sequence
-  evaluates a conditional or fires a transition. With the game files, LegendaryExplorer's
-  package APIs could extract that and give dialogue-level edges below each storylet. An
-  importer would slot in beside `meplot`.
-- **Transition semantics.** Replace naming-based transition-target inference with the real state
-  maps (BioWare's state event maps live in the game packages).
-- **Tighter rules.** Hold-the-line casualty tables, peace-chance accrual and the final ending
-  thresholds are approximations; each is marked in `notes`.
+- **Breadth.** Quest/mission plots bound: ME1 19/89, ME2 22/54, ME3 24/33
+  (`pnpm storylet coverage`). ME1's count includes many small side quests. Side quests, N7
+  missions, ME3 romances and the Citadel/Omega DLCs are next. They are mostly content work
+  on the existing schema.
+- **Close the `story.*` gaps.** Shiala, Fist, Sidonis, Kasumi's graybox, Shepard's sex in
+  ME1. Look for later-game conditionals that read them, as was done for Legion and Mordin.
+- **Who calls what.** The plot databases don't record which conversation or Kismet
+  sequence evaluates a conditional or fires a transition. With the game files,
+  LegendaryExplorer's package APIs could extract that and give dialogue-level edges below
+  each storylet. An importer would slot in beside `meplot`.
+- **Transition semantics.** Replace naming-based transition-target inference with the real
+  state maps (BioWare's state event maps live in the game packages).
+- **Tighter rules.** Hold-the-line casualty tables, peace-chance accrual and the final
+  ending thresholds are approximations; each is marked in `notes`.

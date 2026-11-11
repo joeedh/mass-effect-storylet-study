@@ -5,74 +5,98 @@ area: me2.squad
 
 vars:
   # miranda (Vixen)
-  me2.squad.miranda.recruited: {ref: me2.bool.33, path: "me2:Utility.Henchmen.In_Party.Vixen"}
-  me2.squad.miranda.loyal: {ref: me2.bool.177, path: "me2:Utility.Henchmen.Is_Loyal.Vixen"}
-  me2.squad.miranda.dead: {ref: me2.bool.195, path: "me2:Utility.Henchmen.Is_Dead.Vixen"}
-  me2.squad.miranda.loyalty_open: {ref: me2.bool.1480, path: "me2:Global.Game_Progress.Loyalty_Mission_Opened.Vixen"}
-  me2.squad.miranda.loyalty_done: {ref: me2.bool.1496, path: "me2:Global.Game_Progress.Loyalty_Mission_Done.Vixen"}
+  me2.squad.miranda.recruited: { ref: me2.bool.33, path: 'me2:Utility.Henchmen.In_Party.Vixen' }
+  me2.squad.miranda.loyal: { ref: me2.bool.177, path: 'me2:Utility.Henchmen.Is_Loyal.Vixen' }
+  me2.squad.miranda.dead: { ref: me2.bool.195, path: 'me2:Utility.Henchmen.Is_Dead.Vixen' }
+  me2.squad.miranda.loyalty_open:
+    { ref: me2.bool.1480, path: 'me2:Global.Game_Progress.Loyalty_Mission_Opened.Vixen' }
+  me2.squad.miranda.loyalty_done:
+    { ref: me2.bool.1496, path: 'me2:Global.Game_Progress.Loyalty_Mission_Done.Vixen' }
   # jacob (Leading)
-  me2.squad.jacob.recruited: {ref: me2.bool.34, path: "me2:Utility.Henchmen.In_Party.Leading"}
-  me2.squad.jacob.loyal: {ref: me2.bool.178, path: "me2:Utility.Henchmen.Is_Loyal.Leading"}
-  me2.squad.jacob.dead: {ref: me2.bool.196, path: "me2:Utility.Henchmen.Is_Dead.Leading"}
-  me2.squad.jacob.loyalty_open: {ref: me2.bool.1481, path: "me2:Global.Game_Progress.Loyalty_Mission_Opened.Leading"}
-  me2.squad.jacob.loyalty_done: {ref: me2.bool.1497, path: "me2:Global.Game_Progress.Loyalty_Mission_Done.Leading"}
+  me2.squad.jacob.recruited: { ref: me2.bool.34, path: 'me2:Utility.Henchmen.In_Party.Leading' }
+  me2.squad.jacob.loyal: { ref: me2.bool.178, path: 'me2:Utility.Henchmen.Is_Loyal.Leading' }
+  me2.squad.jacob.dead: { ref: me2.bool.196, path: 'me2:Utility.Henchmen.Is_Dead.Leading' }
+  me2.squad.jacob.loyalty_open:
+    { ref: me2.bool.1481, path: 'me2:Global.Game_Progress.Loyalty_Mission_Opened.Leading' }
+  me2.squad.jacob.loyalty_done:
+    { ref: me2.bool.1497, path: 'me2:Global.Game_Progress.Loyalty_Mission_Done.Leading' }
   # jack (Convict)
-  me2.squad.jack.recruited: {ref: me2.bool.35, path: "me2:Utility.Henchmen.In_Party.Convict"}
-  me2.squad.jack.loyal: {ref: me2.bool.179, path: "me2:Utility.Henchmen.Is_Loyal.Convict"}
-  me2.squad.jack.dead: {ref: me2.bool.197, path: "me2:Utility.Henchmen.Is_Dead.Convict"}
-  me2.squad.jack.loyalty_open: {ref: me2.bool.1482, path: "me2:Global.Game_Progress.Loyalty_Mission_Opened.Convict"}
-  me2.squad.jack.loyalty_done: {ref: me2.bool.1498, path: "me2:Global.Game_Progress.Loyalty_Mission_Done.Convict"}
+  me2.squad.jack.recruited: { ref: me2.bool.35, path: 'me2:Utility.Henchmen.In_Party.Convict' }
+  me2.squad.jack.loyal: { ref: me2.bool.179, path: 'me2:Utility.Henchmen.Is_Loyal.Convict' }
+  me2.squad.jack.dead: { ref: me2.bool.197, path: 'me2:Utility.Henchmen.Is_Dead.Convict' }
+  me2.squad.jack.loyalty_open:
+    { ref: me2.bool.1482, path: 'me2:Global.Game_Progress.Loyalty_Mission_Opened.Convict' }
+  me2.squad.jack.loyalty_done:
+    { ref: me2.bool.1498, path: 'me2:Global.Game_Progress.Loyalty_Mission_Done.Convict' }
   # legion (Geth)
-  me2.squad.legion.recruited: {ref: me2.bool.36, path: "me2:Utility.Henchmen.In_Party.Geth"}
-  me2.squad.legion.loyal: {ref: me2.bool.180, path: "me2:Utility.Henchmen.Is_Loyal.Geth"}
-  me2.squad.legion.dead: {ref: me2.bool.198, path: "me2:Utility.Henchmen.Is_Dead.Geth"}
-  me2.squad.legion.loyalty_open: {ref: me2.bool.1483, path: "me2:Global.Game_Progress.Loyalty_Mission_Opened.Geth"}
-  me2.squad.legion.loyalty_done: {ref: me2.bool.1499, path: "me2:Global.Game_Progress.Loyalty_Mission_Done.Geth"}
+  me2.squad.legion.recruited: { ref: me2.bool.36, path: 'me2:Utility.Henchmen.In_Party.Geth' }
+  me2.squad.legion.loyal: { ref: me2.bool.180, path: 'me2:Utility.Henchmen.Is_Loyal.Geth' }
+  me2.squad.legion.dead: { ref: me2.bool.198, path: 'me2:Utility.Henchmen.Is_Dead.Geth' }
+  me2.squad.legion.loyalty_open:
+    { ref: me2.bool.1483, path: 'me2:Global.Game_Progress.Loyalty_Mission_Opened.Geth' }
+  me2.squad.legion.loyalty_done:
+    { ref: me2.bool.1499, path: 'me2:Global.Game_Progress.Loyalty_Mission_Done.Geth' }
   # kasumi (Thief)
-  me2.squad.kasumi.recruited: {ref: me2.bool.37, path: "me2:Utility.Henchmen.In_Party.Thief"}
-  me2.squad.kasumi.loyal: {ref: me2.bool.182, path: "me2:Utility.Henchmen.Is_Loyal.Thief"}
-  me2.squad.kasumi.dead: {ref: me2.bool.199, path: "me2:Utility.Henchmen.Is_Dead.Thief"}
-  me2.squad.kasumi.loyalty_open: {ref: me2.bool.1484, path: "me2:Global.Game_Progress.Loyalty_Mission_Opened.Thief"}
-  me2.squad.kasumi.loyalty_done: {ref: me2.bool.1500, path: "me2:Global.Game_Progress.Loyalty_Mission_Done.Thief"}
+  me2.squad.kasumi.recruited: { ref: me2.bool.37, path: 'me2:Utility.Henchmen.In_Party.Thief' }
+  me2.squad.kasumi.loyal: { ref: me2.bool.182, path: 'me2:Utility.Henchmen.Is_Loyal.Thief' }
+  me2.squad.kasumi.dead: { ref: me2.bool.199, path: 'me2:Utility.Henchmen.Is_Dead.Thief' }
+  me2.squad.kasumi.loyalty_open:
+    { ref: me2.bool.1484, path: 'me2:Global.Game_Progress.Loyalty_Mission_Opened.Thief' }
+  me2.squad.kasumi.loyalty_done:
+    { ref: me2.bool.1500, path: 'me2:Global.Game_Progress.Loyalty_Mission_Done.Thief' }
   # garrus (Garrus)
-  me2.squad.garrus.recruited: {ref: me2.bool.38, path: "me2:Utility.Henchmen.In_Party.Garrus"}
-  me2.squad.garrus.loyal: {ref: me2.bool.183, path: "me2:Utility.Henchmen.Is_Loyal.Garrus"}
-  me2.squad.garrus.dead: {ref: me2.bool.200, path: "me2:Utility.Henchmen.Is_Dead.Garrus"}
-  me2.squad.garrus.loyalty_open: {ref: me2.bool.1485, path: "me2:Global.Game_Progress.Loyalty_Mission_Opened.Garrus"}
-  me2.squad.garrus.loyalty_done: {ref: me2.bool.1501, path: "me2:Global.Game_Progress.Loyalty_Mission_Done.Garrus"}
+  me2.squad.garrus.recruited: { ref: me2.bool.38, path: 'me2:Utility.Henchmen.In_Party.Garrus' }
+  me2.squad.garrus.loyal: { ref: me2.bool.183, path: 'me2:Utility.Henchmen.Is_Loyal.Garrus' }
+  me2.squad.garrus.dead: { ref: me2.bool.200, path: 'me2:Utility.Henchmen.Is_Dead.Garrus' }
+  me2.squad.garrus.loyalty_open:
+    { ref: me2.bool.1485, path: 'me2:Global.Game_Progress.Loyalty_Mission_Opened.Garrus' }
+  me2.squad.garrus.loyalty_done:
+    { ref: me2.bool.1501, path: 'me2:Global.Game_Progress.Loyalty_Mission_Done.Garrus' }
   # thane (Assassin)
-  me2.squad.thane.recruited: {ref: me2.bool.39, path: "me2:Utility.Henchmen.In_Party.Assassin"}
-  me2.squad.thane.loyal: {ref: me2.bool.185, path: "me2:Utility.Henchmen.Is_Loyal.Assassin"}
-  me2.squad.thane.dead: {ref: me2.bool.201, path: "me2:Utility.Henchmen.Is_Dead.Assassin"}
-  me2.squad.thane.loyalty_open: {ref: me2.bool.1486, path: "me2:Global.Game_Progress.Loyalty_Mission_Opened.Assassin"}
-  me2.squad.thane.loyalty_done: {ref: me2.bool.1502, path: "me2:Global.Game_Progress.Loyalty_Mission_Done.Assassin"}
+  me2.squad.thane.recruited: { ref: me2.bool.39, path: 'me2:Utility.Henchmen.In_Party.Assassin' }
+  me2.squad.thane.loyal: { ref: me2.bool.185, path: 'me2:Utility.Henchmen.Is_Loyal.Assassin' }
+  me2.squad.thane.dead: { ref: me2.bool.201, path: 'me2:Utility.Henchmen.Is_Dead.Assassin' }
+  me2.squad.thane.loyalty_open:
+    { ref: me2.bool.1486, path: 'me2:Global.Game_Progress.Loyalty_Mission_Opened.Assassin' }
+  me2.squad.thane.loyalty_done:
+    { ref: me2.bool.1502, path: 'me2:Global.Game_Progress.Loyalty_Mission_Done.Assassin' }
   # tali (Tali)
-  me2.squad.tali.recruited: {ref: me2.bool.40, path: "me2:Utility.Henchmen.In_Party.Tali"}
-  me2.squad.tali.loyal: {ref: me2.bool.186, path: "me2:Utility.Henchmen.Is_Loyal.Tali"}
-  me2.squad.tali.dead: {ref: me2.bool.202, path: "me2:Utility.Henchmen.Is_Dead.Tali"}
-  me2.squad.tali.loyalty_open: {ref: me2.bool.1487, path: "me2:Global.Game_Progress.Loyalty_Mission_Opened.Tali"}
-  me2.squad.tali.loyalty_done: {ref: me2.bool.1503, path: "me2:Global.Game_Progress.Loyalty_Mission_Done.Tali"}
+  me2.squad.tali.recruited: { ref: me2.bool.40, path: 'me2:Utility.Henchmen.In_Party.Tali' }
+  me2.squad.tali.loyal: { ref: me2.bool.186, path: 'me2:Utility.Henchmen.Is_Loyal.Tali' }
+  me2.squad.tali.dead: { ref: me2.bool.202, path: 'me2:Utility.Henchmen.Is_Dead.Tali' }
+  me2.squad.tali.loyalty_open:
+    { ref: me2.bool.1487, path: 'me2:Global.Game_Progress.Loyalty_Mission_Opened.Tali' }
+  me2.squad.tali.loyalty_done:
+    { ref: me2.bool.1503, path: 'me2:Global.Game_Progress.Loyalty_Mission_Done.Tali' }
   # mordin (Professor)
-  me2.squad.mordin.recruited: {ref: me2.bool.41, path: "me2:Utility.Henchmen.In_Party.Professor"}
-  me2.squad.mordin.loyal: {ref: me2.bool.188, path: "me2:Utility.Henchmen.Is_Loyal.Professor"}
-  me2.squad.mordin.dead: {ref: me2.bool.203, path: "me2:Utility.Henchmen.Is_Dead.Professor"}
-  me2.squad.mordin.loyalty_open: {ref: me2.bool.1488, path: "me2:Global.Game_Progress.Loyalty_Mission_Opened.Professor"}
-  me2.squad.mordin.loyalty_done: {ref: me2.bool.1504, path: "me2:Global.Game_Progress.Loyalty_Mission_Done.Professor"}
+  me2.squad.mordin.recruited: { ref: me2.bool.41, path: 'me2:Utility.Henchmen.In_Party.Professor' }
+  me2.squad.mordin.loyal: { ref: me2.bool.188, path: 'me2:Utility.Henchmen.Is_Loyal.Professor' }
+  me2.squad.mordin.dead: { ref: me2.bool.203, path: 'me2:Utility.Henchmen.Is_Dead.Professor' }
+  me2.squad.mordin.loyalty_open:
+    { ref: me2.bool.1488, path: 'me2:Global.Game_Progress.Loyalty_Mission_Opened.Professor' }
+  me2.squad.mordin.loyalty_done:
+    { ref: me2.bool.1504, path: 'me2:Global.Game_Progress.Loyalty_Mission_Done.Professor' }
   # grunt (Grunt)
-  me2.squad.grunt.recruited: {ref: me2.bool.42, path: "me2:Utility.Henchmen.In_Party.Grunt"}
-  me2.squad.grunt.loyal: {ref: me2.bool.189, path: "me2:Utility.Henchmen.Is_Loyal.Grunt"}
-  me2.squad.grunt.dead: {ref: me2.bool.204, path: "me2:Utility.Henchmen.Is_Dead.Grunt"}
-  me2.squad.grunt.loyalty_open: {ref: me2.bool.1489, path: "me2:Global.Game_Progress.Loyalty_Mission_Opened.Grunt"}
-  me2.squad.grunt.loyalty_done: {ref: me2.bool.1505, path: "me2:Global.Game_Progress.Loyalty_Mission_Done.Grunt"}
+  me2.squad.grunt.recruited: { ref: me2.bool.42, path: 'me2:Utility.Henchmen.In_Party.Grunt' }
+  me2.squad.grunt.loyal: { ref: me2.bool.189, path: 'me2:Utility.Henchmen.Is_Loyal.Grunt' }
+  me2.squad.grunt.dead: { ref: me2.bool.204, path: 'me2:Utility.Henchmen.Is_Dead.Grunt' }
+  me2.squad.grunt.loyalty_open:
+    { ref: me2.bool.1489, path: 'me2:Global.Game_Progress.Loyalty_Mission_Opened.Grunt' }
+  me2.squad.grunt.loyalty_done:
+    { ref: me2.bool.1505, path: 'me2:Global.Game_Progress.Loyalty_Mission_Done.Grunt' }
   # samara (Mystic)
-  me2.squad.samara.recruited: {ref: me2.bool.43, path: "me2:Utility.Henchmen.In_Party.Mystic"}
-  me2.squad.samara.loyal: {ref: me2.bool.191, path: "me2:Utility.Henchmen.Is_Loyal.Mystic"}
-  me2.squad.samara.dead: {ref: me2.bool.205, path: "me2:Utility.Henchmen.Is_Dead.Mystic"}
-  me2.squad.samara.loyalty_open: {ref: me2.bool.1490, path: "me2:Global.Game_Progress.Loyalty_Mission_Opened.Mystic"}
-  me2.squad.samara.loyalty_done: {ref: me2.bool.1506, path: "me2:Global.Game_Progress.Loyalty_Mission_Done.Mystic"}
+  me2.squad.samara.recruited: { ref: me2.bool.43, path: 'me2:Utility.Henchmen.In_Party.Mystic' }
+  me2.squad.samara.loyal: { ref: me2.bool.191, path: 'me2:Utility.Henchmen.Is_Loyal.Mystic' }
+  me2.squad.samara.dead: { ref: me2.bool.205, path: 'me2:Utility.Henchmen.Is_Dead.Mystic' }
+  me2.squad.samara.loyalty_open:
+    { ref: me2.bool.1490, path: 'me2:Global.Game_Progress.Loyalty_Mission_Opened.Mystic' }
+  me2.squad.samara.loyalty_done:
+    { ref: me2.bool.1506, path: 'me2:Global.Game_Progress.Loyalty_Mission_Done.Mystic' }
   # zaeed (Veteran)
-  me2.squad.zaeed.recruited: {ref: me2.bool.44, path: "me2:Utility.Henchmen.In_Party.Veteran"}
-  me2.squad.zaeed.loyal: {ref: me2.bool.192, path: "me2:Utility.Henchmen.Is_Loyal.Veteran"}
-  me2.squad.zaeed.dead: {ref: me2.bool.206, path: "me2:Utility.Henchmen.Is_Dead.Veteran"}
-  me2.squad.zaeed.loyalty_open: {ref: me2.bool.1491, path: "me2:Global.Game_Progress.Loyalty_Mission_Opened.Veteran"}
-  me2.squad.zaeed.loyalty_done: {ref: me2.bool.1507, path: "me2:Global.Game_Progress.Loyalty_Mission_Done.Veteran"}
+  me2.squad.zaeed.recruited: { ref: me2.bool.44, path: 'me2:Utility.Henchmen.In_Party.Veteran' }
+  me2.squad.zaeed.loyal: { ref: me2.bool.192, path: 'me2:Utility.Henchmen.Is_Loyal.Veteran' }
+  me2.squad.zaeed.dead: { ref: me2.bool.206, path: 'me2:Utility.Henchmen.Is_Dead.Veteran' }
+  me2.squad.zaeed.loyalty_open:
+    { ref: me2.bool.1491, path: 'me2:Global.Game_Progress.Loyalty_Mission_Opened.Veteran' }
+  me2.squad.zaeed.loyalty_done:
+    { ref: me2.bool.1507, path: 'me2:Global.Game_Progress.Loyalty_Mission_Done.Veteran' }

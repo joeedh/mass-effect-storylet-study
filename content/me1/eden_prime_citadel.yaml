@@ -3,30 +3,69 @@ game: me1
 area: me1.eden_prime
 
 vars:
-  me1.eden_prime.speak_to_captain: {ref: me1.bool.5024, path: "me1:CH0_Eden_Prime.Eden_Prime_Critical_Path.Speak_to_Captain"}
-  me1.eden_prime.head_to_dig_site: {ref: me1.bool.5027, path: "me1:CH0_Eden_Prime.Eden_Prime_Critical_Path.Head_to_the_Dig_Site"}
-  me1.eden_prime.continue_to_dig_site: {ref: me1.bool.5028, path: "me1:CH0_Eden_Prime.Eden_Prime_Critical_Path.Continue_to_Dig_Site"}
-  me1.eden_prime.research_camp: {ref: me1.bool.5029, path: "me1:CH0_Eden_Prime.Eden_Prime_Critical_Path.Investigate_Research_Camp"}
-  me1.eden_prime.head_to_spaceport: {ref: me1.bool.5030, path: "me1:CH0_Eden_Prime.Eden_Prime_Critical_Path.Head_to_Spaceport"}
-  me1.eden_prime.quest_complete: {ref: me1.bool.5032, path: "me1:CH0_Eden_Prime.Eden_Prime_Critical_Path.Quest_complete"}
+  me1.eden_prime.speak_to_captain:
+    { ref: me1.bool.5024, path: 'me1:CH0_Eden_Prime.Eden_Prime_Critical_Path.Speak_to_Captain' }
+  me1.eden_prime.head_to_dig_site:
+    { ref: me1.bool.5027, path: 'me1:CH0_Eden_Prime.Eden_Prime_Critical_Path.Head_to_the_Dig_Site' }
+  me1.eden_prime.continue_to_dig_site:
+    { ref: me1.bool.5028, path: 'me1:CH0_Eden_Prime.Eden_Prime_Critical_Path.Continue_to_Dig_Site' }
+  me1.eden_prime.research_camp:
+    {
+      ref: me1.bool.5029,
+      path: 'me1:CH0_Eden_Prime.Eden_Prime_Critical_Path.Investigate_Research_Camp',
+    }
+  me1.eden_prime.head_to_spaceport:
+    { ref: me1.bool.5030, path: 'me1:CH0_Eden_Prime.Eden_Prime_Critical_Path.Head_to_Spaceport' }
+  me1.eden_prime.quest_complete:
+    { ref: me1.bool.5032, path: 'me1:CH0_Eden_Prime.Eden_Prime_Critical_Path.Quest_complete' }
 
-  me1.citadel.go_to_tower: {ref: me1.bool.5102, path: "me1:CH1_Star_Citadel.Citadel_Critical_Path.Go_to_Tower"}
-  me1.citadel.council_meeting_one: {ref: me1.bool.4398, path: "me1:CH1_Star_Citadel.Find_the_Quarian.Council_meeting_one"}
-  me1.citadel.met_garrus: {ref: me1.bool.5197, path: "me1:CH1_Star_Citadel.Citadel_Critical_Path.Alternate_Garrus_Path.Meet_With_Garrus"}
-  me1.citadel.garrus_rejected: {ref: me1.bool.5213, path: "me1:CH1_Star_Citadel.Citadel_Critical_Path.Alternate_Garrus_Path.Garrus_Rejected"}
-  me1.citadel.met_wrex: {ref: me1.bool.5194, path: "me1:CH1_Star_Citadel.Citadel_Critical_Path.Alternate_Wrex_Path.Meet_Wrex"}
-  me1.citadel.wrex_rejected: {ref: me1.bool.5219, path: "me1:CH1_Star_Citadel.Citadel_Critical_Path.Alternate_Wrex_Path.Wrex_Rejected"}
-  me1.citadel.fist_defeated: {ref: me1.bool.4414, path: "me1:CH1_Star_Citadel.Find_the_Quarian.Fist_defeated"}
-  me1.citadel.quarian_saved: {ref: me1.bool.3721, path: "me1:CH1_Star_Citadel.Find_the_Quarian.Quarian_saved"}
-  me1.citadel.player_is_spectre: {ref: me1.bool.3916, path: "me1:CH1_Star_Citadel.Find_the_Quarian.Player_Is_Spectre"}
-  me1.citadel.expose_saren_complete: {ref: me1.bool.5212, path: "me1:CH1_Star_Citadel.Citadel_Critical_Path.Plot_Complete"}
+  me1.citadel.go_to_tower:
+    { ref: me1.bool.5102, path: 'me1:CH1_Star_Citadel.Citadel_Critical_Path.Go_to_Tower' }
+  me1.citadel.council_meeting_one:
+    { ref: me1.bool.4398, path: 'me1:CH1_Star_Citadel.Find_the_Quarian.Council_meeting_one' }
+  me1.citadel.met_garrus:
+    {
+      ref: me1.bool.5197,
+      path: 'me1:CH1_Star_Citadel.Citadel_Critical_Path.Alternate_Garrus_Path.Meet_With_Garrus',
+    }
+  me1.citadel.garrus_rejected:
+    {
+      ref: me1.bool.5213,
+      path: 'me1:CH1_Star_Citadel.Citadel_Critical_Path.Alternate_Garrus_Path.Garrus_Rejected',
+    }
+  me1.citadel.met_wrex:
+    {
+      ref: me1.bool.5194,
+      path: 'me1:CH1_Star_Citadel.Citadel_Critical_Path.Alternate_Wrex_Path.Meet_Wrex',
+    }
+  me1.citadel.wrex_rejected:
+    {
+      ref: me1.bool.5219,
+      path: 'me1:CH1_Star_Citadel.Citadel_Critical_Path.Alternate_Wrex_Path.Wrex_Rejected',
+    }
+  me1.citadel.fist_defeated:
+    { ref: me1.bool.4414, path: 'me1:CH1_Star_Citadel.Find_the_Quarian.Fist_defeated' }
+  me1.citadel.quarian_saved:
+    { ref: me1.bool.3721, path: 'me1:CH1_Star_Citadel.Find_the_Quarian.Quarian_saved' }
+  me1.citadel.player_is_spectre:
+    { ref: me1.bool.3916, path: 'me1:CH1_Star_Citadel.Find_the_Quarian.Player_Is_Spectre' }
+  me1.citadel.expose_saren_complete:
+    { ref: me1.bool.5212, path: 'me1:CH1_Star_Citadel.Citadel_Critical_Path.Plot_Complete' }
   story.me1.fist_spared:
     type: bool
     doc: >-
       Fist survives Chora's Den. No ME1-native variable found yet; ME2 reads it through its own
       import variable ME1_Plots_for_ME2.CH1_Star_Citadel.Fist.Fist_Left_Alive.
-  me1.citadel.conrad_convinced: {ref: me1.bool.4914, path: "me1:CH1_Star_Citadel.Roleplaying_Plots.RP102_Fan.Had_Last_Conversation.Convinced_Verner"}
-  me1.citadel.conrad_told_off: {ref: me1.bool.4915, path: "me1:CH1_Star_Citadel.Roleplaying_Plots.RP102_Fan.Had_Last_Conversation.Final_Go_Away"}
+  me1.citadel.conrad_convinced:
+    {
+      ref: me1.bool.4914,
+      path: 'me1:CH1_Star_Citadel.Roleplaying_Plots.RP102_Fan.Had_Last_Conversation.Convinced_Verner',
+    }
+  me1.citadel.conrad_told_off:
+    {
+      ref: me1.bool.4915,
+      path: 'me1:CH1_Star_Citadel.Roleplaying_Plots.RP102_Fan.Had_Last_Conversation.Final_Go_Away',
+    }
 
 storylets:
   - id: me1.eden_prime.briefing
@@ -35,34 +74,35 @@ storylets:
     summary: >-
       On the Normandy's shakedown run, Captain Anderson reveals the real mission (recovering a
       Prothean beacon on Eden Prime) and that Spectre Nihlus is evaluating Shepard.
-    requires: "me1.player.reputation != 0 && !me1.eden_prime.speak_to_captain"
+    requires: 'me1.player.reputation != 0 && !me1.eden_prime.speak_to_captain'
     effects:
-      - "me1.eden_prime.speak_to_captain = true"
-      - "me1.squad.kaidan = true"
-      - "me1.squad.jenkins = true"
-    evidence: ["me1:CH0_Eden_Prime.Eden_Prime_Critical_Path", "me1:CH0_Eden_Prime.Normandy_Conversation"]
+      - 'me1.eden_prime.speak_to_captain = true'
+      - 'me1.squad.kaidan = true'
+      - 'me1.squad.jenkins = true'
+    evidence:
+      ['me1:CH0_Eden_Prime.Eden_Prime_Critical_Path', 'me1:CH0_Eden_Prime.Normandy_Conversation']
 
   - id: me1.eden_prime.landing
     title: Eden Prime under attack
     trigger: auto
     summary: The colony is under geth attack. Jenkins is killed in the first contact; Nihlus scouts ahead alone.
-    requires: "me1.eden_prime.speak_to_captain && !me1.eden_prime.head_to_dig_site"
-    effects: ["me1.eden_prime.head_to_dig_site = true", "me1.squad.jenkins = false"]
+    requires: 'me1.eden_prime.speak_to_captain && !me1.eden_prime.head_to_dig_site'
+    effects: ['me1.eden_prime.head_to_dig_site = true', 'me1.squad.jenkins = false']
 
   - id: me1.eden_prime.ashley
     title: Gunnery Chief Williams
     trigger: auto
     summary: Shepard rescues Ashley Williams, sole survivor of her unit, who joins the squad.
-    requires: "me1.eden_prime.head_to_dig_site && !me1.eden_prime.continue_to_dig_site"
-    effects: ["me1.eden_prime.continue_to_dig_site = true", "me1.squad.ashley = true"]
-    evidence: ["me1:CH0_Eden_Prime.Ashley_Conversation"]
+    requires: 'me1.eden_prime.head_to_dig_site && !me1.eden_prime.continue_to_dig_site'
+    effects: ['me1.eden_prime.continue_to_dig_site = true', 'me1.squad.ashley = true']
+    evidence: ['me1:CH0_Eden_Prime.Ashley_Conversation']
 
   - id: me1.eden_prime.research_camp
     title: The research camp
     trigger: auto
     summary: The beacon has been moved to the spaceport; the camp shows signs of a massacre and husks.
-    requires: "me1.eden_prime.continue_to_dig_site && !me1.eden_prime.research_camp"
-    effects: ["me1.eden_prime.research_camp = true", "me1.eden_prime.head_to_spaceport = true"]
+    requires: 'me1.eden_prime.continue_to_dig_site && !me1.eden_prime.research_camp'
+    effects: ['me1.eden_prime.research_camp = true', 'me1.eden_prime.head_to_spaceport = true']
 
   - id: me1.eden_prime.beacon
     title: The beacon
@@ -70,8 +110,8 @@ storylets:
     summary: >-
       Nihlus is found dead, shot by Saren. Shepard disarms the geth bombs at the spaceport and
       touches the Prothean beacon, receiving a fragmented vision before it explodes.
-    requires: "me1.eden_prime.head_to_spaceport && !me1.eden_prime.quest_complete"
-    effects: ["me1.eden_prime.quest_complete = true", "me1.world.prologue_done = true"]
+    requires: 'me1.eden_prime.head_to_spaceport && !me1.eden_prime.quest_complete'
+    effects: ['me1.eden_prime.quest_complete = true', 'me1.world.prologue_done = true']
 
   - id: me1.citadel.council_hearing
     title: The Council hearing
@@ -80,9 +120,9 @@ storylets:
     summary: >-
       Anderson and Ambassador Udina accuse Saren before the Council, which dismisses the case
       for lack of evidence. Shepard must find proof of Saren's treachery.
-    requires: "me1.world.prologue_done && !me1.citadel.council_meeting_one"
-    effects: ["me1.citadel.go_to_tower = true", "me1.citadel.council_meeting_one = true"]
-    evidence: ["me1:CH1_Star_Citadel.Citadel_Critical_Path"]
+    requires: 'me1.world.prologue_done && !me1.citadel.council_meeting_one'
+    effects: ['me1.citadel.go_to_tower = true', 'me1.citadel.council_meeting_one = true']
+    evidence: ['me1:CH1_Star_Citadel.Citadel_Critical_Path']
 
   - id: me1.citadel.garrus
     title: Garrus Vakarian
@@ -90,21 +130,41 @@ storylets:
     summary: >-
       C-Sec officer Garrus Vakarian, investigating Saren on his own, is found at Dr. Michel's
       clinic. He offers to join Shepard.
-    requires: "me1.citadel.council_meeting_one && !me1.citadel.expose_saren_complete"
+    requires: 'me1.citadel.council_meeting_one && !me1.citadel.expose_saren_complete'
     choices:
-      - {id: recruit, label: "Bring him aboard", effects: ["me1.citadel.met_garrus = true", "me1.squad.garrus = true"]}
-      - {id: decline, label: "Turn him down", effects: ["me1.citadel.met_garrus = true", "me1.citadel.garrus_rejected = true"]}
-    evidence: ["me1:CH1_Star_Citadel.Citadel_Critical_Path.Alternate_Garrus_Path", "me1:CH1_Star_Citadel.Doctor_Michel"]
+      - {
+          id: recruit,
+          label: 'Bring him aboard',
+          effects: ['me1.citadel.met_garrus = true', 'me1.squad.garrus = true'],
+        }
+      - {
+          id: decline,
+          label: 'Turn him down',
+          effects: ['me1.citadel.met_garrus = true', 'me1.citadel.garrus_rejected = true'],
+        }
+    evidence:
+      [
+        'me1:CH1_Star_Citadel.Citadel_Critical_Path.Alternate_Garrus_Path',
+        'me1:CH1_Star_Citadel.Doctor_Michel',
+      ]
 
   - id: me1.citadel.wrex
     title: Urdnot Wrex
     area: me1.citadel
     summary: The krogan mercenary Wrex has his own contract on Fist and offers to help.
-    requires: "me1.citadel.council_meeting_one && !me1.citadel.expose_saren_complete"
+    requires: 'me1.citadel.council_meeting_one && !me1.citadel.expose_saren_complete'
     choices:
-      - {id: recruit, label: "Take the krogan along", effects: ["me1.citadel.met_wrex = true", "me1.squad.wrex = true"]}
-      - {id: decline, label: "Go without him", effects: ["me1.citadel.met_wrex = true", "me1.citadel.wrex_rejected = true"]}
-    evidence: ["me1:CH1_Star_Citadel.Citadel_Critical_Path.Alternate_Wrex_Path"]
+      - {
+          id: recruit,
+          label: 'Take the krogan along',
+          effects: ['me1.citadel.met_wrex = true', 'me1.squad.wrex = true'],
+        }
+      - {
+          id: decline,
+          label: 'Go without him',
+          effects: ['me1.citadel.met_wrex = true', 'me1.citadel.wrex_rejected = true'],
+        }
+    evidence: ['me1:CH1_Star_Citadel.Citadel_Critical_Path.Alternate_Wrex_Path']
 
   - id: me1.citadel.chora_den
     title: Fist at Chora's Den
@@ -112,12 +172,25 @@ storylets:
     summary: >-
       Shepard storms Chora's Den. Fist, who sold out the quarian carrying evidence to the Shadow
       Broker's rivals, is cornered.
-    requires: "me1.citadel.council_meeting_one && !me1.citadel.fist_defeated"
+    requires: 'me1.citadel.council_meeting_one && !me1.citadel.fist_defeated'
     choices:
-      - {id: spare, label: "Let Fist go", effects: ["me1.citadel.fist_defeated = true", "story.me1.fist_spared = true", "me1.player.paragon += 2"]}
-      - {id: kill, label: "Execute Fist", effects: ["me1.citadel.fist_defeated = true", "me1.player.renegade += 2"]}
+      - {
+          id: spare,
+          label: 'Let Fist go',
+          effects:
+            [
+              'me1.citadel.fist_defeated = true',
+              'story.me1.fist_spared = true',
+              'me1.player.paragon += 2',
+            ],
+        }
+      - {
+          id: kill,
+          label: 'Execute Fist',
+          effects: ['me1.citadel.fist_defeated = true', 'me1.player.renegade += 2'],
+        }
     notes: Wrex can kill Fist regardless of the player's choice if he is in the party; not modeled.
-    evidence: ["me1:CH1_Star_Citadel.Find_the_Quarian"]
+    evidence: ['me1:CH1_Star_Citadel.Find_the_Quarian']
 
   - id: me1.citadel.save_the_quarian
     title: The quarian's evidence
@@ -126,8 +199,8 @@ storylets:
     summary: >-
       Shepard foils the ambush in the wards alley and saves Tali'Zorah, whose geth recording
       links Saren to the attack and to the Reapers. Tali joins the squad.
-    requires: "me1.citadel.fist_defeated && !me1.citadel.quarian_saved"
-    effects: ["me1.citadel.quarian_saved = true", "me1.squad.tali = true"]
+    requires: 'me1.citadel.fist_defeated && !me1.citadel.quarian_saved'
+    effects: ['me1.citadel.quarian_saved = true', 'me1.squad.tali = true']
 
   - id: me1.citadel.spectre
     title: First human Spectre
@@ -137,16 +210,24 @@ storylets:
       Confronted with the evidence, the Council revokes Saren's Spectre status and makes Shepard
       the first human Spectre, with the Normandy to hunt him. Three leads open: Therum (Liara
       T'Soni), Feros and Noveria.
-    requires: "me1.citadel.quarian_saved && !me1.citadel.expose_saren_complete"
-    effects: ["me1.citadel.player_is_spectre = true", "me1.citadel.expose_saren_complete = true"]
+    requires: 'me1.citadel.quarian_saved && !me1.citadel.expose_saren_complete'
+    effects: ['me1.citadel.player_is_spectre = true', 'me1.citadel.expose_saren_complete = true']
 
   - id: me1.citadel.conrad_verner
     title: The fan
     area: me1.citadel
     summary: Conrad Verner wants to be a Spectre like his hero. How Shepard turns him away echoes through ME2 and ME3.
-    requires: "me1.citadel.player_is_spectre && !(me1.citadel.conrad_convinced || me1.citadel.conrad_told_off)"
+    requires: 'me1.citadel.player_is_spectre && !(me1.citadel.conrad_convinced || me1.citadel.conrad_told_off)'
     choices:
-      - {id: convince, label: "Persuade him to go home", effects: ["me1.citadel.conrad_convinced = true", "me1.player.paragon += 1"]}
-      - {id: threaten, label: "Threaten him at gunpoint", effects: ["me1.citadel.conrad_told_off = true", "me1.player.renegade += 1"]}
+      - {
+          id: convince,
+          label: 'Persuade him to go home',
+          effects: ['me1.citadel.conrad_convinced = true', 'me1.player.paragon += 1'],
+        }
+      - {
+          id: threaten,
+          label: 'Threaten him at gunpoint',
+          effects: ['me1.citadel.conrad_told_off = true', 'me1.player.renegade += 1'],
+        }
     tags: [side, cross-game]
-    evidence: ["me1:CH1_Star_Citadel.Roleplaying_Plots.RP102_Fan"]
+    evidence: ['me1:CH1_Star_Citadel.Roleplaying_Plots.RP102_Fan']

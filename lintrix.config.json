@@ -1,26 +1,18 @@
 {
-  "$schema": "./node_modules/lintrix/schema/lintrix.config.schema.json",
-  "extends": "lintrix:recommended",
-  "project": "tsconfig.json",
+  "$schema"  : "./node_modules/lintrix/schema/lintrix.config.schema.json",
+  "extends"  : "lintrix:recommended",
+  "project"  : "tsconfig.json",
   "rules": {
     "strict-boolean-expressions": "error",
-    "no-floating-promises": "error",
-    "eqeqeq": "error",
-    "curly": [
-      "error",
-      "multi-line"
-    ],
-    "prefer-const": "error"
+    "no-floating-promises"      : "error",
+    "eqeqeq"                    : "error",
+    "curly"                     : ["error", "multi-line"],
+    "prefer-const"              : "error"
   },
-  "ignores": [
-    "**/node_modules/**",
-    "build/**"
-  ],
+  "ignores"  : ["**/node_modules/**", "build/**"],
   "overrides": [
     {
-      "files": [
-        "tests/**"
-      ],
+      "files": ["tests/**"],
       "rules": {
         "no-floating-promises": "off"
       }

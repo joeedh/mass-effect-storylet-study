@@ -1,20 +1,25 @@
 /** Storylet data model (schema v1; see docs/schema-evolution.md for later additions). */
-import { names, parse } from "./expr.ts";
-import type { Effect, Node } from "./expr.ts";
-import type { Value } from "./pycompat.ts";
+import { names, parse } from './expr.ts';
+import type { Effect, Node } from './expr.ts';
+import type { Value } from './pycompat.ts';
 
-export type VarType = "bool" | "int" | "float" | "enum";
-export const STATE_TYPES: readonly VarType[] = ["bool", "int", "float", "enum"];
-export const DEFAULTS: Readonly<Record<VarType, Value>> = { bool: false, int: 0, float: 0, enum: "" };
+export type VarType = 'bool' | 'int' | 'float' | 'enum';
+export const STATE_TYPES: readonly VarType[] = ['bool', 'int', 'float', 'enum'];
+export const DEFAULTS: Readonly<Record<VarType, Value>> = {
+  bool : false,
+  int  : 0,
+  float: 0,
+  enum : '',
+};
 export const GAME_INDEX: ReadonlyMap<string, number> = new Map([
-  ["me1", 1],
-  ["me2", 2],
-  ["me3", 3],
+  ['me1', 1],
+  ['me2', 2],
+  ['me3', 3],
 ]);
-export const CAMPAIGN_VAR = "story.game"; // declaring it turns on per-game gating (schema v2)
+export const CAMPAIGN_VAR = 'story.game'; // declaring it turns on per-game gating (schema v2)
 
 export function isVarType(t: unknown): t is VarType {
-  return typeof t === "string" && (STATE_TYPES as readonly string[]).includes(t);
+  return typeof t === 'string' && (STATE_TYPES as readonly string[]).includes(t);
 }
 
 /**
@@ -37,7 +42,7 @@ export interface VarDecl {
 }
 
 export function isPlotVar(decl: VarDecl): boolean {
-  return !decl.ref.startsWith("story.");
+  return !decl.ref.startsWith('story.');
 }
 
 export function initialValue(decl: VarDecl): Value {
@@ -62,8 +67,8 @@ export interface ConditionDecl {
   readonly takesArgument: boolean;
 }
 
-export function makeCondition(c: Omit<ConditionDecl, "takesArgument">): ConditionDecl {
-  return { ...c, takesArgument: [...names(c.code)].includes("argument") };
+export function makeCondition(c: Omit<ConditionDecl, 'takesArgument'>): ConditionDecl {
+  return { ...c, takesArgument: [...names(c.code)].includes('argument') };
 }
 
 export interface Choice {
@@ -84,9 +89,9 @@ export interface Outcome {
 
 /** 'auto' fires as soon as available; 'player' is an agency point; 'idle' (v2) fires only when
  * nothing else is available. */
-export type Trigger = "auto" | "player" | "idle";
+export type Trigger = 'auto' | 'player' | 'idle';
 /** 'bridge' (v2) is exempt from per-game gating. */
-export type StoryletKind = "beat" | "bridge";
+export type StoryletKind = 'beat' | 'bridge';
 
 export interface Storylet {
   readonly id: string;

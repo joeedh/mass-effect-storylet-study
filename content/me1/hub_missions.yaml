@@ -3,26 +3,48 @@ game: me1
 area: me1.hub
 
 vars:
-  me1.therum.begin: {ref: me1.bool.5246, path: "me1:CH2_Liara.Caleston_Critical_Path.Begin_Plot"}
-  me1.therum.liara_joined: {ref: me1.bool.5138, path: "me1:CH2_Liara.Caleston_Critical_Path.Smurfette_Joined"}
+  me1.therum.begin: { ref: me1.bool.5246, path: 'me1:CH2_Liara.Caleston_Critical_Path.Begin_Plot' }
+  me1.therum.liara_joined:
+    { ref: me1.bool.5138, path: 'me1:CH2_Liara.Caleston_Critical_Path.Smurfette_Joined' }
 
-  me1.feros.begin: {ref: me1.bool.5245, path: "me1:CH2_Feros.Feros_Critical_Path.Begin_Plot"}
-  me1.feros.thorian_dead: {ref: me1.bool.2498, path: "me1:CH2_Feros.Frontier_Lost.Thorian_Dead"}
-  me1.feros.colonists_killed: {ref: me1.int.40, path: "me1:CH2_Feros.Frontier_Lost.Colonists_Killed.Colonist_Killed_Counter"}
+  me1.feros.begin: { ref: me1.bool.5245, path: 'me1:CH2_Feros.Feros_Critical_Path.Begin_Plot' }
+  me1.feros.thorian_dead: { ref: me1.bool.2498, path: 'me1:CH2_Feros.Frontier_Lost.Thorian_Dead' }
+  me1.feros.colonists_killed:
+    {
+      ref: me1.int.40,
+      path: 'me1:CH2_Feros.Frontier_Lost.Colonists_Killed.Colonist_Killed_Counter',
+    }
   story.me1.shiala_spared:
     type: bool
     doc: Shiala survives the Thorian. ME2 reads ME1_Plots_for_ME2.CH2_Feros.Shiala_Lived; ME1 source var not yet located.
 
-  me1.noveria.begin: {ref: me1.bool.5244, path: "me1:CH2_Noveria.Noveria_Critical_Path.Begin_Plot"}
-  me1.noveria.evidence_to_lorik: {ref: me1.bool.2687, path: "me1:CH2_Noveria.Leaving_Hanshan_Port.Kickbacks.Kickbacks_Complete.Evidence_to_Lorik"}
-  me1.noveria.evidence_to_gianna: {ref: me1.bool.2690, path: "me1:CH2_Noveria.Leaving_Hanshan_Port.Kickbacks.Kickbacks_Complete.Evidence_to_Gianna"}
-  me1.noveria.evidence_to_anoleis: {ref: me1.bool.2693, path: "me1:CH2_Noveria.Leaving_Hanshan_Port.Kickbacks.Kickbacks_Complete.Evidence_to_Anoleis"}
-  me1.noveria.met_matriarch: {ref: me1.bool.5158, path: "me1:CH2_Noveria.Noveria_Critical_Path.Met_Matriarch"}
-  me1.noveria.queen_encountered: {ref: me1.bool.2585, path: "me1:CH2_Noveria.Rachni_Queen.Queen_Encountered"}
-  me1.noveria.queen_released: {ref: me1.bool.2587, path: "me1:CH2_Noveria.Rachni_Queen.Queen_Dealt_With.Queen_Released"}
-  me1.noveria.queen_eliminated: {ref: me1.bool.2588, path: "me1:CH2_Noveria.Rachni_Queen.Queen_Dealt_With.Queen_eliminated"}
+  me1.noveria.begin:
+    { ref: me1.bool.5244, path: 'me1:CH2_Noveria.Noveria_Critical_Path.Begin_Plot' }
+  me1.noveria.evidence_to_lorik:
+    {
+      ref: me1.bool.2687,
+      path: 'me1:CH2_Noveria.Leaving_Hanshan_Port.Kickbacks.Kickbacks_Complete.Evidence_to_Lorik',
+    }
+  me1.noveria.evidence_to_gianna:
+    {
+      ref: me1.bool.2690,
+      path: 'me1:CH2_Noveria.Leaving_Hanshan_Port.Kickbacks.Kickbacks_Complete.Evidence_to_Gianna',
+    }
+  me1.noveria.evidence_to_anoleis:
+    {
+      ref: me1.bool.2693,
+      path: 'me1:CH2_Noveria.Leaving_Hanshan_Port.Kickbacks.Kickbacks_Complete.Evidence_to_Anoleis',
+    }
+  me1.noveria.met_matriarch:
+    { ref: me1.bool.5158, path: 'me1:CH2_Noveria.Noveria_Critical_Path.Met_Matriarch' }
+  me1.noveria.queen_encountered:
+    { ref: me1.bool.2585, path: 'me1:CH2_Noveria.Rachni_Queen.Queen_Encountered' }
+  me1.noveria.queen_released:
+    { ref: me1.bool.2587, path: 'me1:CH2_Noveria.Rachni_Queen.Queen_Dealt_With.Queen_Released' }
+  me1.noveria.queen_eliminated:
+    { ref: me1.bool.2588, path: 'me1:CH2_Noveria.Rachni_Queen.Queen_Dealt_With.Queen_eliminated' }
 
-  me1.wrex.got_armor: {ref: me1.bool.5335, path: "me1:Global_Plots.Henchman_WREX.Got_Wrex_Armor"}
+  me1.wrex.got_armor: { ref: me1.bool.5335, path: 'me1:Global_Plots.Henchman_WREX.Got_Wrex_Armor' }
 
 storylets:
   # --- Therum -------------------------------------------------------------------------------
@@ -33,13 +55,13 @@ storylets:
       Shepard reaches Benezia's daughter, Prothean expert Liara T'Soni, trapped in a ruin's
       containment field, and escapes the geth and a krogan battlemaster as the volcano erupts.
       Liara joins the squad.
-    requires: "me1.citadel.player_is_spectre && !me1.therum.begin"
+    requires: 'me1.citadel.player_is_spectre && !me1.therum.begin'
     effects:
-      - "me1.therum.begin = true"
-      - "me1.therum.liara_joined = true"
-      - "me1.squad.liara = true"
-      - "me1.world.therum_done = true"
-    evidence: ["me1:CH2_Liara.Caleston_Critical_Path", "me1:CH2_Liara.Asari_Scientist"]
+      - 'me1.therum.begin = true'
+      - 'me1.therum.liara_joined = true'
+      - 'me1.squad.liara = true'
+      - 'me1.world.therum_done = true'
+    evidence: ['me1:CH2_Liara.Caleston_Critical_Path', 'me1:CH2_Liara.Asari_Scientist']
 
   # --- Feros --------------------------------------------------------------------------------
   - id: me1.feros.zhus_hope
@@ -48,9 +70,9 @@ storylets:
     summary: >-
       Shepard drives the geth from the colony of Zhu's Hope, whose colonists act strangely, and
       learns that ExoGeni's research site in the skyway holds the answer.
-    requires: "me1.citadel.player_is_spectre && !me1.feros.begin"
-    effects: ["me1.feros.begin = true"]
-    evidence: ["me1:CH2_Feros.Feros_Critical_Path", "me1:CH2_Feros.Zhou's_Hope"]
+    requires: 'me1.citadel.player_is_spectre && !me1.feros.begin'
+    effects: ['me1.feros.begin = true']
+    evidence: ['me1:CH2_Feros.Feros_Critical_Path', "me1:CH2_Feros.Zhou's_Hope"]
 
   - id: me1.feros.thrall_colonists
     title: "Feros: The Thorian's thralls"
@@ -59,72 +81,141 @@ storylets:
     summary: >-
       The colonists are controlled by the Thorian, an ancient plant creature, and attack Shepard.
       They can be subdued with gas grenades from the ExoGeni lab, or gunned down.
-    requires: "me1.feros.begin && seen(me1.feros.zhus_hope) && !me1.feros.thorian_dead"
+    requires: 'me1.feros.begin && seen(me1.feros.zhus_hope) && !me1.feros.thorian_dead'
     choices:
-      - {id: spare_colonists, label: "Use the gas grenades", effects: ["me1.feros.colonists_killed = 0", "me1.player.paragon += 2"]}
-      - {id: kill_colonists, label: "Shoot through them", effects: ["me1.feros.colonists_killed = 13", "me1.player.renegade += 2"]}
+      - {
+          id: spare_colonists,
+          label: 'Use the gas grenades',
+          effects: ['me1.feros.colonists_killed = 0', 'me1.player.paragon += 2'],
+        }
+      - {
+          id: kill_colonists,
+          label: 'Shoot through them',
+          effects: ['me1.feros.colonists_killed = 13', 'me1.player.renegade += 2'],
+        }
     notes: The real counter tracks individual colonists; modeled as all-or-nothing.
-    evidence: ["me1:CH2_Feros.Frontier_Lost.Colonists_Killed"]
+    evidence: ['me1:CH2_Feros.Frontier_Lost.Colonists_Killed']
 
   - id: me1.feros.thorian
-    title: "Feros: Destroy the Thorian"
+    title: 'Feros: Destroy the Thorian'
     area: me1.feros
     trigger: auto
     summary: >-
       Shepard kills the Thorian, freeing the colony. Its asari thrall Shiala survives and gives
       Shepard the Cipher needed to understand the beacon vision, then begs for mercy.
-    requires: "seen(me1.feros.thrall_colonists) && !me1.feros.thorian_dead"
+    requires: 'seen(me1.feros.thrall_colonists) && !me1.feros.thorian_dead'
     choices:
-      - {id: spare_shiala, label: "Spare Shiala", effects: ["me1.feros.thorian_dead = true", "story.me1.shiala_spared = true", "me1.world.feros_done = true", "me1.player.paragon += 2"]}
-      - {id: kill_shiala, label: "Kill Shiala", effects: ["me1.feros.thorian_dead = true", "me1.world.feros_done = true", "me1.player.renegade += 2"]}
+      - {
+          id: spare_shiala,
+          label: 'Spare Shiala',
+          effects:
+            [
+              'me1.feros.thorian_dead = true',
+              'story.me1.shiala_spared = true',
+              'me1.world.feros_done = true',
+              'me1.player.paragon += 2',
+            ],
+        }
+      - {
+          id: kill_shiala,
+          label: 'Kill Shiala',
+          effects:
+            [
+              'me1.feros.thorian_dead = true',
+              'me1.world.feros_done = true',
+              'me1.player.renegade += 2',
+            ],
+        }
     tags: [cross-game]
 
   # --- Noveria ------------------------------------------------------------------------------
   - id: me1.noveria.port_hanshan
-    title: "Noveria: Port Hanshan"
+    title: 'Noveria: Port Hanshan'
     area: me1.noveria
     summary: >-
       Benezia went up to Peak 15, but a blizzard and Administrator Anoleis block the way. Shepard
       investigates Anoleis's corruption on behalf of Lorik Qui'in or undercover agent Gianna
       Parasini, or simply does Anoleis's bidding, to obtain a garage pass.
-    requires: "me1.citadel.player_is_spectre && !me1.noveria.begin"
+    requires: 'me1.citadel.player_is_spectre && !me1.noveria.begin'
     choices:
-      - {id: lorik, label: "Give the evidence to Lorik", effects: ["me1.noveria.begin = true", "me1.noveria.evidence_to_lorik = true"]}
-      - {id: gianna, label: "Give the evidence to Gianna", effects: ["me1.noveria.begin = true", "me1.noveria.evidence_to_gianna = true", "me1.player.paragon += 1"]}
-      - {id: anoleis, label: "Give the evidence to Anoleis", effects: ["me1.noveria.begin = true", "me1.noveria.evidence_to_anoleis = true", "me1.player.renegade += 1"]}
-    evidence: ["me1:CH2_Noveria.Noveria_Critical_Path", "me1:CH2_Noveria.Leaving_Hanshan_Port"]
+      - {
+          id: lorik,
+          label: 'Give the evidence to Lorik',
+          effects: ['me1.noveria.begin = true', 'me1.noveria.evidence_to_lorik = true'],
+        }
+      - {
+          id: gianna,
+          label: 'Give the evidence to Gianna',
+          effects:
+            [
+              'me1.noveria.begin = true',
+              'me1.noveria.evidence_to_gianna = true',
+              'me1.player.paragon += 1',
+            ],
+        }
+      - {
+          id: anoleis,
+          label: 'Give the evidence to Anoleis',
+          effects:
+            [
+              'me1.noveria.begin = true',
+              'me1.noveria.evidence_to_anoleis = true',
+              'me1.player.renegade += 1',
+            ],
+        }
+    evidence: ['me1:CH2_Noveria.Noveria_Critical_Path', 'me1:CH2_Noveria.Leaving_Hanshan_Port']
 
   - id: me1.noveria.benezia
-    title: "Noveria: Matriarch Benezia"
+    title: 'Noveria: Matriarch Benezia'
     area: me1.noveria
     trigger: auto
     summary: >-
       At Peak 15 Shepard finds Binary Helix breeding rachni. Benezia, indoctrinated by Saren,
       fights Shepard; dying, she breaks free long enough to hand over the Mu relay coordinates.
-    requires: "me1.noveria.begin && !me1.noveria.met_matriarch"
-    effects: ["me1.noveria.met_matriarch = true"]
-    evidence: ["me1:CH2_Noveria.Tracking_the_Matriarch", "me1:CH2_Noveria.Peak_15_Restoration"]
+    requires: 'me1.noveria.begin && !me1.noveria.met_matriarch'
+    effects: ['me1.noveria.met_matriarch = true']
+    evidence: ['me1:CH2_Noveria.Tracking_the_Matriarch', 'me1:CH2_Noveria.Peak_15_Restoration']
 
   - id: me1.noveria.rachni_queen
-    title: "Noveria: The rachni queen"
+    title: 'Noveria: The rachni queen'
     area: me1.noveria
     trigger: auto
     summary: >-
       The last rachni queen, captive in a tank, speaks through a dead asari and asks to be
       released. Shepard decides the fate of a species the galaxy believed extinct.
-    requires: "me1.noveria.met_matriarch && !me1.noveria.queen_encountered"
+    requires: 'me1.noveria.met_matriarch && !me1.noveria.queen_encountered'
     choices:
-      - {id: release, label: "Release the queen", effects: ["me1.noveria.queen_encountered = true", "me1.noveria.queen_released = true", "me1.world.noveria_done = true", "me1.player.paragon += 3"]}
-      - {id: kill, label: "Flood the tank with acid", effects: ["me1.noveria.queen_encountered = true", "me1.noveria.queen_eliminated = true", "me1.world.noveria_done = true", "me1.player.renegade += 3"]}
+      - {
+          id: release,
+          label: 'Release the queen',
+          effects:
+            [
+              'me1.noveria.queen_encountered = true',
+              'me1.noveria.queen_released = true',
+              'me1.world.noveria_done = true',
+              'me1.player.paragon += 3',
+            ],
+        }
+      - {
+          id: kill,
+          label: 'Flood the tank with acid',
+          effects:
+            [
+              'me1.noveria.queen_encountered = true',
+              'me1.noveria.queen_eliminated = true',
+              'me1.world.noveria_done = true',
+              'me1.player.renegade += 3',
+            ],
+        }
     tags: [cross-game]
-    evidence: ["me1:CH2_Noveria.Rachni_Queen"]
+    evidence: ['me1:CH2_Noveria.Rachni_Queen']
 
   # --- squad side quests that change the critical path ----------------------------------------
   - id: me1.wrex.family_armor
     title: Wrex's family armor
     area: me1.squad
     summary: Shepard recovers the ancestral armor of Wrex's clan, earning his trust before Virmire.
-    requires: "me1.squad.wrex && me1.citadel.player_is_spectre && !me1.world.virmire_done"
-    effects: ["me1.wrex.got_armor = true"]
+    requires: 'me1.squad.wrex && me1.citadel.player_is_spectre && !me1.world.virmire_done'
+    effects: ['me1.wrex.got_armor = true']
     tags: [side]
-    evidence: ["me1:Global_Plots.Henchman_WREX"]
+    evidence: ['me1:Global_Plots.Henchman_WREX']
