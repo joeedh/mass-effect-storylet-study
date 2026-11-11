@@ -48,6 +48,16 @@ describe("catalog", { skip }, () => {
     assert.deepEqual([hit.state.ref, hit.confidence, hit.value], ["me1.bool.3828", "high", "true"]);
   });
 
+  it("orders siblings by fractional sequence", () => {
+    // Bonus_Reward (199.94…) was placed before Quarantine_Guard_Allowed_Entrance (199.945…)
+    // although its element id is higher; truncating both to 199 swapped them.
+    const bonus = c().get("me1.bool.6245")!;
+    const guard = c().get("me1.bool.3947")!;
+    assert.equal(bonus.parentEid, guard.parentEid);
+    const siblings = c().dbs.get("me1")!.elements.get(bonus.parentEid)!.children;
+    assert.ok(siblings.indexOf(bonus.eid) < siblings.indexOf(guard.eid));
+  });
+
   it("has few alias anomalies", () => {
     assert.ok(c().anomalies.length < 50);
   });

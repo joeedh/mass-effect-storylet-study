@@ -170,10 +170,26 @@ deciding.
   `Wrex_is_present`.
 - Transition targets are inferred from names and can be wrong; treat a "medium" confidence match
   as a hint, not as fact.
-- About half of all `sequence` values are fractional (27,698 of them, such as `193.75`). The
-  catalog truncates them to integers, a quirk inherited from the Python version, where
-  `int(193.75)` silently gave 193. Children whose sequences truncate to the same integer
-  (under 2,163 parents) are then ordered by element id, not by sequence. This affects outlines
-  and the order of `descendants`. It was kept through the TypeScript port so outputs could be
-  compared byte for byte. Fixing it means using the float in `sequenceOf`
-  (`src/meplot/catalog.ts`).
+- `sequence` is the editor's sort key among siblings, and the catalog used to truncate it to an
+  integer. The truncation was inherited from the Python version, where `int(193.75)` silently
+  gave 193. It was kept through the TypeScript port so outputs could be compared byte for byte,
+  then fixed.
+  - **What the values are.** About half are fractional (27,698), and the fractions are
+    meaningful. Inserting an element halves the gap to 200: 100, 150, 175, 187.5, 193.75,
+    196.875, … 199.9999. Truncation turns that whole tail into 199, so those siblings fall
+    back to element-id order and lose the order the designers gave them.
+  - **Scope.** 2,163 parents have siblings that truncate to the same integer, but the order
+    actually changes under only 95 of them (10 in LE1, 25 in LE2, 60 in LE3; 810 children
+    move).
+  - **Impact.** Found by building with truncated and with float sequences and diffing
+    `build/`. Only outlines change (440 lines across 35 files). `catalog.json` and
+    `plotgraph.json` are byte-identical, so transition-target inference, `bind` and the
+    storylets are unaffected.
+  - **Ties left after the fix.** Repeated halving runs out of precision, so late insertions
+    land on exactly 200 and tie (184 parents, up to 153 siblings under one). Elements with no
+    `sequence` count as 0 and tie too. Both fall back to element id, which is the best order
+    available.
+  - **Fix.** `sequenceOf` (`src/meplot/catalog.ts`) now keeps the number as-is instead of
+    calling `Math.trunc(v)`. Every `sequence` in the pinned databases is a JSON number or
+    missing, never a string. `tests/catalog.test.ts` checks one sibling pair that truncation
+    swapped.

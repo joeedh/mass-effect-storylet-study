@@ -122,20 +122,13 @@ function int(v: unknown, field: string): number {
 }
 
 /**
- * The Python `_num(v, 0)`: "an int if it parses as one, else a float". For a JSON float it
- * called `int()`, which truncates (193.75 -> 193), so fractional sequences collapse onto the
- * integer below them. Kept as-is for now; see docs/debugging.md.
+ * A sibling sort key. Keep the fraction: the editor inserts by halving the gap to 200, so
+ * siblings differ only after the decimal point (see docs/debugging.md).
  */
 function sequenceOf(v: unknown): number {
   if (v === null || v === undefined || v === "") return 0;
-  if (typeof v === "number") return Math.trunc(v);
-  if (typeof v === "string") {
-    try {
-      return py.toInt(v);
-    } catch {
-      return py.toFloat(v);
-    }
-  }
+  if (typeof v === "number") return v;
+  if (typeof v === "string") return py.toFloat(v);
   throw new TypeError(`sequence: unexpected ${JSON.stringify(v)}`);
 }
 
